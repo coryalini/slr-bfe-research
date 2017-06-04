@@ -4,7 +4,7 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>slr.xcscheme</key>
+		<key>slr_bfe.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
@@ -12,7 +12,7 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>EA4940611DE0B80600A2FC4A</key>
+		<key>EA22DC251EE4752400C79F72</key>
 		<dict>
 			<key>primary</key>
 			<true/>

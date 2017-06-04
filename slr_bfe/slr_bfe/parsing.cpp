@@ -6,6 +6,7 @@
 //  Copyright © 2016 gis.coryalini. All rights reserved.
 //
 
+
 #include <iostream>
 #include <stdlib.h>
 #include <ctype.h>
@@ -14,7 +15,8 @@
 #include <math.h>
 #include <time.h>
 
-#include "Parsing.h"
+#include "parsing.hpp"
+
 
 int viewpointRow;
 int viewpointColumn;
@@ -23,7 +25,7 @@ float convertToMeters = 3.28;
 void readGridfromFile(const char* gridfname, Grid* g, int gridType) {
     FILE* f;
     
-    printf("reading grid %s\n",gridfname);
+//    printf("reading grid %s\n",gridfname);
     f=fopen(gridfname, "r");
     
     //check to see that usr entered a file
@@ -136,7 +138,7 @@ void printValues(Grid g) {
     printf("\n");
     for(int i = 0; i < g.nrows; i++) {
         for(int j = 0; j < g.ncols; j++) {
-                printf("%2g ", g.data[i][j]);
+            printf("%2g ", g.data[i][j]);
         }
         printf("\n");
         
@@ -145,3 +147,12 @@ void printValues(Grid g) {
 }
 
 
+//
+//  parsing.cpp
+//  slr_bfe
+//
+//  Created by Cory Alini on 6/4/17.
+//  Copyright © 2017 slr_bfe.coryalini. All rights reserved.
+//
+
+#include "parsing.hpp"
