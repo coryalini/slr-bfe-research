@@ -178,7 +178,6 @@ void calculateGrids() {
 
 
 void display(void) {
-    enum {slr = 0, bfe = 1, slrbfe = 2, elev = 3, slr_elev = 4,slrbfe_elev = 5, slrbfeminusslr = 6, slrbfe_slr =7, origbfe = 8};
     glClear(GL_COLOR_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); //clear the matrix
@@ -186,16 +185,16 @@ void display(void) {
     if (BFE_EXISTS) {
         switch (DRAW) {
             case slr:
-                draw_grid(&slrgrid);
+                draw_grid(&slrgrid,slr);
                 break;
             case bfe:
-                draw_bfe(&bfegrid);
+                draw_grid(&bfegrid,bfe);
                 break;
             case slrbfe:
-                draw_grid(&bfeslrgrid);
+                draw_grid(&bfeslrgrid,slrbfe);
                 break;
             case elev:
-                draw_grid(&elevgrid);
+                draw_grid(&elevgrid,elev);
                 break;
             case slr_elev:
                 draw_combo(&slrgrid, &elevgrid);
@@ -210,50 +209,19 @@ void display(void) {
                 draw_slr_slr_bfe();
                 break;
             case origbfe:
-                draw_bfe(&origbfegrid);
+                draw_grid(&origbfegrid,origbfe);
                 break;
             default:
                 break;
         }
         
-        //        switch (DRAW) {
-        //            case 0:
-        //                draw_grid(&slrgrid);
-        //                break;
-        //            case 1:
-        //                draw_bfe(&bfegrid);
-        //                break;
-        //            case 2:
-        //                draw_grid(&bfeslrgrid);
-        //                break;
-        //            case 3:
-        //                draw_grid(&elevgrid);
-        //                break;
-        //            case 4:
-        //                draw_combo(&slrgrid, &elevgrid);
-        //                break;
-        //            case 5:
-        //                draw_combo(&bfeslrgrid, &elevgrid);
-        //                break;
-        //            case 6:
-        //                draw_difference(&bfeslrgrid, &slrgrid);
-        //                break;
-        //            case 7:
-        //                draw_slr_slr_bfe();
-        //                break;
-        //            case 8:
-        //                draw_bfe(&origbfegrid);
-        //                break;
-        //            default:
-        //                break;
-        //        }
     } else {
-        if (DRAW == 3) {
-            draw_grid(&elevgrid);
-        } else if (DRAW == 4) {
+        if (DRAW == elev) {
+            draw_grid(&elevgrid,elev);
+        } else if (DRAW == slr_elev) {
             draw_combo(&slrgrid, &elevgrid);
         } else {
-            draw_grid(&slrgrid);
+            draw_grid(&slrgrid,slr);
         }
     }
     

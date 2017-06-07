@@ -55,16 +55,19 @@ extern GLfloat gray4[3];
 extern GLfloat gray5[3];
 extern GLfloat gray6[3];
 
+enum {slr = 0, bfe = 1, slrbfe = 2, elev = 3, slr_elev = 4,slrbfe_elev = 5, slrbfeminusslr = 6, slrbfe_slr =7, origbfe = 8};
 
-void draw_point_slr(point mypoint, Grid* grid);
-void draw_point_bfe(point mypoint, Grid* grid);
+static float numCategories = 6.0;
+
+
+void draw_point_slr(double value);
+void draw_point_bfe(double value);
 void draw_point_combo(point mypoint, Grid* main, Grid* subtract,  float currRise);
 void draw_point_diff(point mypoint, Grid* main, Grid* subtract,  float currRise);
 void draw_point_slr_slr_bfe(point mypoint, Grid* main, Grid* subtract, float currRise);
 
 
-void draw_grid(Grid* grid);
-void draw_bfe(Grid* grid);
+void draw_grid(Grid* grid,int grid_type);
 void draw_combo(Grid* main, Grid* subtract);
 void draw_difference(Grid* main, Grid* subtract);
 void draw_slr_slr_bfe();
