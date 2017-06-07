@@ -10,14 +10,15 @@
  q: quit
  w: write to files
  e: draw elevgrid
- u: draw original bfe
+ u: draw original interp_bfe
  s: draw slr
- b: draw bfe
- f: draw bfe+slr
- p: draw slr-elev
- o: draw slr+bfe-elev
- d: draw slr+bfe-slr
- i: draw slr+bfe-slr with slr on top
+ p: draw slr-flooded (slr-elev)
+ 
+ b: draw interp_bfe
+ f: draw interp_bfe+slr
+ o: draw slr+interp_bfe-elev
+ d: draw slr+interp_bfe-slr
+ i: draw slr+interp_bfe-slr with slr on top
  +: increase the sea level rise
  -: decrease the sea level rise
  */
@@ -58,7 +59,7 @@ const int WINDOWSIZE = 500;
 const int POINT_SIZE  = 5.0f;
 
 /* declarations */
-const char *elevname, *slrname, *bfename;
+const char *elevname, *slrname, *interp_bfename;
 int seaX, seaY;
 
 
@@ -69,10 +70,10 @@ int main(int argc, char * argv[]) {
         return 1;
     }
     if (argc < 7) {
-        BFE_EXISTS = 0;
+        interp_bfe_EXISTS = 0;
         
     } else {
-        bfename = argv[6];
+        interp_bfename = argv[6];
     }
     elevname = argv[1];
     slrname = argv[2];
@@ -89,15 +90,15 @@ int main(int argc, char * argv[]) {
     mallocGrid(elevgrid, &slrgrid);
     setHeaders(elevgrid, &slrgrid);
     
-    if (BFE_EXISTS) {
+    if (interp_bfe_EXISTS) {
         clock_t start2 = clock(), diff2;
-        readGridfromFile(bfename, &bfegrid,1);
+        readGridfromFile(interp_bfename, &interp_bfegrid,1);
         diff2 = clock() - start2;
         unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
-        printf("Reading bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
-        readGridfromFile(bfename, &origbfegrid,1);
-        mallocGrid(elevgrid, &bfeslrgrid);
-        setHeaders(elevgrid, &bfeslrgrid);
+        printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
+        readGridfromFile(interp_bfename, &originterp_bfegrid,1);
+        mallocGrid(elevgrid, &interp_bfeslrgrid);
+        setHeaders(elevgrid, &interp_bfeslrgrid);
     }
     
     //printHeader(elevgrid);
@@ -111,8 +112,8 @@ int main(int argc, char * argv[]) {
     outputGridWithDepth(&depthgrid, &slrgrid, &elevgrid,rise);
     gridtoFile(&depthgrid, slrname);
     
-    if (BFE_EXISTS) {
-        outputGridWithDepthWITHBFE(&depthgrid, &slrgrid, &elevgrid,&bfegrid, rise);
+    if (interp_bfe_EXISTS) {
+        outputGridWithDepthWITHinterp_bfe(&depthgrid, &slrgrid, &elevgrid,&interp_bfegrid, rise);
         gridtoFile(&depthgrid, slrname);
         
     }
@@ -159,20 +160,20 @@ void calculateGrids() {
     unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
     printf("SLR took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
     
-    if (BFE_EXISTS) {
+    if (interp_bfe_EXISTS) {
         clock_t start = clock(), diff;
-        printf("start BFE @ %g\n",rise);
-        start_bfe(&elevgrid, &bfegrid, rise, seaX, seaY);
+        printf("start interp_bfe @ %g\n",rise);
+        start_interp_bfe(&elevgrid, &interp_bfegrid, rise, seaX, seaY);
         diff = clock() - start;
         unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
-        printf("BFE took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);
+        printf("interp_bfe took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);
         
         clock_t start3 = clock(), diff3;
-        printf("start SLR + BFE @ %g\n",rise);
-        start_slr_bfe(&elevgrid, &bfeslrgrid, &bfegrid, rise,seaX, seaY);
+        printf("start SLR + interp_bfe @ %g\n",rise);
+        start_slr_interp_bfe(&elevgrid, &interp_bfeslrgrid, &interp_bfegrid, rise,seaX, seaY);
         diff3 = clock() - start3;
         unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
-        printf("BFE+SLR took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
+        printf("interp_bfe+SLR took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
     }
 }
 
@@ -182,16 +183,16 @@ void display(void) {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); //clear the matrix
     
-    if (BFE_EXISTS) {
+    if (interp_bfe_EXISTS) {
         switch (DRAW) {
             case slr:
                 draw_grid(&slrgrid,slr);
                 break;
-            case bfe:
-                draw_grid(&bfegrid,bfe);
+            case interp_bfe:
+                draw_grid(&interp_bfegrid,interp_bfe);
                 break;
-            case slrbfe:
-                draw_grid(&bfeslrgrid,slrbfe);
+            case slrinterp_bfe:
+                draw_grid(&interp_bfeslrgrid,slrinterp_bfe);
                 break;
             case elev:
                 draw_grid(&elevgrid,elev);
@@ -199,17 +200,17 @@ void display(void) {
             case slr_elev:
                 draw_combo(&slrgrid, &elevgrid);
                 break;
-            case slrbfe_elev:
-                draw_combo(&bfeslrgrid, &elevgrid);
+            case slrinterp_bfe_elev:
+                draw_combo(&interp_bfeslrgrid, &elevgrid);
                 break;
-            case slrbfeminusslr:
-                draw_difference(&bfeslrgrid, &slrgrid);
+            case slrinterp_bfeminusslr:
+                draw_difference(&interp_bfeslrgrid, &slrgrid);
                 break;
-            case slrbfe_slr:
-                draw_slr_slr_bfe();
+            case slrinterp_bfe_slr:
+                draw_slr_slr_interp_bfe();
                 break;
-            case origbfe:
-                draw_grid(&origbfegrid,origbfe);
+            case originterp_bfe:
+                draw_grid(&originterp_bfegrid,originterp_bfe);
                 break;
             default:
                 break;
@@ -237,13 +238,13 @@ void keypress(unsigned char key, int x, int y) {
         case 'q':
             freeGridData(&elevgrid);
             freeGridData(&slrgrid);
-            freeGridData(&bfegrid);
-            freeGridData(&bfeslrgrid);
+            freeGridData(&interp_bfegrid);
+            freeGridData(&interp_bfeslrgrid);
             exit(0);
             break;
         case 'w':
-            gridtoFile(&bfegrid, bfename);
-            gridtoFile(&bfeslrgrid, slrname);
+//            gridtoFile(&interp_bfegrid, interp_bfename);
+            gridtoFile(&interp_bfeslrgrid, slrname);
             break;
             
         case 's':
@@ -251,11 +252,11 @@ void keypress(unsigned char key, int x, int y) {
             DRAW = 0;
             break;
         case 'b':
-            printf("Draw BFE\n");
+            printf("Draw interp_bfe\n");
             DRAW = 1;
             break;
         case 'f':
-            printf("Draw BFE + SLR\n");
+            printf("Draw interp_bfe + SLR\n");
             DRAW = 2;
             break;
         case 'e':
@@ -267,19 +268,19 @@ void keypress(unsigned char key, int x, int y) {
             DRAW = 4;
             break;
         case 'o':
-            printf("Draw SLR+BFE-Elev\n");
+            printf("Draw SLR+interp_bfe-Elev\n");
             DRAW = 5;
             break;
         case 'd':
-            printf("Draw SLR+BFE-SLR\n");
+            printf("Draw SLR+interp_bfe-SLR\n");
             DRAW = 6;
             break;
         case 'i':
-            printf("Draw SLR+BFE-SLR with the slr\n");
+            printf("Draw SLR+interp_bfe-SLR with the slr\n");
             DRAW = 7;
             break;
         case 'u':
-            printf("Draw Original BFE\n");
+            printf("Draw Original interp_bfe\n");
             DRAW = 8;
             break;
             

@@ -57,8 +57,9 @@ void readGridfromFile(const char* gridfname, Grid* g, int gridType) {
     for(int i = 0; i < g->nrows; i++) {
         for(int j = 0; j < g->ncols; j++) {
             int y = fscanf(f,"%f ",&g->data[i][j]);
-            if (gridType && g->data[i][j] != g->NODATA_value ) {
+            if (!gridType && g->data[i][j] != g->NODATA_value ) {
                 g->data[i][j] = g->data[i][j]/convertToMeters;
+
             }
             if (y != 1) {
                 printf("ERROR: fscanf did not properly scan in the grid\n");
@@ -149,10 +150,10 @@ void printValues(Grid g) {
 
 //
 //  parsing.cpp
-//  slr_bfe
+//  slr_interp_bfe
 //
 //  Created by Cory Alini on 6/4/17.
-//  Copyright © 2017 slr_bfe.coryalini. All rights reserved.
+//  Copyright © 2017 slr_interp_bfe.coryalini. All rights reserved.
 //
 
 #include "parsing.hpp"

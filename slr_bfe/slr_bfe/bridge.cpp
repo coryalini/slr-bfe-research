@@ -7,9 +7,9 @@
 //
 
 #include "bridge.hpp"
-Grid elevgrid, bfegrid, slrgrid, bfeslrgrid, origbfegrid;
+Grid elevgrid, interp_bfegrid, slrgrid, interp_bfeslrgrid, originterp_bfegrid;
 int DRAW = 0;
-int BFE_EXISTS = 1;
+int interp_bfe_EXISTS = 1;
 
 int offsets [8][2] ={{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
 
@@ -62,12 +62,12 @@ std::queue<point> findSeaPoint(Grid* elevgrid) {
 }
 
 
-void setBFENotVisited(Grid* elevgrid, Grid* slrgrid, Grid* bfegrid, float rise) {
+void setinterp_bfeNotVisited(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid, float rise) {
     for (int i = 0; i < slrgrid->nrows; i++) {
         for (int j = 0; j < slrgrid->ncols; j++) {
             if (slrgrid->data[i][j] == HAVENT_VISITED) {
-                if (bfegrid->data[i][j] != bfegrid->NODATA_value) {
-                    slrgrid->data[i][j] = elevgrid->data[i][j] - (rise+ bfegrid->data[i][j]);
+                if (interp_bfegrid->data[i][j] != interp_bfegrid->NODATA_value) {
+                    slrgrid->data[i][j] = elevgrid->data[i][j] - (rise+ interp_bfegrid->data[i][j]);
                 } else {
                     slrgrid->data[i][j] = elevgrid->data[i][j] - rise;
                 }
@@ -137,11 +137,11 @@ void outputGridWithDepth(Grid* g, Grid* slrgrid,Grid* elevgrid,float rise) {
     }
     
 }
-void outputGridWithDepthWITHBFE(Grid* g, Grid* slrgrid,Grid* elevgrid,Grid* bfegrid, float rise) {
+void outputGridWithDepthWITHinterp_bfe(Grid* g, Grid* slrgrid,Grid* elevgrid,Grid* interp_bfegrid, float rise) {
     for (int i = 0; i < g->nrows; i++) {
         for (int j = 0; j < g->ncols; j++) {
             if (slrgrid->data[i][j] == NEW_WATER) {
-                g->data[i][j] = (rise+bfegrid->data[i][j]) - elevgrid->data[i][j];
+                g->data[i][j] = (rise+interp_bfegrid->data[i][j]) - elevgrid->data[i][j];
             } else {
                 g->data[i][j] = g->NODATA_value;
             }

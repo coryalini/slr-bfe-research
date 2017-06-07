@@ -55,22 +55,23 @@ extern GLfloat gray4[3];
 extern GLfloat gray5[3];
 extern GLfloat gray6[3];
 
-enum {slr = 0, bfe = 1, slrbfe = 2, elev = 3, slr_elev = 4,slrbfe_elev = 5, slrbfeminusslr = 6, slrbfe_slr =7, origbfe = 8};
+enum {slr = 0, interp_bfe = 1, slrinterp_bfe = 2, elev = 3, slr_elev = 4,slrinterp_bfe_elev = 5, slrinterp_bfeminusslr = 6, slrinterp_bfe_slr =7, originterp_bfe = 8};
 
 static float numCategories = 6.0;
 
 
+GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);
 void draw_point_slr(double value);
-void draw_point_bfe(double value);
+void draw_point_interp_bfe(double value);
 void draw_point_combo(point mypoint, Grid* main, Grid* subtract,  float currRise);
 void draw_point_diff(point mypoint, Grid* main, Grid* subtract,  float currRise);
-void draw_point_slr_slr_bfe(point mypoint, Grid* main, Grid* subtract, float currRise);
+void draw_point_slr_slr_interp_bfe(point mypoint, Grid* main, Grid* subtract, float currRise);
 
 
 void draw_grid(Grid* grid,int grid_type);
 void draw_combo(Grid* main, Grid* subtract);
 void draw_difference(Grid* main, Grid* subtract);
-void draw_slr_slr_bfe();
+void draw_slr_slr_interp_bfe();
 
 #endif /* drawing_hpp */
 

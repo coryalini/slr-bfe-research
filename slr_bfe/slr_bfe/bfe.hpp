@@ -16,10 +16,10 @@
 #include <queue>
 #include <assert.h>
 
-/*MARK BFE*/
-void start_bfe(Grid* elevgrid,Grid* bfegrid, float rise,int seaX, int seaY);
+/*MARK bfe*/
+void start_interp_bfe(Grid* elevgrid,Grid* interp_bfegrid, float rise,int seaX, int seaY);
 
-void compute_bfe(Grid* elevgrid, Grid* bfegrid,int rise, char** alreadySeen,std::queue<point>& queue);
+void compute_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** alreadySeen,std::queue<point>& queue);
 
 
 #endif /* bfe_hpp */

@@ -10,8 +10,8 @@
 
 
 
-/* MARK: SLR+BFE */
-void start_slr_bfe(Grid* elevgrid, Grid* slrgrid, Grid* bfegrid, float rise, int seaX, int seaY) {
+/* MARK: SLR+interp_bfe */
+void start_slr_interp_bfe(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid, float rise, int seaX, int seaY) {
     if (elevgrid->data[seaX][seaY] != elevgrid->NODATA_value) {
         printf("ERROR:The point %f that was given is not the sea\n",elevgrid->data[seaX][seaY]);
         return;
@@ -27,12 +27,12 @@ void start_slr_bfe(Grid* elevgrid, Grid* slrgrid, Grid* bfegrid, float rise, int
     start.x = seaX;
     start.y = seaY;
     queue.push(start);
-    compute_slr_bfe(elevgrid, slrgrid, bfegrid, rise, queue);
-    setBFENotVisited(elevgrid,slrgrid,bfegrid, rise);
+    compute_slr_interp_bfe(elevgrid, slrgrid, interp_bfegrid, rise, queue);
+    setinterp_bfeNotVisited(elevgrid,slrgrid,interp_bfegrid, rise);
     
 }
 
-void compute_slr_bfe(Grid* elevgrid, Grid* slrgrid, Grid* bfegrid,float rise, std::queue<point>& queue) {
+void compute_slr_interp_bfe(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid,float rise, std::queue<point>& queue) {
     while(queue.empty() != true) {
         point curr = queue.front();
         queue.pop();
@@ -50,8 +50,8 @@ void compute_slr_bfe(Grid* elevgrid, Grid* slrgrid, Grid* bfegrid,float rise, st
                     newPoint.y = newCol;
                     queue.push(newPoint);
                 } else {
-                    if (bfegrid->data[newRow][newCol] != bfegrid->NODATA_value) {
-                        if (elevgrid->data[newRow][newCol] < (rise + bfegrid->data[newRow][newCol])) {
+                    if (interp_bfegrid->data[newRow][newCol] != interp_bfegrid->NODATA_value) {
+                        if (elevgrid->data[newRow][newCol] < (rise + interp_bfegrid->data[newRow][newCol])) {
                             slrgrid->data[newRow][newCol] = NEW_WATER;
                             point newPoint;
                             newPoint.x = newRow;

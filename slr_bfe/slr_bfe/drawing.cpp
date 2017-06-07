@@ -23,7 +23,9 @@ GLfloat black[3] = {0.0, 0.0, 0.0};
 
 GLfloat blue[3] = {0.157, 0.325, 0.419};
 GLfloat lightblue[3] = {0.604, 0.820, 0.831};
+//GLfloat lightyellow[3] = {0.988,1.0,0.898};
 GLfloat green1[3] = {0.945, 1.0, 0.905};
+GLfloat greenmid[3] = {0.749, 0.918, 0.737};
 GLfloat green2[3] = {0.561, 0.839, 0.580};
 
 GLfloat darkyellow[3] = {0.424, 0.682, 0.459};
@@ -41,17 +43,18 @@ GLfloat gray4[3] = {0.349, 0.349, 0.349};
 GLfloat gray5[3] = {0.196, 0.196, 0.196};
 GLfloat gray6[3] = {0.118, 0.118, 0.118};
 
+
 void general_draw_point(point mypoint, Grid* grid,int grid_type) {
     double value = grid->data[(int)mypoint.x][(int)mypoint.y];
     switch (grid_type) {
         case slr:
         case elev:
-        case slrbfe:
+        case slrinterp_bfe:
             draw_point_slr(value);
             break;
-        case bfe:
-        case origbfe:
-            draw_point_bfe(value);
+        case interp_bfe:
+        case originterp_bfe:
+            draw_point_interp_bfe(value);
             break;
         default:
             break;
@@ -77,49 +80,57 @@ void general_draw_point(point mypoint, Grid* grid,int grid_type) {
     glVertex2f(x, y);
     glEnd();
 }
-
 void draw_point_slr(double value) {
     double base = max/numCategories;
-
+    
     if (value == elevgrid.NODATA_value) {
         glColor3fv(blue);
     } else if (value == NEW_WATER) {
         glColor3fv(lightblue);
     } else if (value < base) {
-        glColor3fv(green1);
+        glColor3fv(interpolate_colors(green1, greenmid,value,0,base));
     } else if (value < (2 * base)) {
-        glColor3fv(green2);
+        glColor3fv(interpolate_colors(greenmid, green2,value,base,2*base));
     } else if (value < (3 * base)) {
-        glColor3fv(darkyellow);
+        glColor3fv(interpolate_colors(green2, darkyellow,value,2*base,3*base));
     } else if (value < (4 * base)) {
-        glColor3fv(darkorange);
+        glColor3fv(interpolate_colors(darkyellow, darkorange,value,3*base,4*base));
     } else if (value < (5 * base)) {
-        glColor3fv(red1);
+        glColor3fv(interpolate_colors(darkorange, red1,value,4*base,5*base));
     }  else {
-        glColor3fv(red2);
+        glColor3fv(interpolate_colors(red1, red2,value,5*base,6*base));
     }
 }
 
 
 
-void draw_point_bfe(double value) {
-    
+void draw_point_interp_bfe(double value) {
     double base = 30.0/numCategories;
     if (value == elevgrid.NODATA_value) {
         glColor3fv(lightblue);
     } else if (value < base) {
-        glColor3fv(gray1);
+        glColor3fv(interpolate_colors(gray1, gray2,value,0,base));
     } else if (value < (2 * base)) {
-        glColor3fv(gray2);
+        glColor3fv(interpolate_colors(gray2, gray3,value,base,2*base));
     } else if (value < (3 * base)) {
-        glColor3fv(gray3);
+        glColor3fv(interpolate_colors(gray3, gray4,value,2*base,3*base));
     } else if (value < (4 * base)) {
-        glColor3fv(gray4);
+        glColor3fv(interpolate_colors(gray4, gray5,value,3*base,4*base));
     } else if (value < (5 * base)) {
-        glColor3fv(gray5);
+        glColor3fv(interpolate_colors(gray5, gray6,value,4*base,5*base));
     }  else {
-        glColor3fv(gray6);
+        glColor3fv(interpolate_colors(gray6, black,value,5*base,6*base));
     }
+}
+
+GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound) {
+    static GLfloat newColor[3] = {-1,-1,-1};
+    for(int i = 0; i < 3; i ++) {
+        newColor[i] = (double)lowerColor[i] + ((value-lowerBound)/(upperBound-lowerBound))*(double)(upperColor[i]-lowerColor[i]);
+
+    }
+    return newColor;
+    
 }
 
 void draw_point_combo(point mypoint, Grid* main, Grid* subtract,  float currRise) {
@@ -159,7 +170,7 @@ void draw_point_combo(point mypoint, Grid* main, Grid* subtract,  float currRise
 
 void draw_point_diff(point mypoint, Grid* main, Grid* subtract, float currRise) {
     double value, value1,value2;
-    value1 = main->data[(int)mypoint.x][(int)mypoint.y];//slrBFE
+    value1 = main->data[(int)mypoint.x][(int)mypoint.y];//slrinterp_bfe
     value2 = subtract->data[(int)mypoint.x][(int)mypoint.y]; //SLR
     
     if (value1 == NEW_WATER && value2 != NEW_WATER) {
@@ -226,7 +237,7 @@ void draw_combo(Grid* main, Grid* subtract) {
             newPoint.x = i;
             newPoint.y = j;
             if (DRAW == 5) {
-                currRise = bfegrid.data[i][j];
+                currRise = interp_bfegrid.data[i][j];
             }
             draw_point_combo(newPoint, main,subtract, currRise);
         }
@@ -245,7 +256,7 @@ void draw_difference(Grid* main, Grid* subtract) {
             point newPoint;
             newPoint.x = i;
             newPoint.y = j;
-            currRiseB = bfegrid.data[i][j] - rise;
+            currRiseB = interp_bfegrid.data[i][j] - rise;
             
             draw_point_diff(newPoint, main,subtract,currRiseB);
         }
@@ -253,9 +264,9 @@ void draw_difference(Grid* main, Grid* subtract) {
 }
 
 
-void draw_slr_slr_bfe() {
+void draw_slr_slr_interp_bfe() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    assert(bfeslrgrid.data);
+    assert(interp_bfeslrgrid.data);
     assert(slrgrid.data);
     findMaxMin(&slrgrid);
     
@@ -266,59 +277,41 @@ void draw_slr_slr_bfe() {
             point newPoint;
             newPoint.x = i;
             newPoint.y = j;
-            currRiseB = bfegrid.data[i][j] - rise;
-            draw_point_slr_slr_bfe(newPoint, &bfeslrgrid,&slrgrid, currRiseB);
+            currRiseB = interp_bfegrid.data[i][j] - rise;
+            draw_point_slr_slr_interp_bfe(newPoint, &interp_bfeslrgrid,&slrgrid, currRiseB);
         }
     }
 }
-void draw_point_slr_slr_bfe(point mypoint, Grid* main, Grid* subtract, float currRise) {
+void draw_point_slr_slr_interp_bfe(point mypoint, Grid* main, Grid* subtract, float currRise) {
     float value, value1,value2;
-    value1 = main->data[(int)mypoint.x][(int)mypoint.y];//slrBFE
+    value1 = main->data[(int)mypoint.x][(int)mypoint.y];//slrinterp_bfe
     value2 = subtract->data[(int)mypoint.x][(int)mypoint.y]; //SLR
-    
+    float interp_bfeval = interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y];
+
     if (value1 == NEW_WATER && value2 != NEW_WATER) {
         value = 0;
     } else {
         value = 1;
     }
-    float bfeval = bfegrid.data[(int)mypoint.x][(int)mypoint.y];
     if (value == 0) {
         double base = 30.0/numCategories;
         if (value1 == elevgrid.NODATA_value) {
             glColor3fv(blue);
-        } else if (bfeval < base) {
+        } else if (interp_bfeval < base) {
             glColor3fv(gray1);
-        } else if (bfeval < (2 * base)) {
+        } else if (interp_bfeval < (2 * base)) {
             glColor3fv(gray2);
-        } else if (bfeval < (3 * base)) {
+        } else if (interp_bfeval < (3 * base)) {
             glColor3fv(gray3);
-        } else if (bfeval < (4 * base)) {
+        } else if (interp_bfeval < (4 * base)) {
             glColor3fv(gray4);
-        } else if (bfeval < (5 * base)) {
+        } else if (interp_bfeval < (5 * base)) {
             glColor3fv(gray5);
         }  else {
             glColor3fv(gray6);
         }
     } else {
-        double base = max/numCategories;
-        
-        if (value2 == elevgrid.NODATA_value) {
-            glColor3fv(blue);
-        } else if (value2 == NEW_WATER) {
-            glColor3fv(lightblue);
-        } else if (value2 < base) {
-            glColor3fv(green1);
-        } else if (value2 < (2 * base)) {
-            glColor3fv(green2);
-        } else if (value2 < (3 * base)) {
-            glColor3fv(darkyellow);
-        } else if (value2 < (4 * base)) {
-            glColor3fv(darkorange);
-        } else if (value2 < (5 * base)) {
-            glColor3fv(red1);
-        }  else {
-            glColor3fv(red2);
-        }
+        draw_point_slr(value1);
     }
     
     float x=0, y=0;  //just to initialize with something
