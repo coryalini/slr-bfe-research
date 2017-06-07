@@ -17,10 +17,15 @@
 
 #include "parsing.hpp"
 
+float ELEV_CONVERTER = 1/3.28;
+float BFE_CONVERTER = 1;
+
+
+
 
 int viewpointRow;
 int viewpointColumn;
-float convertToMeters = 3.28;
+//float convertToMeters = 3.28;
 
 void readGridfromFile(const char* gridfname, Grid* g, int gridType) {
     FILE* f;
@@ -58,8 +63,9 @@ void readGridfromFile(const char* gridfname, Grid* g, int gridType) {
         for(int j = 0; j < g->ncols; j++) {
             int y = fscanf(f,"%f ",&g->data[i][j]);
             if (!gridType && g->data[i][j] != g->NODATA_value ) {
-                g->data[i][j] = g->data[i][j]/convertToMeters;
-
+                g->data[i][j] = g->data[i][j]*ELEV_CONVERTER;
+            }else if (gridType && g->data[i][j] != g->NODATA_value ) {
+                g->data[i][j] = g->data[i][j]*BFE_CONVERTER;
             }
             if (y != 1) {
                 printf("ERROR: fscanf did not properly scan in the grid\n");
