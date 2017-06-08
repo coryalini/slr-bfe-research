@@ -7,7 +7,7 @@
 //
 
 #include "bridge.hpp"
-Grid elevgrid, interp_bfegrid, slrgrid, interp_bfeslrgrid, originterp_bfegrid;
+Grid elevgrid, interp_bfegrid, slrgrid, interp_bfeslrgrid, originterp_bfegrid,currGrid;
 int DRAW = 0;
 int interp_bfe_EXISTS = 1;
 

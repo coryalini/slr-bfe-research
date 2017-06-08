@@ -31,7 +31,7 @@ typedef struct _grid {
     
 } Grid;
 
-extern Grid elevgrid, interp_bfegrid, slrgrid, interp_bfeslrgrid, originterp_bfegrid;
+extern Grid elevgrid, interp_bfegrid, slrgrid, interp_bfeslrgrid, originterp_bfegrid, currGrid;
 extern int DRAW, interp_bfe_EXISTS, offsets [8][2];
 extern float rise;
 

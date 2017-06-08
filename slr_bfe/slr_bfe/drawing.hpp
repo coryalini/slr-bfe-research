@@ -59,19 +59,28 @@ enum {slr = 0, interp_bfe = 1, slrinterp_bfe = 2, elev = 3, slr_elev = 4,slrinte
 
 static float numCategories = 6.0;
 
-
-GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);
-void draw_point_slr(double value);
-void draw_point_interp_bfe(double value);
-void draw_point_combo(point mypoint, Grid* main, Grid* subtract,  float currRise);
-void draw_point_diff(point mypoint, Grid* main, Grid* subtract,  float currRise);
-void draw_point_slr_slr_interp_bfe(point mypoint, Grid* main, Grid* subtract, float currRise);
-
+void display(void);
+void combineGrids(Grid* grid1, Grid* grid2, double combine);
+void diffGrids(Grid* grid1, Grid* grid2, double diff);
 
 void draw_grid(Grid* grid,int grid_type);
-void draw_combo(Grid* main, Grid* subtract);
-void draw_difference(Grid* main, Grid* subtract);
-void draw_slr_slr_interp_bfe();
+void general_draw_point(point mypoint, Grid* grid,int grid_type);
+
+void draw_point_color(double value);
+void draw_point_black(double value);
+void draw_point_binary(double value);
+
+
+GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);
+void changeCurrGrid(Grid* grid);
+
+//void draw_point_combo(point mypoint, Grid* main, Grid* subtract,  float currRise);
+//void draw_point_diff(point mypoint, Grid* main, Grid* subtract,  float currRise);
+//void draw_point_slr_slr_interp_bfe(point mypoint, Grid* main, Grid* subtract, float currRise);
+
+//void draw_combo(Grid* main, Grid* subtract);
+//void draw_difference(Grid* main, Grid* subtract);
+//void draw_slr_slr_interp_bfe();
 
 #endif /* drawing_hpp */
 

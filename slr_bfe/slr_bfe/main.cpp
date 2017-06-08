@@ -48,7 +48,6 @@
 
 
 /* forward declarations of functions */
-void display(void);
 void keypress(unsigned char key, int x, int y);
 void reset();
 void calculateGrids();
@@ -105,18 +104,21 @@ int main(int argc, char * argv[]) {
     printf("The number of cells is %ld\n", elevgrid.nrows * elevgrid.ncols);
     
     calculateGrids();
+    mallocGrid(elevgrid, &currGrid);
+    setHeaders(elevgrid, &currGrid);
+
     
-    Grid depthgrid;
-    mallocGrid(elevgrid, &depthgrid);
-    setHeaders(elevgrid, &depthgrid);
-    outputGridWithDepth(&depthgrid, &slrgrid, &elevgrid,rise);
-    gridtoFile(&depthgrid, slrname);
-    
-    if (interp_bfe_EXISTS) {
-        outputGridWithDepthWITHinterp_bfe(&depthgrid, &slrgrid, &elevgrid,&interp_bfegrid, rise);
-        gridtoFile(&depthgrid, slrname);
-        
-    }
+//    Grid depthgrid;
+//    mallocGrid(elevgrid, &depthgrid);
+//    setHeaders(elevgrid, &depthgrid);
+//    outputGridWithDepth(&depthgrid, &slrgrid, &elevgrid,rise);
+//    gridtoFile(&depthgrid, slrname);
+//    
+//    if (interp_bfe_EXISTS) {
+//        outputGridWithDepthWITHinterp_bfe(&depthgrid, &slrgrid, &elevgrid,&interp_bfegrid, rise);
+//        gridtoFile(&depthgrid, slrname);
+//        
+//    }
     
     //GLUT stuff
     //------------------------------------------
@@ -178,61 +180,9 @@ void calculateGrids() {
 }
 
 
-void display(void) {
-    glClear(GL_COLOR_BUFFER_BIT);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity(); //clear the matrix
-    
-    if (interp_bfe_EXISTS) {
-        switch (DRAW) {
-            case slr:
-                draw_grid(&slrgrid,slr);
-                break;
-            case interp_bfe:
-                draw_grid(&interp_bfegrid,interp_bfe);
-                break;
-            case slrinterp_bfe:
-                draw_grid(&interp_bfeslrgrid,slrinterp_bfe);
-                break;
-            case elev:
-                draw_grid(&elevgrid,elev);
-                break;
-            case slr_elev:
-                draw_combo(&slrgrid, &elevgrid);
-                break;
-            case slrinterp_bfe_elev:
-                draw_combo(&interp_bfeslrgrid, &elevgrid);
-                break;
-            case slrinterp_bfeminusslr:
-                draw_difference(&interp_bfeslrgrid, &slrgrid);
-                break;
-            case slrinterp_bfe_slr:
-                draw_slr_slr_interp_bfe();
-                break;
-            case originterp_bfe:
-                draw_grid(&originterp_bfegrid,originterp_bfe);
-                break;
-            default:
-                break;
-        }
-        
-    } else {
-        if (DRAW == elev) {
-            draw_grid(&elevgrid,elev);
-        } else if (DRAW == slr_elev) {
-            draw_combo(&slrgrid, &elevgrid);
-        } else {
-            draw_grid(&slrgrid,slr);
-        }
-    }
-    
-    /* execute the drawing commands */
-    glFlush();
-}
 
 
-
-/* ****************************** */
+/* ***************************** */
 void keypress(unsigned char key, int x, int y) {
     switch(key)    {
         case 'q':
