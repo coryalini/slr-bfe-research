@@ -7,7 +7,7 @@
 //
 
 #include "bridge.hpp"
-Grid elevgrid, interp_bfegrid, slrgrid, interp_bfeslrgrid, originterp_bfegrid,currGrid;
+Grid elevgrid, interp_bfegrid, slrgrid, slr_interp_bfegrid, originterp_bfegrid,currGrid;
 int DRAW = 0;
 int interp_bfe_EXISTS = 1;
 
@@ -17,9 +17,8 @@ float rise;
 
 const int NEW_WATER = -8000;
 const int HAVENT_VISITED = -9000;
-float maxX = 0, maxY= 0;
-float minX, minY, minXLand, minYLand;
-float max = 0, minLand =std::numeric_limits<float>::max(), min = std::numeric_limits<float>::max();
+double max = 0, minLand =std::numeric_limits<double>::max(), min = std::numeric_limits<double>::max();
+double maxElev = 0, minLandElev =std::numeric_limits<double>::max();
 
 std::queue<point> findSeaPoint(Grid* elevgrid) {
     std::queue<point> queue;
@@ -96,27 +95,33 @@ int insideGrid(Grid* grid, int i, int j) {
 
 
 void findMaxMin(Grid* grid) {
-    
-  
-    
-    minX = (int)grid->nrows;
-    minY = (int)grid->ncols;
+    max = 0;
+    minLand=std::numeric_limits<float>::max(), min = std::numeric_limits<float>::max();
     for (int i = 0; i < grid->nrows; i++) {
         for (int j = 0; j < grid->ncols; j++) {
             if (grid->data[i][j] > max) {
-                maxX = i;
-                maxY = j;
                 max = grid->data[i][j];
             }
             if (grid->data[i][j] < min) {
-                minX = i;
-                minY = j;
                 min = grid->data[i][j];
             }
+//            printf("%f vs %f \n",grid->data[i][j], minLand);
             if (grid->data[i][j] < minLand && grid->data[i][j] != grid->NODATA_value && grid->data[i][j] != NEW_WATER) {
-                minXLand = i;
-                minYLand= j;
                 minLand = grid->data[i][j];
+            }
+        }
+    }
+}
+void findMaxMinElev() {
+    maxElev = 0;
+    minLandElev=std::numeric_limits<float>::max();
+    for (int i = 0; i < elevgrid.nrows; i++) {
+        for (int j = 0; j < elevgrid.ncols; j++) {
+            if (elevgrid.data[i][j] > maxElev) {
+                maxElev = elevgrid.data[i][j];
+            }
+            if (elevgrid.data[i][j] < minLandElev && elevgrid.data[i][j] != elevgrid.NODATA_value) {
+                minLandElev = elevgrid.data[i][j];
             }
         }
     }

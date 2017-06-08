@@ -17,9 +17,9 @@
 
 
 /*MARK SLR+interp_bfe*/
-void start_slr_interp_bfe(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid, float rise,int seaX, int seaY);
+void start_slr_interp_bfe(Grid* elevgrid, Grid* slr_interp_bfegrid, Grid* interp_bfegrid, float rise,int seaX, int seaY);
 
-void compute_slr_interp_bfe(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid,float rise,std::queue<point>& queue);
+void compute_slr_interp_bfe(Grid* elevgrid, Grid* slr_interp_bfegrid, Grid* interp_bfegrid,float rise,std::queue<point>& queue);
 
 
 #endif /* slr_bfe_hpp */

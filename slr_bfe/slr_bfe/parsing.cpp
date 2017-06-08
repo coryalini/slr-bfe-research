@@ -17,9 +17,10 @@
 
 #include "parsing.hpp"
 
-float ELEV_CONVERTER = 1/3.28;
+//float ELEV_CONVERTER = 1/3.28;
+//float BFE_CONVERTER = 1;
+float ELEV_CONVERTER = 1;
 float BFE_CONVERTER = 1;
-
 
 
 

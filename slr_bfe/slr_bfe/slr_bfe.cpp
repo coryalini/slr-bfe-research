@@ -11,7 +11,7 @@
 
 
 /* MARK: SLR+interp_bfe */
-void start_slr_interp_bfe(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid, float rise, int seaX, int seaY) {
+void start_slr_interp_bfe(Grid* elevgrid, Grid* slr_interp_bfegrid, Grid* interp_bfegrid, float rise, int seaX, int seaY) {
     if (elevgrid->data[seaX][seaY] != elevgrid->NODATA_value) {
         printf("ERROR:The point %f that was given is not the sea\n",elevgrid->data[seaX][seaY]);
         return;
@@ -19,7 +19,7 @@ void start_slr_interp_bfe(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid, f
     
     for (int i = 0; i < elevgrid->nrows; i++) {
         for (int j = 0; j < elevgrid->ncols; j++) {
-            slrgrid->data[i][j] = HAVENT_VISITED;
+            slr_interp_bfegrid->data[i][j] = HAVENT_VISITED;
         }
     }
     std::queue<point> queue;
@@ -27,12 +27,12 @@ void start_slr_interp_bfe(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid, f
     start.x = seaX;
     start.y = seaY;
     queue.push(start);
-    compute_slr_interp_bfe(elevgrid, slrgrid, interp_bfegrid, rise, queue);
-    setinterp_bfeNotVisited(elevgrid,slrgrid,interp_bfegrid, rise);
+    compute_slr_interp_bfe(elevgrid, slr_interp_bfegrid, interp_bfegrid, rise, queue);
+    setinterp_bfeNotVisited(elevgrid,slr_interp_bfegrid,interp_bfegrid, rise);
     
 }
 
-void compute_slr_interp_bfe(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid,float rise, std::queue<point>& queue) {
+void compute_slr_interp_bfe(Grid* elevgrid, Grid* slr_interp_bfegrid, Grid* interp_bfegrid,float rise, std::queue<point>& queue) {
     while(queue.empty() != true) {
         point curr = queue.front();
         queue.pop();
@@ -42,9 +42,9 @@ void compute_slr_interp_bfe(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid,
             if (!insideGrid(elevgrid, (int)newRow, (int)newCol)) {
                 continue;
             }
-            if (slrgrid->data[newRow][newCol] == HAVENT_VISITED) {// not visited
+            if (slr_interp_bfegrid->data[newRow][newCol] == HAVENT_VISITED) {// not visited
                 if (elevgrid->data[newRow][newCol] ==  elevgrid->NODATA_value) { // if the data is water
-                    slrgrid->data[newRow][newCol] = elevgrid->NODATA_value;
+                    slr_interp_bfegrid->data[newRow][newCol] = elevgrid->NODATA_value;
                     point newPoint;
                     newPoint.x = newRow;
                     newPoint.y = newCol;
@@ -52,7 +52,7 @@ void compute_slr_interp_bfe(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid,
                 } else {
                     if (interp_bfegrid->data[newRow][newCol] != interp_bfegrid->NODATA_value) {
                         if (elevgrid->data[newRow][newCol] < (rise + interp_bfegrid->data[newRow][newCol])) {
-                            slrgrid->data[newRow][newCol] = NEW_WATER;
+                            slr_interp_bfegrid->data[newRow][newCol] = NEW_WATER;
                             point newPoint;
                             newPoint.x = newRow;
                             newPoint.y = newCol;
@@ -60,7 +60,7 @@ void compute_slr_interp_bfe(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid,
                         }
                     } else {
                         if (elevgrid->data[newRow][newCol] < rise) {
-                            slrgrid->data[newRow][newCol] = NEW_WATER;
+                            slr_interp_bfegrid->data[newRow][newCol] = NEW_WATER;
                             point newPoint;
                             newPoint.x = newRow;
                             newPoint.y = newCol;

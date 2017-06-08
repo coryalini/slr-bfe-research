@@ -9,16 +9,21 @@
 /* COMMANDS:
  q: quit
  w: write to files
- e: draw elevgrid
- u: draw original interp_bfe
- s: draw slr
- p: draw slr-flooded (slr-elev)
  
- b: draw interp_bfe
- f: draw interp_bfe+slr
- o: draw slr+interp_bfe-elev
- d: draw slr+interp_bfe-slr
- i: draw slr+interp_bfe-slr with slr on top
+ e: Draw Elevgrid
+ s: Draw SLR
+ d: Draw SLR-Flooded (SLR-elev)
+ j: Draw the original sea
+ k: Draw Sea+SLR-Flooded
+ 
+ b: Draw original BFE
+ i: Draw interpolated BFE
+ c: Draw BFE+SLR
+ v: Draw BFE+SLR-Flooded
+ l: Draw Sea+(BFE+SLR)-Flooded
+ f: Draw Stormflooding (BFE+SLR)-SLR
+ 
+ 
  +: increase the sea level rise
  -: decrease the sea level rise
  */
@@ -96,8 +101,8 @@ int main(int argc, char * argv[]) {
         unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
         printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
         readGridfromFile(interp_bfename, &originterp_bfegrid,1);
-        mallocGrid(elevgrid, &interp_bfeslrgrid);
-        setHeaders(elevgrid, &interp_bfeslrgrid);
+        mallocGrid(elevgrid, &slr_interp_bfegrid);
+        setHeaders(elevgrid, &slr_interp_bfegrid);
     }
     
     //printHeader(elevgrid);
@@ -106,7 +111,7 @@ int main(int argc, char * argv[]) {
     calculateGrids();
     mallocGrid(elevgrid, &currGrid);
     setHeaders(elevgrid, &currGrid);
-
+    findMaxMinElev();
     
 //    Grid depthgrid;
 //    mallocGrid(elevgrid, &depthgrid);
@@ -172,7 +177,7 @@ void calculateGrids() {
         
         clock_t start3 = clock(), diff3;
         printf("start SLR + interp_bfe @ %g\n",rise);
-        start_slr_interp_bfe(&elevgrid, &interp_bfeslrgrid, &interp_bfegrid, rise,seaX, seaY);
+        start_slr_interp_bfe(&elevgrid, &slr_interp_bfegrid, &interp_bfegrid, rise,seaX, seaY);
         diff3 = clock() - start3;
         unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
         printf("interp_bfe+SLR took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
@@ -189,51 +194,58 @@ void keypress(unsigned char key, int x, int y) {
             freeGridData(&elevgrid);
             freeGridData(&slrgrid);
             freeGridData(&interp_bfegrid);
-            freeGridData(&interp_bfeslrgrid);
+            freeGridData(&slr_interp_bfegrid);
+            freeGridData(&currGrid);
             exit(0);
             break;
         case 'w':
-//            gridtoFile(&interp_bfegrid, interp_bfename);
-            gridtoFile(&interp_bfeslrgrid, slrname);
-            break;
-            
-        case 's':
-            printf("Draw SLR\n");
-            DRAW = 0;
-            break;
-        case 'b':
-            printf("Draw interp_bfe\n");
-            DRAW = 1;
-            break;
-        case 'f':
-            printf("Draw interp_bfe + SLR\n");
-            DRAW = 2;
+            gridtoFile(&currGrid, slrname);
             break;
         case 'e':
             printf("Draw Elevgrid\n");
-            DRAW = 3;
+            DRAW = elev;
             break;
-        case 'p':
-            printf("Draw SLR-Elev\n");
-            DRAW = 4;
-            break;
-        case 'o':
-            printf("Draw SLR+interp_bfe-Elev\n");
-            DRAW = 5;
+        case 's':
+            printf("Draw SLR\n");
+            DRAW = slr;
             break;
         case 'd':
-            printf("Draw SLR+interp_bfe-SLR\n");
-            DRAW = 6;
+            printf("Draw SLR-Flooded(SLR-Elev)\n");
+            DRAW = slr_elev;
+            break;
+        case 'j':
+            printf("Draw Water\n");
+            DRAW = water;
+            break;
+        case 'k':
+            printf("Draw Water+SLR-Flooded(SLR-Elev)\n");
+            DRAW = water_slr_elev;
+            break;
+        case 'b':
+            printf("Draw Original BFE\n");
+            DRAW = orig_bfe;
             break;
         case 'i':
-            printf("Draw SLR+interp_bfe-SLR with the slr\n");
-            DRAW = 7;
+            printf("Draw Interpolated BFE\n");
+            DRAW = interp_bfe;
             break;
-        case 'u':
-            printf("Draw Original interp_bfe\n");
-            DRAW = 8;
+        case 'c':
+            printf("Draw SLR_BFE\n");
+            DRAW = slrinterp_bfe;
             break;
-            
+    
+        case 'v':
+            printf("Draw SLR_BFE-Flooded(SLR+BFE-Elev)\n");
+            DRAW = slrinterp_bfe_elev;
+            break;
+        case 'l':
+            printf("Draw Water+SLR_BFE-Flooded(SLR+BFE-Elev)\n");
+            DRAW = water_slrinterp_bfe_elev;
+            break;
+        case 'f':
+            printf("Draw Stormflooding (BFE_SLR - SLR)\n");
+            DRAW = slrinterp_bfeminusslr;
+            break;
         case '=':
             rise += 1;
             printf("The new rise is %f\n", rise);
@@ -249,8 +261,8 @@ void keypress(unsigned char key, int x, int y) {
             printf("\nThe new rise is %f\n", rise);
             calculateGrids();
             break;
-        case '1':
-            rise = 100;
+        case '5':
+            rise += 5;
             printf("The new rise is %f\n", rise);
             calculateGrids();
             break;
