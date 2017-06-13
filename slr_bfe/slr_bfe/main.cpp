@@ -38,6 +38,7 @@
 #include "slr.hpp"
 #include "bfe.hpp"
 #include "slr_bfe.hpp"
+#include "bfe_complete.hpp"
 
 #include "parsing.hpp"
 #include "drawing.hpp"
@@ -65,7 +66,7 @@ const int POINT_SIZE  = 5.0f;
 
 
 /* declarations */
-const char *elevname, *slrname, *interp_bfename;
+const char *elevname, *writeGridname, *interp_bfename;
 int seaX, seaY;
 
 
@@ -82,7 +83,7 @@ int main(int argc, char * argv[]) {
         interp_bfename = argv[6];
     }
     elevname = argv[1];
-    slrname = argv[2];
+    writeGridname = argv[2];
     seaX = atoi(argv[3]);
     seaY = atoi(argv[4]);
     rise = atof(argv[5]);
@@ -103,6 +104,15 @@ int main(int argc, char * argv[]) {
         unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
         printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
         readGridfromFile(interp_bfename, &originterp_bfegrid,1);
+        
+        clock_t start = clock(), diff;
+        printf("start interp_bfe @ %g\n",rise);
+        start_interp_bfe(&elevgrid, &interp_bfegrid, rise, seaX, seaY);
+        diff = clock() - start;
+        unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
+        printf("interp_bfe took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);
+
+        
         mallocGrid(elevgrid, &slr_interp_bfegrid);
         setHeaders(elevgrid, &slr_interp_bfegrid);
     }
@@ -170,13 +180,6 @@ void calculateGrids() {
     printf("SLR took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
     
     if (interp_bfe_EXISTS) {
-        clock_t start = clock(), diff;
-        printf("start interp_bfe @ %g\n",rise);
-        start_interp_bfe(&elevgrid, &interp_bfegrid, rise, seaX, seaY);
-        diff = clock() - start;
-        unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
-        printf("interp_bfe took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);
-        
         clock_t start3 = clock(), diff3;
         printf("start SLR + interp_bfe @ %g\n",rise);
         start_slr_interp_bfe(&elevgrid, &slr_interp_bfegrid, &interp_bfegrid, rise,seaX, seaY);
@@ -202,7 +205,7 @@ void keypress(unsigned char key, int x, int y) {
             break;
         case 'w':
             printf("Write to file\n");
-            gridtoFile(&currGrid, slrname);
+            gridtoFile(&currGrid, writeGridname);
             break;
         case 'e':
             printf("Draw Elevgrid\n");

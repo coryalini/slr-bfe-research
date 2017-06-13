@@ -16,6 +16,7 @@
 		EA22DC441EE4760300C79F72 /* drawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA22DC421EE4760300C79F72 /* drawing.cpp */; };
 		EA22DC471EE4762600C79F72 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA22DC461EE4762600C79F72 /* GLUT.framework */; };
 		EA22DC491EE4762C00C79F72 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA22DC481EE4762C00C79F72 /* OpenGL.framework */; };
+		EABAFFFB1EF075EF00F60A51 /* bfe_complete.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EABAFFF91EF075EF00F60A51 /* bfe_complete.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -47,6 +48,8 @@
 		EA22DC431EE4760300C79F72 /* drawing.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = drawing.hpp; sourceTree = "<group>"; };
 		EA22DC461EE4762600C79F72 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		EA22DC481EE4762C00C79F72 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		EABAFFF91EF075EF00F60A51 /* bfe_complete.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bfe_complete.cpp; sourceTree = "<group>"; };
+		EABAFFFA1EF075EF00F60A51 /* bfe_complete.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = bfe_complete.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +90,8 @@
 				EA22DC341EE4757C00C79F72 /* bridge.hpp */,
 				EA22DC301EE4755300C79F72 /* slr.cpp */,
 				EA22DC311EE4755300C79F72 /* slr.hpp */,
+				EABAFFF91EF075EF00F60A51 /* bfe_complete.cpp */,
+				EABAFFFA1EF075EF00F60A51 /* bfe_complete.hpp */,
 				EA22DC361EE4759A00C79F72 /* bfe.cpp */,
 				EA22DC371EE4759A00C79F72 /* bfe.hpp */,
 				EA22DC3C1EE475CA00C79F72 /* slr_bfe.cpp */,
@@ -171,6 +176,7 @@
 				EA22DC381EE4759A00C79F72 /* bfe.cpp in Sources */,
 				EA22DC351EE4757C00C79F72 /* bridge.cpp in Sources */,
 				EA22DC321EE4755300C79F72 /* slr.cpp in Sources */,
+				EABAFFFB1EF075EF00F60A51 /* bfe_complete.cpp in Sources */,
 				EA22DC441EE4760300C79F72 /* drawing.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -300,6 +306,7 @@
 				EA22DC2F1EE4752400C79F72 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

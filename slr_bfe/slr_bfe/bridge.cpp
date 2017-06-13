@@ -16,7 +16,7 @@ int offsets [8][2] ={{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
 float rise;
 
 const int NEW_WATER = -8000;
-const int HAVENT_VISITED = -9000;
+const int HAVENT_VISITED = -7000;
 double max = 0, minLand =std::numeric_limits<double>::max(), min = std::numeric_limits<double>::max();
 double maxElev = 0, minLandElev =std::numeric_limits<double>::max();
 
@@ -113,7 +113,7 @@ void findMaxMin(Grid* grid) {
                 min = grid->data[i][j];
             }
 //            printf("%f vs %f \n",grid->data[i][j], minLand);
-            if (grid->data[i][j] < minLand && grid->data[i][j] != grid->NODATA_value && grid->data[i][j] != NEW_WATER) {
+            if (grid->data[i][j] < minLand && grid->data[i][j] != grid->NODATA_value && grid->data[i][j] != NEW_WATER && grid->data[i][j] != HAVENT_VISITED) {
                 minLand = grid->data[i][j];
             }
         }

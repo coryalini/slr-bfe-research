@@ -58,7 +58,6 @@ void compute_slr(Grid* elevgrid, Grid* slrgrid,float rise, std::queue<point>& qu
                     slrgrid->data[newRow][newCol] = elevgrid->NODATA_value;
                     queue.push(newPoint);
                 } else {
-                    
                     if (elevgrid->data[newRow][newCol] < rise) {
                         slrgrid->data[newRow][newCol] = NEW_WATER;
                         queue.push(newPoint);

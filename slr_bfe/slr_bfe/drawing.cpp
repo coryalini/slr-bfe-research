@@ -61,7 +61,6 @@ void display(void) {
             case ELEV:
                 setCurrGrid(&elevgrid);
                 coloring = COLOR;
-                
                 break;
             case SLR:
                 setCurrGrid(&slrgrid);
@@ -174,7 +173,7 @@ void waterGrid(Grid* grid) {
         }
     }
 }
-/* 
+/*
  When called,ex: grid1 is slr or slr+bfe and grid2 is elev.
  
  This function sets the global variable, currGrid.
@@ -256,7 +255,7 @@ void general_draw_point(point mypoint, Grid* grid,int grid_type) {
         draw_point_combine_water(value,rise);
     } else {
         draw_point_combine_water(value,rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
-
+        
     }
     
     float x=0, y=0;  //just to initialize with something
@@ -281,42 +280,48 @@ void general_draw_point(point mypoint, Grid* grid,int grid_type) {
 
 
 void draw_point_color(double value) {
-    double base = max/numCategories;
+    double base;
+    double thisMin = minLand;
+    if (minLand < 0) {
+        thisMin = 0;
+    }
+    base = (max-thisMin)/numCategories;
     if (value == elevgrid.NODATA_value) {
         glColor3fv(blue);
     } else if (value == NEW_WATER) {
         glColor3fv(lightblue);
-    } else if (value < base) {
-        glColor3fv(interpolate_colors(green1, greenmid,value,0,base));
-    } else if (value < (2 * base)) {
-        glColor3fv(interpolate_colors(greenmid, green2,value,base,2*base));
-    } else if (value < (3 * base)) {
-        glColor3fv(interpolate_colors(green2, darkyellow,value,2*base,3*base));
-    } else if (value < (4 * base)) {
-        glColor3fv(interpolate_colors(darkyellow, darkorange,value,3*base,4*base));
-    } else if (value < (5 * base)) {
-        glColor3fv(interpolate_colors(darkorange, red1,value,4*base,5*base));
+    } else if (value < (thisMin+base)) {
+        glColor3fv(interpolate_colors(green1, greenmid,value,thisMin,(thisMin + base)));
+    } else if (value < (thisMin + 2 * base)) {
+        glColor3fv(interpolate_colors(greenmid, green2,value,(thisMin + base),(thisMin + 2*base)));
+    } else if (value < (thisMin + 3 * base)) {
+        glColor3fv(interpolate_colors(green2, darkyellow,value,(thisMin + 2*base),(thisMin + 3*base)));
+    } else if (value < (thisMin + 4 * base)) {
+        glColor3fv(interpolate_colors(darkyellow, darkorange,value,(thisMin + 3*base),(thisMin + 4*base)));
+    } else if (value < (thisMin + 5 * base)) {
+        glColor3fv(interpolate_colors(darkorange, red1,value,(thisMin + 4*base),(thisMin + 5*base)));
     }  else {
-        glColor3fv(interpolate_colors(red1, red2,value,5*base,6*base));
+        glColor3fv(interpolate_colors(red1, red2,value,(thisMin + 5*base),(thisMin+6*base)));
     }
 }
 
 void draw_point_black(double value) {
-    double base = max/numCategories;
+    assert(minLand > 0);
+    double base = (max-minLand)/numCategories;
     if (value == elevgrid.NODATA_value) {
         glColor3fv(lightblue);
-    } else if (value < base) {
-        glColor3fv(interpolate_colors(gray1, gray2,value,0,base));
-    } else if (value < (2 * base)) {
-        glColor3fv(interpolate_colors(gray2, gray3,value,base,2*base));
-    } else if (value < (3 * base)) {
-        glColor3fv(interpolate_colors(gray3, gray4,value,2*base,3*base));
-    } else if (value < (4 * base)) {
-        glColor3fv(interpolate_colors(gray4, gray5,value,3*base,4*base));
-    } else if (value < (5 * base)) {
-        glColor3fv(interpolate_colors(gray5, gray6,value,4*base,5*base));
+    } else if (value < minLand+base) {
+        glColor3fv(interpolate_colors(gray1, gray2,value,minLand,minLand+base));
+    } else if (value < (minLand+2 * base)) {
+        glColor3fv(interpolate_colors(gray2, gray3,value,minLand+base,minLand+2*base));
+    } else if (value < (minLand+3 * base)) {
+        glColor3fv(interpolate_colors(gray3, gray4,value,minLand+2*base,minLand+3*base));
+    } else if (value < (minLand+4 * base)) {
+        glColor3fv(interpolate_colors(gray4, gray5,value,minLand+3*base,minLand+4*base));
+    } else if (value < (minLand+5 * base)) {
+        glColor3fv(interpolate_colors(gray5, gray6,value,minLand+4*base,minLand+5*base));
     }  else {
-        glColor3fv(interpolate_colors(gray6, black,value,5*base,6*base));
+        glColor3fv(interpolate_colors(gray6, black,value,minLand+5*base,minLand+6*base));
     }
 }
 void draw_point_binary(double value) {
@@ -331,9 +336,8 @@ void draw_point_combine(double value, double theRise) {
     if (value > 0 || value == elevgrid.NODATA_value) {
         glColor3fv(black);
     } else {
-//        printf("%lf ",value);
+        //assuming minimum (ie max negative number) is about zero
         value += -(minLandElev-theRise);
-//        printf("%lf \n",value);
         double maxNum = 1+ -(minLandElev-theRise);
         double base = maxNum/numCategories;
         if (value < base) {
@@ -357,6 +361,7 @@ void draw_point_combine_water(double value, double theRise) {
     }else if(value == elevgrid.NODATA_value) {
         glColor3fv(blue);
     } else {
+        //assuming minimum (ie max negative number) is about zero
         value += -(minLandElev-theRise);
         double maxNum = 1+ -(minLandElev-theRise);
         double base = maxNum/numCategories;
