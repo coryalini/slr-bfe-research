@@ -55,13 +55,15 @@ extern GLfloat gray4[3];
 extern GLfloat gray5[3];
 extern GLfloat gray6[3];
 
-enum {elev = 0, slr = 1, slr_elev = 2, water = 3, water_slr_elev = 4, orig_bfe = 5, interp_bfe = 6,slrinterp_bfe = 7, slrinterp_bfe_elev = 8,water_slrinterp_bfe_elev = 9,slrinterp_bfeminusslr = 10};
+enum {ELEV = 0, SLR = 1, SLR_ELEV = 2, WATER = 3, WATER_SLR_ELEV = 4, ORIG_BFE = 5, INTERP_BFE = 6,SLRINTERP_BFE = 7, SLRINTERP_BFE_ELEV = 8,WATER_SLRINTERP_BFE_ELEV = 9,SLRINTERP_BFEMINUSSLR = 10};
 
 static float numCategories = 6.0;
 
 void display(void);
 void waterGrid(Grid* grid);
-void combineGrids(Grid* grid1, Grid* grid2, double combine);
+void setCurrGrid(Grid* grid);
+void combineGrids_nobfe(Grid* grid1, Grid* grid2);
+void combineGrids_bfe(Grid* grid1, Grid* grid2);
 void diffGrids(Grid* grid1, Grid* grid2, double diff);
 
 
@@ -75,7 +77,6 @@ void draw_point_combine(double value, double theRise);
 void draw_point_combine_water(double value, double theRise);
 
 GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);
-void changeCurrGrid(Grid* grid);
 
 //void draw_point_combo(point mypoint, Grid* main, Grid* subtract,  float currRise);
 //void draw_point_diff(point mypoint, Grid* main, Grid* subtract,  float currRise);

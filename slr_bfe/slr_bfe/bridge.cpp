@@ -66,7 +66,14 @@ void setinterp_bfeNotVisited(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid
         for (int j = 0; j < slrgrid->ncols; j++) {
             if (slrgrid->data[i][j] == HAVENT_VISITED) {
                 if (interp_bfegrid->data[i][j] != interp_bfegrid->NODATA_value) {
-                    slrgrid->data[i][j] = elevgrid->data[i][j] - (rise+ interp_bfegrid->data[i][j]);
+                    if (slrgrid->data[i][j] == NEW_WATER) {
+                        slrgrid->data[i][j] = elevgrid->data[i][j] - (rise+ interp_bfegrid->data[i][j]);
+
+                    } else {
+                        slrgrid->data[i][j] = elevgrid->data[i][j] - rise;
+
+                    }
+                    
                 } else {
                     slrgrid->data[i][j] = elevgrid->data[i][j] - rise;
                 }

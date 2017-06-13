@@ -15,6 +15,8 @@
 extern int viewpointRow;
 extern int viewpointColumn;
 
+extern int ELEV_TYPE;
+extern int BFE_TYPE;
 
 void readGridfromFile(const char* gridfname, Grid* g, int gridType);
 

@@ -49,7 +49,7 @@ void compute_slr_interp_bfe(Grid* elevgrid, Grid* slr_interp_bfegrid, Grid* inte
                     newPoint.x = newRow;
                     newPoint.y = newCol;
                     queue.push(newPoint);
-                } else {
+                } else {// not given as water
                     if (interp_bfegrid->data[newRow][newCol] != interp_bfegrid->NODATA_value) {
                         if (elevgrid->data[newRow][newCol] < (rise + interp_bfegrid->data[newRow][newCol])) {
                             slr_interp_bfegrid->data[newRow][newCol] = NEW_WATER;

@@ -22,7 +22,8 @@
 float ELEV_CONVERTER = 1;
 float BFE_CONVERTER = 1;
 
-
+int ELEV_TYPE = 0;
+int BFE_TYPE = 1;
 
 int viewpointRow;
 int viewpointColumn;
@@ -63,14 +64,17 @@ void readGridfromFile(const char* gridfname, Grid* g, int gridType) {
     for(int i = 0; i < g->nrows; i++) {
         for(int j = 0; j < g->ncols; j++) {
             int y = fscanf(f,"%f ",&g->data[i][j]);
-            if (!gridType && g->data[i][j] != g->NODATA_value ) {
-                g->data[i][j] = g->data[i][j]*ELEV_CONVERTER;
-            }else if (gridType && g->data[i][j] != g->NODATA_value ) {
-                g->data[i][j] = g->data[i][j]*BFE_CONVERTER;
-            }
             if (y != 1) {
                 printf("ERROR: fscanf did not properly scan in the grid\n");
                 exit(1);
+            }
+            if (g->data[i][j] != g->NODATA_value) {
+                if (gridType == ELEV_TYPE) {
+                    g->data[i][j] *= ELEV_CONVERTER;
+                } else {
+                    g->data[i][j] = g->data[i][j]*BFE_CONVERTER;
+
+                }
             }
         }
     }

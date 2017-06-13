@@ -25,6 +25,7 @@
  
  
  +: increase the sea level rise
+ =: increase the sea level rise
  -: decrease the sea level rise
  */
 
@@ -62,6 +63,7 @@ void calculateGrids();
 const int WINDOWSIZE = 500;
 const int POINT_SIZE  = 5.0f;
 
+
 /* declarations */
 const char *elevname, *slrname, *interp_bfename;
 int seaX, seaY;
@@ -86,7 +88,7 @@ int main(int argc, char * argv[]) {
     rise = atof(argv[5]);
     
     clock_t start = clock(), diff;
-    readGridfromFile(elevname, &elevgrid,0);
+    readGridfromFile(elevname, &elevgrid,ELEV_TYPE);
     diff = clock() - start;
     unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
     printf("Reading elevgrid took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);
@@ -96,7 +98,7 @@ int main(int argc, char * argv[]) {
     
     if (interp_bfe_EXISTS) {
         clock_t start2 = clock(), diff2;
-        readGridfromFile(interp_bfename, &interp_bfegrid,1);
+        readGridfromFile(interp_bfename, &interp_bfegrid,BFE_TYPE);
         diff2 = clock() - start2;
         unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
         printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
@@ -199,52 +201,53 @@ void keypress(unsigned char key, int x, int y) {
             exit(0);
             break;
         case 'w':
+            printf("Write to file\n");
             gridtoFile(&currGrid, slrname);
             break;
         case 'e':
             printf("Draw Elevgrid\n");
-            DRAW = elev;
+            DRAW = ELEV;
             break;
         case 's':
             printf("Draw SLR\n");
-            DRAW = slr;
+            DRAW = SLR;
             break;
         case 'd':
             printf("Draw SLR-Flooded(SLR-Elev)\n");
-            DRAW = slr_elev;
+            DRAW = SLR_ELEV;
             break;
         case 'j':
             printf("Draw Water\n");
-            DRAW = water;
+            DRAW = WATER;
             break;
         case 'k':
             printf("Draw Water+SLR-Flooded(SLR-Elev)\n");
-            DRAW = water_slr_elev;
+            DRAW = WATER_SLR_ELEV;
             break;
         case 'b':
             printf("Draw Original BFE\n");
-            DRAW = orig_bfe;
+            DRAW = ORIG_BFE;
             break;
         case 'i':
             printf("Draw Interpolated BFE\n");
-            DRAW = interp_bfe;
+            DRAW = INTERP_BFE;
             break;
         case 'c':
             printf("Draw SLR_BFE\n");
-            DRAW = slrinterp_bfe;
+            DRAW = SLRINTERP_BFE;
             break;
     
         case 'v':
             printf("Draw SLR_BFE-Flooded(SLR+BFE-Elev)\n");
-            DRAW = slrinterp_bfe_elev;
+            DRAW = SLRINTERP_BFE_ELEV;
             break;
         case 'l':
             printf("Draw Water+SLR_BFE-Flooded(SLR+BFE-Elev)\n");
-            DRAW = water_slrinterp_bfe_elev;
+            DRAW = WATER_SLRINTERP_BFE_ELEV;
             break;
         case 'f':
             printf("Draw Stormflooding (BFE_SLR - SLR)\n");
-            DRAW = slrinterp_bfeminusslr;
+            DRAW = SLRINTERP_BFEMINUSSLR;
             break;
         case '=':
             rise += 1;
