@@ -24,8 +24,6 @@ void gridtoFile(Grid *grid, const char* name);
 
 void mallocGrid(Grid eg, Grid* vg);
 
-void freeGridData(Grid* grid);
-
 void setHeaders(Grid elevgrid, Grid* newGrid);
 
 void printGrid(Grid g);

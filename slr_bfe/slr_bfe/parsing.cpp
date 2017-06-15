@@ -117,14 +117,6 @@ void gridtoFile(Grid* g, const char* fileName) {
 }
 
 
-void freeGridData(Grid* g) {
-    for(int i = 0; i < g->nrows; i++) {
-        free(g->data[i]);
-    }
-    free(g->data);
-}
-
-
 void setHeaders(Grid elevgrid, Grid* newGrid) {
     newGrid->nrows = elevgrid.nrows;
     newGrid->ncols = elevgrid.ncols;

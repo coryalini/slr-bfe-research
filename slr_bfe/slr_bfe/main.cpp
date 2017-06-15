@@ -107,7 +107,7 @@ int main(int argc, char * argv[]) {
         
         clock_t start = clock(), diff;
         printf("start interp_bfe @ %g\n",rise);
-        start_interp_bfe(&elevgrid, &interp_bfegrid, rise, seaX, seaY);
+        start_interp_bfe1(&elevgrid, &interp_bfegrid, rise, seaX, seaY);
         diff = clock() - start;
         unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
         printf("interp_bfe took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);

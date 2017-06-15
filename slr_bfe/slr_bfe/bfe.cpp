@@ -144,4 +144,10 @@ void compute_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** al
             alreadySeen[newRow][newCol] = 'b';
         }
     }
+    for(int a = 0; a < elevgrid->nrows; a++) {
+        free(alreadySeen[a]);
+    }
+    free(alreadySeen);
+   
+
 }

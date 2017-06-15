@@ -10,7 +10,6 @@
 
 /* MARK: bfe */
 void start_interp_bfe1(Grid* elevgrid,Grid* interp_bfegrid, float rise, int seaX, int seaY) {
-    
     if (elevgrid->data[seaX][seaY] != elevgrid->NODATA_value) {
         printf("ERROR:The point %f that was given is not the sea\n",elevgrid->data[seaX][seaY]);
         return;
@@ -109,7 +108,6 @@ void compute_interp_bfe1(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** a
             }
         }
     }
-    
     std::queue<point> interp_bfequeue;
     while(queue.empty() != true) {
         point curr = queue.front();
@@ -127,8 +125,12 @@ void compute_interp_bfe1(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** a
                 //if not interp_bfe  add to queue and continue
                 if(interp_bfegrid->data[newRow][newCol] == interp_bfegrid->NODATA_value) {
                     interp_bfegrid->data[newRow][newCol] = interp_bfegrid->NODATA_value;
-                    queue.push(newPoint);
-                    alreadySeen[newRow][newCol] = 'l';
+                    if (elevgrid->data[newRow][newCol] == elevgrid->NODATA_value) {
+                        alreadySeen[newRow][newCol] = 's';
+                    } else {
+                        queue.push(newPoint);
+                        alreadySeen[newRow][newCol] = 'l';
+                    }
                 } else {
                     interp_bfequeue.push(newPoint);
                     alreadySeen[newRow][newCol] = 'b';
@@ -149,7 +151,7 @@ void compute_interp_bfe1(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** a
             point newPoint;
             newPoint.x = newRow;
             newPoint.y = newCol;
-            if(alreadySeen[newRow][newCol] != 'u' || alreadySeen[newRow][newCol] != 'f' ) {
+            if(alreadySeen[newRow][newCol] != 'u' && alreadySeen[newRow][newCol] != 'f'&& alreadySeen[newRow][newCol] != 'l') {
                 continue;
             }
             if (interp_bfegrid->data[newRow][newCol] == interp_bfegrid->NODATA_value) {
@@ -160,4 +162,9 @@ void compute_interp_bfe1(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** a
             alreadySeen[newRow][newCol] = 'b';
         }
     }
+    
+    for(int a = 0; a < elevgrid->nrows; a++) {
+        free(alreadySeen[a]);
+    }
+    free(alreadySeen);
 }

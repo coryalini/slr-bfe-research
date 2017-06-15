@@ -136,6 +136,15 @@ void findMaxMinElev() {
 
 
 
+void freeGridData(Grid* g) {
+    for(int i = 0; i < g->nrows; i++) {
+        free(g->data[i]);
+    }
+    free(g->data);
+}
+
+
+
 //const int NEW_WATER = -8000;
 void outputGridWithDepth(Grid* g, Grid* slrgrid,Grid* elevgrid,float rise) {
     for (int i = 0; i < g->nrows; i++) {

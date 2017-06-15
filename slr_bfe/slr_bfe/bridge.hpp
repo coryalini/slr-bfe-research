@@ -51,6 +51,9 @@ int insideGrid(Grid* grid, int i, int j);
 void findMaxMin(Grid* grid);
 void findMaxMinElev();
 
+void freeGridData(Grid* grid);
+
+
 void outputGridWithDepth(Grid* g, Grid* slrgrid,Grid* elevgrid,float rise);
 void outputGridWithDepthWITHinterp_bfe(Grid* g, Grid* slrgrid,Grid* elevgrid,Grid* interp_bfegrid, float rise);
 
