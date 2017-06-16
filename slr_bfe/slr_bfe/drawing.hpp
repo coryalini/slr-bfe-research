@@ -55,7 +55,7 @@ extern GLfloat gray4[3];
 extern GLfloat gray5[3];
 extern GLfloat gray6[3];
 
-enum {ELEV = 0, SLR = 1, SLR_ELEV = 2, WATER = 3, WATER_SLR_ELEV = 4, ORIG_BFE = 5, INTERP_BFE = 6,SLRINTERP_BFE = 7, SLRINTERP_BFE_ELEV = 8,WATER_SLRINTERP_BFE_ELEV = 9,SLRINTERP_BFEMINUSSLR = 10};
+enum {ELEV = 0, SLR = 1, SLR_ELEV = 2,SLR_GRAY =3, WATER = 4, WATER_SLR_ELEV = 5, ORIG_BFE = 6, INTERP_BFE = 7,SLRINTERP_BFE = 8, SLRINTERP_BFE_ELEV = 9,WATER_SLRINTERP_BFE_ELEV = 10,SLRINTERP_BFEMINUSSLR = 11};
 
 static float numCategories = 6.0;
 
@@ -75,6 +75,9 @@ void draw_point_black(double value);
 void draw_point_binary(double value);
 void draw_point_combine(double value, double theRise);
 void draw_point_combine_water(double value, double theRise);
+void draw_point_see_slr_better(double value);
+
+
 
 GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);
 

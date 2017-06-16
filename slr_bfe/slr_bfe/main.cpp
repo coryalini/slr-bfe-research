@@ -216,6 +216,9 @@ void keypress(unsigned char key, int x, int y) {
             printf("Draw SLR-Flooded(SLR-Elev)\n");
             DRAW = SLR_ELEV;
             break;
+        case 'a':
+            printf("Draw SLR Gray\n");
+            DRAW = SLR_GRAY;
         case 'j':
             printf("Draw Water\n");
             DRAW = WATER;

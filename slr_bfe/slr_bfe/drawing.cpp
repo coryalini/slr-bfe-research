@@ -7,7 +7,7 @@
 //
 
 #include "drawing.hpp"
-enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3,COMBINE_COLOR_BFE = 4, COMBINE_WATER = 5, COMBINE_WATER_BFE = 6};
+enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3,COMBINE_COLOR_BFE = 4, COMBINE_WATER = 5, COMBINE_WATER_BFE = 6, GRAY_BLUE= 7};
 
 GLfloat red_pink[3] = {0.969, 0.396, 0.396};
 GLfloat black[3] = {0.0, 0.0, 0.0};
@@ -69,6 +69,10 @@ void display(void) {
             case SLR_ELEV:
                 combineGrids_nobfe(&slrgrid, &elevgrid);
                 coloring = COMBINE_COLOR;
+                break;
+            case SLR_GRAY:
+                setCurrGrid(&slrgrid);
+                coloring = GRAY_BLUE;
                 break;
             case WATER:
                 waterGrid(&elevgrid);
@@ -247,6 +251,8 @@ void general_draw_point(point mypoint, Grid* grid,int grid_type) {
         draw_point_binary(value);
     } else if (grid_type == BLACK_COLOR){
         draw_point_black(value);
+    } else if (grid_type == GRAY_BLUE) {
+        draw_point_see_slr_better(value);
     } else if (grid_type == COMBINE_COLOR){
         draw_point_combine(value,rise);
     } else if (grid_type == COMBINE_COLOR_BFE){
@@ -304,7 +310,32 @@ void draw_point_color(double value) {
         glColor3fv(interpolate_colors(red1, red2,value,(thisMin + 5*base),(thisMin+6*base)));
     }
 }
-
+void draw_point_see_slr_better(double value) {
+    double base;
+    double thisMin = minLand;
+    if (minLand < 0) {
+        thisMin = 0;
+    }
+    base = (max-thisMin)/numCategories;
+    if (value == elevgrid.NODATA_value) {
+            glColor3fv(blue);
+    } else if (value < 0) {
+            glColor3fv(lightblue);
+        glColor3fv(lightblue);
+    } else if (value < thisMin+base) {
+        glColor3fv(interpolate_colors(gray1, gray2,value,thisMin,thisMin+base));
+    } else if (value < (thisMin+2 * base)) {
+        glColor3fv(interpolate_colors(gray2, gray3,value,thisMin+base,thisMin+2*base));
+    } else if (value < (thisMin+3 * base)) {
+        glColor3fv(interpolate_colors(gray3, gray4,value,thisMin+2*base,thisMin+3*base));
+    } else if (value < (thisMin+4 * base)) {
+        glColor3fv(interpolate_colors(gray4, gray5,value,thisMin+3*base,thisMin+4*base));
+    } else if (value < (thisMin+5 * base)) {
+        glColor3fv(interpolate_colors(gray5, gray6,value,thisMin+4*base,thisMin+5*base));
+    }  else {
+        glColor3fv(interpolate_colors(gray6, black,value,thisMin+5*base,thisMin+6*base));
+    }
+}
 void draw_point_black(double value) {
     assert(minLand > 0);
     double base = (max-minLand)/numCategories;
