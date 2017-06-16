@@ -15,9 +15,9 @@
 #include <queue>
 #include <assert.h>
 
-void start_interp_bfe1(Grid* elevgrid,Grid* interp_bfegrid, float rise,int seaX, int seaY);
+void start_interp_bfe_withFlooded(Grid* elevgrid,Grid* interp_bfegrid, float rise);
 
-void compute_interp_bfe1(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** alreadySeen,std::queue<point>& queue);
+void compute_interp_bfe_withFlooded(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** alreadySeen,std::queue<point>& queue);
 
 #endif /* bfe_complete_hpp */
 

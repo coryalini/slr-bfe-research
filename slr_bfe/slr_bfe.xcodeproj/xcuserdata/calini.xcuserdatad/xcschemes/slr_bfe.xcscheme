@@ -63,12 +63,16 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "dem_sp.asc dem_spvis.asc 2 2 0.3048 bfe_sp.asc"
+            argument = "dem_sp.asc dem_spvis.asc 3 bfe_sp.asc"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "lincoln_2mdem.asc lincoln_2mdemvis.asc 1 "
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "me_car_dem.asc me_car_demvis.asc 2 2 1"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>

@@ -67,26 +67,23 @@ const int POINT_SIZE  = 5.0f;
 
 /* declarations */
 const char *elevname, *writeGridname, *interp_bfename;
-int seaX, seaY;
 
 
 int main(int argc, char * argv[]) {
     
-    if (argc < 6 || argc > 8) {
+    if (argc < 4 || argc > 5) {
         printf("ERROR: Arguments were not included. %d \n", argc);
         return 1;
     }
-    if (argc < 7) {
+    if (argc < 5) {
         interp_bfe_EXISTS = 0;
         
     } else {
-        interp_bfename = argv[6];
+        interp_bfename = argv[4];
     }
     elevname = argv[1];
     writeGridname = argv[2];
-    seaX = atoi(argv[3]);
-    seaY = atoi(argv[4]);
-    rise = atof(argv[5]);
+    rise = atof(argv[3]);
     
     clock_t start = clock(), diff;
     readGridfromFile(elevname, &elevgrid,ELEV_TYPE);
@@ -107,7 +104,7 @@ int main(int argc, char * argv[]) {
         
         clock_t start = clock(), diff;
         printf("start interp_bfe @ %g\n",rise);
-        start_interp_bfe1(&elevgrid, &interp_bfegrid, rise, seaX, seaY);
+        start_interp_bfe_withFlooded(&elevgrid, &interp_bfegrid, rise);
         diff = clock() - start;
         unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
         printf("interp_bfe took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);
@@ -173,7 +170,7 @@ int main(int argc, char * argv[]) {
 void calculateGrids() {
     clock_t start2 = clock(), diff2;
     printf("start SLR @ %g\n",rise);
-    start_slr(&elevgrid, &slrgrid, rise,seaX, seaY);
+    start_slr(&elevgrid, &slrgrid, rise);
     
     diff2 = clock() - start2;
     unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
@@ -182,7 +179,7 @@ void calculateGrids() {
     if (interp_bfe_EXISTS) {
         clock_t start3 = clock(), diff3;
         printf("start SLR + interp_bfe @ %g\n",rise);
-        start_slr_interp_bfe(&elevgrid, &slr_interp_bfegrid, &interp_bfegrid, rise,seaX, seaY);
+        start_slr_interp_bfe(&elevgrid, &slr_interp_bfegrid, &interp_bfegrid, rise);
         diff3 = clock() - start3;
         unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
         printf("interp_bfe+SLR took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);

@@ -11,25 +11,16 @@
 
 
 /* MARK: SLR+interp_bfe */
-void start_slr_interp_bfe(Grid* elevgrid, Grid* slr_interp_bfegrid, Grid* interp_bfegrid, float rise, int seaX, int seaY) {
-    if (elevgrid->data[seaX][seaY] != elevgrid->NODATA_value) {
-        printf("ERROR:The point %f that was given is not the sea\n",elevgrid->data[seaX][seaY]);
-        return;
-    }
-    
-    for (int i = 0; i < elevgrid->nrows; i++) {
+void start_slr_interp_bfe(Grid* elevgrid, Grid* slr_interp_bfegrid, Grid* interp_bfegrid, float rise) {
+   for (int i = 0; i < elevgrid->nrows; i++) {
         for (int j = 0; j < elevgrid->ncols; j++) {
             slr_interp_bfegrid->data[i][j] = HAVENT_VISITED;
         }
     }
     std::queue<point> queue;
-    point start;
-    start.x = seaX;
-    start.y = seaY;
-    queue.push(start);
+    queue = findSeaPoint(elevgrid);
     compute_slr_interp_bfe(elevgrid, slr_interp_bfegrid, interp_bfegrid, rise, queue);
     setinterp_bfeNotVisited(elevgrid,slr_interp_bfegrid,interp_bfegrid, rise);
-    
 }
 
 void compute_slr_interp_bfe(Grid* elevgrid, Grid* slr_interp_bfegrid, Grid* interp_bfegrid,float rise, std::queue<point>& queue) {

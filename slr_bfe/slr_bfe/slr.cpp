@@ -14,23 +14,12 @@
 #include <limits>
 #include <assert.h>
 
-void start_slr(Grid* elevgrid, Grid* slrgrid,float rise, int seaX, int seaY) {
-    if (elevgrid->data[seaX][seaY] != elevgrid->NODATA_value) {
-        printf("ERROR:The point %f that was given is not the sea\n",elevgrid->data[seaX][seaY]);
-        return;
-    }
-    
-    
+void start_slr(Grid* elevgrid, Grid* slrgrid,float rise) {
     for (int i = 0; i < elevgrid->nrows; i++) {
         for (int j = 0; j < elevgrid->ncols; j++) {
             slrgrid->data[i][j] = HAVENT_VISITED;
         }
     }
-    //    std::queue<point> queue;
-    //    point start;
-    //    start.x = seaX;
-    //    start.y = seaY;
-    //    queue.push(start);
     
     std::queue<point> queue;
     queue = findSeaPoint(elevgrid);

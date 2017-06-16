@@ -9,12 +9,7 @@
 #include "bfe_complete.hpp"
 
 /* MARK: bfe */
-void start_interp_bfe1(Grid* elevgrid,Grid* interp_bfegrid, float rise, int seaX, int seaY) {
-    if (elevgrid->data[seaX][seaY] != elevgrid->NODATA_value) {
-        printf("ERROR:The point %f that was given is not the sea\n",elevgrid->data[seaX][seaY]);
-        return;
-    }
-    
+void start_interp_bfe_withFlooded(Grid* elevgrid,Grid* interp_bfegrid, float rise) {    
     char** alreadySeen;
     alreadySeen = (char**)malloc(elevgrid->nrows * sizeof(char *));
     assert(alreadySeen);
@@ -22,7 +17,7 @@ void start_interp_bfe1(Grid* elevgrid,Grid* interp_bfegrid, float rise, int seaX
         alreadySeen[a] = (char*) malloc(elevgrid->ncols * sizeof(char));
         assert(alreadySeen[a]);
     }
-    
+    //initialize
     for (int i = 0; i < elevgrid->nrows; i++) {
         for (int j = 0; j < elevgrid->ncols; j++) {
             alreadySeen[i][j] = 'u';
@@ -30,10 +25,10 @@ void start_interp_bfe1(Grid* elevgrid,Grid* interp_bfegrid, float rise, int seaX
     }
     std::queue<point> queue;
     queue = findSeaPoint(elevgrid);
-    compute_interp_bfe1(elevgrid,interp_bfegrid,rise,alreadySeen,queue);
+    compute_interp_bfe_withFlooded(elevgrid,interp_bfegrid,rise,alreadySeen,queue);
 }
 
-void compute_interp_bfe1(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** alreadySeen,std::queue<point>& queue) {
+void compute_interp_bfe_withFlooded(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** alreadySeen,std::queue<point>& queue) {
     
     //Iterate through left and right edges of the terrain
     for (int i = 0; i < elevgrid->nrows; i++) {

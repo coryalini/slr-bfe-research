@@ -13,7 +13,7 @@
 #include <iostream>
 #include <queue>
 /*MARK SLR*/
-void start_slr(Grid* elevgrid, Grid* slrgrid,float rise, int seaX, int seaY);
+void start_slr(Grid* elevgrid, Grid* slrgrid,float rise);
 
 void compute_slr(Grid* elevgrid, Grid* slrgrid,float rise, std::queue<point>& queue);
 
