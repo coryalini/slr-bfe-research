@@ -54,6 +54,17 @@ void readGridfromFile(const char* gridfname, Grid* g, int gridType) {
         printf("ERROR: fscanf did not properly scan in the variables\n");
         exit(1);
     }
+    
+    if (std::strcmp(gridfname, elevname) != 0) {
+        if (g->ncols != elevgrid.ncols || g->nrows !=elevgrid.nrows) {
+            printf("ERROR:The %s [%ld,%ld] and elevgrid [%ld,%ld] do not have the same grid dimensions!\n",gridfname, g->nrows,g->ncols,elevgrid.nrows, elevgrid.ncols);
+            exit(0);
+        }
+    }
+    
+    
+    
+    
     g->data = (float**)malloc(g->nrows * sizeof(float *));
     assert(g->data);
     for(int i = 0; i < g->nrows; i++) {
@@ -81,6 +92,7 @@ void readGridfromFile(const char* gridfname, Grid* g, int gridType) {
     fclose(f);
 }
 void mallocGrid(Grid eg, Grid* vg) {
+    
     vg->data = (float**)malloc(eg.nrows * sizeof(float *));
     assert(vg->data);
     

@@ -15,6 +15,8 @@ int offsets [8][2] ={{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
 
 float rise;
 
+const char *elevname, *writeGridname, *interp_bfename;
+
 const int NEW_WATER = -8000;
 const int HAVENT_VISITED = -7000;
 double max = 0, minLand =std::numeric_limits<double>::max(), min = std::numeric_limits<double>::max();

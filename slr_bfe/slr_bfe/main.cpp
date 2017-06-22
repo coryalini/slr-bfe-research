@@ -66,7 +66,6 @@ const int POINT_SIZE  = 5.0f;
 
 
 /* declarations */
-const char *elevname, *writeGridname, *interp_bfename;
 
 
 int main(int argc, char * argv[]) {

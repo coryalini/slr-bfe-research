@@ -21,6 +21,7 @@ printf(string , ##args); }
 typedef struct {float x,y;} point;
 
 typedef struct _grid {
+    const char* gridname;
     long  nrows, ncols;  // the size of the grid
     double yllcorner, xllcorner;
     double cellsize;
@@ -39,6 +40,7 @@ extern const int NEW_WATER;
 extern const int HAVENT_VISITED;
 extern double max,min,minLand;
 extern double maxElev,minElev,minLandElev;
+extern const char *elevname, *writeGridname, *interp_bfename;
 
 
 
