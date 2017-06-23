@@ -6,8 +6,8 @@
 //  Copyright © 2017 gis.coryalini. All rights reserved.
 //
 
-#ifndef bridge_hpp
-#define bridge_hpp
+#ifndef grid_hpp
+#define grid_hpp
 
 #define DEBUG 0
 #define debug_printf(string, args ...) if (DEBUG){  \
@@ -17,7 +17,7 @@ printf(string , ##args); }
 
 #include <iostream>
 #include <queue>
-
+#include <assert.h>
 typedef struct {float x,y;} point;
 
 typedef struct _grid {
@@ -43,6 +43,12 @@ extern double maxElev,minElev,minLandElev;
 extern const char *elevname, *writeGridname, *interp_bfename;
 
 
+//parsing
+extern int viewpointRow;
+extern int viewpointColumn;
+
+extern int ELEV_TYPE;
+extern int BFE_TYPE;
 
 std::queue<point> findSeaPoint(Grid* elevgrid);
 
@@ -59,10 +65,26 @@ void freeGridData(Grid* grid);
 void outputGridWithDepth(Grid* g, Grid* slrgrid,Grid* elevgrid,float rise);
 void outputGridWithDepthWITHinterp_bfe(Grid* g, Grid* slrgrid,Grid* elevgrid,Grid* interp_bfegrid, float rise);
 
+//parsing
+void readGridfromFile(const char* gridfname, Grid* g, int gridType);
+
+void gridtoFile(Grid *grid, const char* name);
+
+void mallocGrid(Grid eg, Grid* vg);
+
+void setHeaders(Grid elevgrid, Grid* newGrid);
+
+void printGrid(Grid g);
+
+void printHeader(Grid g);
+
+void printValues(Grid g);
 
 
 
-#endif /* bridge_hpp */
+
+
+#endif /* grid_hpp */
 
 
 

@@ -8,7 +8,7 @@
 
 #ifndef drawing_hpp
 #define drawing_hpp
-#include "bridge.hpp"
+#include "grid.hpp"
 
 
 #ifdef __APPLE__
