@@ -15,21 +15,18 @@
 #include <math.h>
 #include <time.h>
 
-
-Grid elevgrid, interp_bfegrid, slrgrid, slr_interp_bfegrid, originterp_bfegrid,currGrid;
+const char *elevname, *writeGridname, *bfename;
+Grid elevgrid, bfegrid, slrgrid, slr_interp_bfegrid, interp_bfegrid,currgrid;
 int DRAW = 0;
-int interp_bfe_EXISTS = 1;
-
 int offsets [8][2] ={{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
 
 float rise;
-
-const char *elevname, *writeGridname, *interp_bfename;
 
 const int NEW_WATER = -8000;
 const int HAVENT_VISITED = -7000;
 double max = 0, minLand =std::numeric_limits<double>::max(), min = std::numeric_limits<double>::max();
 double maxElev = 0, minLandElev =std::numeric_limits<double>::max();
+
 
 std::queue<point> findSeaPoint(Grid* elevgrid) {
     std::queue<point> queue;

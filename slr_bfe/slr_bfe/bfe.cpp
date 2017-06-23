@@ -9,13 +9,11 @@
 #include "bfe.hpp"
 
 /* MARK: bfe */
-void start_interp_bfe(Grid* elevgrid,Grid* interp_bfegrid, float rise, int seaX, int seaY) {
-    
-    if (elevgrid->data[seaX][seaY] != elevgrid->NODATA_value) {
-        printf("ERROR:The point %f that was given is not the sea\n",elevgrid->data[seaX][seaY]);
-        return;
-    }
-    
+Grid start_interp_bfe(Grid* elevgrid,float rise) {
+
+    Grid local_interp_bfegrid;
+    mallocGrid(*elevgrid, &local_interp_bfegrid);
+    setHeaders(*elevgrid, &local_interp_bfegrid);
     char** alreadySeen;
     alreadySeen = (char**)malloc(elevgrid->nrows * sizeof(char *));
     assert(alreadySeen);
@@ -31,7 +29,7 @@ void start_interp_bfe(Grid* elevgrid,Grid* interp_bfegrid, float rise, int seaX,
     }
     std::queue<point> queue;
     queue = findSeaPoint(elevgrid);
-    compute_interp_bfe(elevgrid,interp_bfegrid,rise,alreadySeen,queue);
+    compute_interp_bfe(elevgrid,&local_interp_bfegrid,rise,alreadySeen,queue);
     
     //    std::queue<point> queue;
     //    point start;
@@ -39,6 +37,7 @@ void start_interp_bfe(Grid* elevgrid,Grid* interp_bfegrid, float rise, int seaX,
     //    start.y = seaY;
     //    queue.push(start);
     //    compute_interp_bfe(elevgrid,interp_bfegrid,rise,alreadySeen,queue);
+    return local_interp_bfegrid;
 }
 
 void compute_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** alreadySeen,std::queue<point>& queue) {
@@ -160,7 +159,11 @@ void compute_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** al
 
 
 /* MARK: bfe */
-void start_interp_bfe_withFlooded(Grid* elevgrid,Grid* interp_bfegrid, float rise) {
+Grid start_interp_bfe_withFlooded(Grid* elevgrid, float rise) {
+    
+    Grid local_interp_bfegrid;
+    mallocGrid(*elevgrid, &local_interp_bfegrid);
+    setHeaders(*elevgrid, &local_interp_bfegrid);
     char** alreadySeen;
     alreadySeen = (char**)malloc(elevgrid->nrows * sizeof(char *));
     assert(alreadySeen);
@@ -176,14 +179,15 @@ void start_interp_bfe_withFlooded(Grid* elevgrid,Grid* interp_bfegrid, float ris
     }
     std::queue<point> queue;
     queue = findSeaPoint(elevgrid);
-    compute_interp_bfe_withFlooded(elevgrid,interp_bfegrid,rise,alreadySeen,queue);
+    compute_interp_bfe_withFlooded(elevgrid,&local_interp_bfegrid,rise,alreadySeen,queue);
+    return local_interp_bfegrid;
 }
 
-void compute_interp_bfe_withFlooded(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** alreadySeen,std::queue<point>& queue) {
+void compute_interp_bfe_withFlooded(Grid* elevgrid, Grid* local_interp_bfegrid,int rise, char** alreadySeen,std::queue<point>& queue) {
     
     //Iterate through left and right edges of the terrain
     for (int i = 0; i < elevgrid->nrows; i++) {
-        if (interp_bfegrid->data[i][0] == interp_bfegrid->NODATA_value) {
+        if (local_interp_bfegrid->data[i][0] == local_interp_bfegrid->NODATA_value) {
             point newPoint;
             
             //Iterate through the left edge of the terrain
@@ -216,7 +220,7 @@ void compute_interp_bfe_withFlooded(Grid* elevgrid, Grid* interp_bfegrid,int ris
     //Iterate through top and bottom edges of the terrain
     
     for (int j = 0; j < elevgrid->ncols; j++) {
-        if (interp_bfegrid->data[0][j] == interp_bfegrid->NODATA_value) {
+        if (local_interp_bfegrid->data[0][j] == local_interp_bfegrid->NODATA_value) {
             point newPoint;
             
             //Iterate through the top edge of the terrain
@@ -262,8 +266,8 @@ void compute_interp_bfe_withFlooded(Grid* elevgrid, Grid* interp_bfegrid,int ris
             newPoint.y = newCol;
             if(alreadySeen[newRow][newCol] == 'u') {
                 //if not interp_bfe  add to queue and continue
-                if(interp_bfegrid->data[newRow][newCol] == interp_bfegrid->NODATA_value) {
-                    interp_bfegrid->data[newRow][newCol] = interp_bfegrid->NODATA_value;
+                if(local_interp_bfegrid->data[newRow][newCol] == local_interp_bfegrid->NODATA_value) {
+                    local_interp_bfegrid->data[newRow][newCol] = local_interp_bfegrid->NODATA_value;
                     if (elevgrid->data[newRow][newCol] == elevgrid->NODATA_value) {
                         alreadySeen[newRow][newCol] = 's';
                     } else {
@@ -295,10 +299,10 @@ void compute_interp_bfe_withFlooded(Grid* elevgrid, Grid* interp_bfegrid,int ris
             if(alreadySeen[newRow][newCol] != 'u' && alreadySeen[newRow][newCol] != 'f'&& alreadySeen[newRow][newCol] != 'l') {
                 continue;
             }
-            if (interp_bfegrid->data[newRow][newCol] == interp_bfegrid->NODATA_value) {
-                interp_bfegrid->data[newRow][newCol] = interp_bfegrid->data[(int)curr.x][(int)curr.y];
+            if (local_interp_bfegrid->data[newRow][newCol] == local_interp_bfegrid->NODATA_value) {
+                local_interp_bfegrid->data[newRow][newCol] = local_interp_bfegrid->data[(int)curr.x][(int)curr.y];
             }
-            assert(interp_bfegrid->data[newRow][newCol] != interp_bfegrid->NODATA_value);
+            assert(local_interp_bfegrid->data[newRow][newCol] != local_interp_bfegrid->NODATA_value);
             interp_bfequeue.push(newPoint);
             alreadySeen[newRow][newCol] = 'b'; // change the value so it has a bfe
         }

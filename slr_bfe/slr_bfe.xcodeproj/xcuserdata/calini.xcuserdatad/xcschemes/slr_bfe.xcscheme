@@ -63,16 +63,20 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "dem_sp.asc dem_spvis.asc 2 bfe_sp.asc"
+            argument = "dem_sp.asc dem_spvis.asc 2.46 bfe_sp.asc"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "noaa_coast_southport_10m.asc vis.asc 1.8"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "hat1ft.txt hatvis.asc 2 bfe_sp.asc"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "lincoln_2mdem.asc lincoln_2mdemvis.asc 1 "
-            isEnabled = "NO">
+            argument = "dem_sp.asc dem_spvis.asc 2.46"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "me_car_dem.asc me_car_demvis.asc 2 2 1"

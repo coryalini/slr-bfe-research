@@ -56,10 +56,10 @@ extern GLfloat gray5[3];
 extern GLfloat gray6[3];
 
 enum {ELEV = 0, SLR = 1, SLR_ELEV = 2,SLR_GRAY =3, WATER = 4, WATER_SLR_ELEV = 5, ORIG_BFE = 6, INTERP_BFE = 7,SLRINTERP_BFE = 8, SLRINTERP_BFE_ELEV = 9,WATER_SLRINTERP_BFE_ELEV = 10,SLRINTERP_BFEMINUSSLR = 11};
+enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3,COMBINE_COLOR_BFE = 4, COMBINE_WATER = 5, COMBINE_WATER_BFE = 6, GRAY_BLUE= 7};
 
 static float numCategories = 6.0;
 
-void display(void);
 void waterGrid(Grid* grid);
 void setCurrGrid(Grid* grid);
 void combineGrids_nobfe(Grid* grid1, Grid* grid2);

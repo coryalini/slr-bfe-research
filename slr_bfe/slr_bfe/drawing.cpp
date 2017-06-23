@@ -7,7 +7,6 @@
 //
 
 #include "drawing.hpp"
-enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3,COMBINE_COLOR_BFE = 4, COMBINE_WATER = 5, COMBINE_WATER_BFE = 6, GRAY_BLUE= 7};
 
 GLfloat red_pink[3] = {0.969, 0.396, 0.396};
 GLfloat black[3] = {0.0, 0.0, 0.0};
@@ -51,99 +50,7 @@ GLfloat blue5[3] = {0.380,0.568,0.619};
 GLfloat blue6[3] = {0.305,0.486,0.553};
 
 
-void display(void) {
-    glClear(GL_COLOR_BUFFER_BIT);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity(); //clear the matrix
-    float coloring = 0;
-    if (interp_bfe_EXISTS) {
-        switch (DRAW) {
-            case ELEV:
-                setCurrGrid(&elevgrid);
-                coloring = COLOR;
-                break;
-            case SLR:
-                setCurrGrid(&slrgrid);
-                coloring = COLOR;
-                break;
-            case SLR_ELEV:
-                combineGrids_nobfe(&slrgrid, &elevgrid);
-                coloring = COMBINE_COLOR;
-                break;
-            case SLR_GRAY:
-                setCurrGrid(&slrgrid);
-                coloring = GRAY_BLUE;
-                break;
-            case WATER:
-                waterGrid(&elevgrid);
-                coloring = BINARY_COLOR;
-                break;
-            case WATER_SLR_ELEV:
-                combineGrids_nobfe(&slrgrid, &elevgrid);
-                coloring = COMBINE_WATER;
-                break;
-            case ORIG_BFE:
-                setCurrGrid(&originterp_bfegrid);
-                coloring = BLACK_COLOR;
-                break;
-            case INTERP_BFE:
-                setCurrGrid(&interp_bfegrid);
-                coloring = BLACK_COLOR;
-                break;
-            case SLRINTERP_BFE:
-                setCurrGrid(&slr_interp_bfegrid);
-                coloring = COLOR;
-                break;
-                
-            case SLRINTERP_BFE_ELEV:
-                combineGrids_bfe(&slr_interp_bfegrid, &elevgrid);
-                coloring = COMBINE_COLOR_BFE;
-                break;
-            case WATER_SLRINTERP_BFE_ELEV:
-                combineGrids_bfe(&slr_interp_bfegrid, &elevgrid);
-                coloring = COMBINE_WATER_BFE;
-                break;
-                
-            case SLRINTERP_BFEMINUSSLR:
-                diffGrids(&slr_interp_bfegrid, &slrgrid, NEW_WATER);
-                coloring = COMBINE_COLOR_BFE;
-                break;
-            default:
-                break;
-        }
-        
-    } else {
-        switch (DRAW) {
-            case ELEV:
-                setCurrGrid(&elevgrid);
-                coloring = COLOR;
-                break;
-            case SLR:
-                setCurrGrid(&slrgrid);
-                coloring = COLOR;
-                break;
-            case SLR_ELEV:
-                combineGrids_nobfe(&slrgrid, &elevgrid);
-                coloring = COMBINE_COLOR;
-                break;
-            case WATER:
-                waterGrid(&elevgrid);
-                coloring = BINARY_COLOR;
-                break;
-                
-            case WATER_SLR_ELEV:
-                combineGrids_nobfe(&slrgrid, &elevgrid);
-                coloring = COMBINE_WATER;
-                break;
-            default:
-                break;
-        }
-    }
-    draw_grid(&currGrid, coloring);
-    
-    /* execute the drawing commands */
-    glFlush();
-}
+
 
 void diffGrids(Grid* grid1, Grid* grid2, double diff) {
     assert(DRAW == SLRINTERP_BFEMINUSSLR);
@@ -151,15 +58,17 @@ void diffGrids(Grid* grid1, Grid* grid2, double diff) {
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
             
-            double currRise = interp_bfegrid.data[i][j] + rise;
-            double value1 = grid1->data[i][j];
+            double currRise = bfegrid.data[i][j] + rise;
+            double value1 = grid1
+            
+            ->data[i][j];
             double value2 = grid2->data[i][j];
             if (value1 == elevgrid.NODATA_value) {
-                currGrid.data[i][j] = elevgrid.NODATA_value;
+                currgrid.data[i][j] = elevgrid.NODATA_value;
             }else if (value1 == diff && value2 != diff) {
-                currGrid.data[i][j] = value2-currRise;
+                currgrid.data[i][j] = value2-currRise;
             } else {
-                currGrid.data[i][j] = 1;
+                currgrid.data[i][j] = 1;
             }
         }
     }
@@ -170,9 +79,9 @@ void waterGrid(Grid* grid) {
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
             if(grid->data[i][j] == grid->NODATA_value) {
-                currGrid.data[i][j] = 0;
+                currgrid.data[i][j] = 0;
             } else {
-                currGrid.data[i][j] = 1;
+                currgrid.data[i][j] = 1;
             }
         }
     }
@@ -188,7 +97,7 @@ void waterGrid(Grid* grid) {
 void setCurrGrid(Grid* grid){
     for (int i = 0; i < grid->nrows; i++) {
         for (int j = 0; j < grid->ncols; j++) {
-            currGrid.data[i][j] = grid->data[i][j];
+            currgrid.data[i][j] = grid->data[i][j];
         }
     }
 }
@@ -197,10 +106,10 @@ void combineGrids_nobfe(Grid* grid1, Grid* grid2) {
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
             if (grid1->data[i][j] == elevgrid.NODATA_value) {
-                currGrid.data[i][j] = elevgrid.NODATA_value;
+                currgrid.data[i][j] = elevgrid.NODATA_value;
                 
             } else {
-                currGrid.data[i][j] = grid2->data[i][j]- rise;
+                currgrid.data[i][j] = grid2->data[i][j]- rise;
             }
         }
     }
@@ -212,7 +121,7 @@ void combineGrids_bfe(Grid* grid1, Grid* grid2) {
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
             if (grid1->data[i][j] == elevgrid.NODATA_value) {
-                currGrid.data[i][j] = elevgrid.NODATA_value;
+                currgrid.data[i][j] = elevgrid.NODATA_value;
                 
             } else {
                 /*This point may or may not have a bfe value.
@@ -220,9 +129,9 @@ void combineGrids_bfe(Grid* grid1, Grid* grid2) {
                  bfe value is zero (ie just use the rise).*/
                 
                 if (interp_bfegrid.data[i][j] == elevgrid.NODATA_value) {
-                    currGrid.data[i][j] = grid2->data[i][j]- rise;
+                    currgrid.data[i][j] = grid2->data[i][j]- rise;
                 }else {
-                    currGrid.data[i][j] = grid2->data[i][j] - (interp_bfegrid.data[i][j] + rise);
+                    currgrid.data[i][j] = grid2->data[i][j] - (interp_bfegrid.data[i][j] + rise);
                 }
             }
         }

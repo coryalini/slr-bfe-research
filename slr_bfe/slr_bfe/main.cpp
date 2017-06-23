@@ -54,15 +54,13 @@
 /* forward declarations of functions */
 void keypress(unsigned char key, int x, int y);
 void reset();
-void calculateGrids();
-
+void calculateGrids(Grid* elevgrid);
+void display(void);
 
 /* global variables */
 const int WINDOWSIZE = 500;
 const int POINT_SIZE  = 5.0f;
-
-
-/* declarations */
+int interp_bfe_EXISTS = 1;
 
 
 int main(int argc, char * argv[]) {
@@ -75,7 +73,7 @@ int main(int argc, char * argv[]) {
         interp_bfe_EXISTS = 0;
         
     } else {
-        interp_bfename = argv[4];
+       bfename = argv[4];
     }
     elevname = argv[1];
     writeGridname = argv[2];
@@ -92,15 +90,14 @@ int main(int argc, char * argv[]) {
     
     if (interp_bfe_EXISTS) {
         clock_t start2 = clock(), diff2;
-        readGridfromFile(interp_bfename, &interp_bfegrid,BFE_TYPE);
+        readGridfromFile(bfename, &bfegrid,BFE_TYPE);
         diff2 = clock() - start2;
         unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
         printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
-        readGridfromFile(interp_bfename, &originterp_bfegrid,1);
         
         clock_t start = clock(), diff;
         printf("start interp_bfe @ %g\n",rise);
-        start_interp_bfe_withFlooded(&elevgrid, &interp_bfegrid, rise);
+        start_interp_bfe_withFlooded(&elevgrid, rise);
         diff = clock() - start;
         unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
         printf("interp_bfe took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);
@@ -109,26 +106,15 @@ int main(int argc, char * argv[]) {
         mallocGrid(elevgrid, &slr_interp_bfegrid);
         setHeaders(elevgrid, &slr_interp_bfegrid);
     }
-    
+
     //printHeader(elevgrid);
     printf("The number of cells is %ld\n", elevgrid.nrows * elevgrid.ncols);
     
-    calculateGrids();
-    mallocGrid(elevgrid, &currGrid);
-    setHeaders(elevgrid, &currGrid);
+    calculateGrids(&elevgrid);
+    mallocGrid(elevgrid, &currgrid);
+    setHeaders(elevgrid, &currgrid);
     findMaxMinElev();
     
-//    Grid depthgrid;
-//    mallocGrid(elevgrid, &depthgrid);
-//    setHeaders(elevgrid, &depthgrid);
-//    outputGridWithDepth(&depthgrid, &slrgrid, &elevgrid,rise);
-//    gridtoFile(&depthgrid, slrname);
-//    
-//    if (interp_bfe_EXISTS) {
-//        outputGridWithDepthWITHinterp_bfe(&depthgrid, &slrgrid, &elevgrid,&interp_bfegrid, rise);
-//        gridtoFile(&depthgrid, slrname);
-//        
-//    }
     
     //GLUT stuff
     //------------------------------------------
@@ -163,10 +149,10 @@ int main(int argc, char * argv[]) {
     return 0;
 }
 
-void calculateGrids() {
+void calculateGrids(Grid* elevgrid) {
     clock_t start2 = clock(), diff2;
     printf("start SLR @ %g\n",rise);
-    start_slr(&elevgrid, &slrgrid, rise);
+    slrgrid = start_slr(elevgrid, rise);
     
     diff2 = clock() - start2;
     unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
@@ -175,7 +161,7 @@ void calculateGrids() {
     if (interp_bfe_EXISTS) {
         clock_t start3 = clock(), diff3;
         printf("start SLR + interp_bfe @ %g\n",rise);
-        start_slr_interp_bfe(&elevgrid, &slr_interp_bfegrid, &interp_bfegrid, rise);
+        slr_interp_bfegrid = start_slr_interp_bfe(elevgrid, &interp_bfegrid, rise);
         diff3 = clock() - start3;
         unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
         printf("interp_bfe+SLR took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
@@ -190,15 +176,17 @@ void keypress(unsigned char key, int x, int y) {
     switch(key)    {
         case 'q':
             freeGridData(&elevgrid);
+            freeGridData(&bfegrid);
+            freeGridData(&currgrid);
             freeGridData(&slrgrid);
-            freeGridData(&interp_bfegrid);
             freeGridData(&slr_interp_bfegrid);
-            freeGridData(&currGrid);
+            freeGridData(&interp_bfegrid);
+            freeGridData(&interp_bfegrid);
             exit(0);
             break;
         case 'w':
             printf("Write to file\n");
-            gridtoFile(&currGrid, writeGridname);
+            gridtoFile(&currgrid, writeGridname);
             break;
         case 'e':
             printf("Draw Elevgrid\n");
@@ -251,28 +239,121 @@ void keypress(unsigned char key, int x, int y) {
         case '=':
             rise += 1;
             printf("The new rise is %f\n", rise);
-            calculateGrids();
+            calculateGrids(&elevgrid);
             break;
         case '+':
             rise += 1;
             printf("\nThe new rise is %f\n", rise);
-            calculateGrids();
+            calculateGrids(&elevgrid);
             break;
         case '-':
             rise -= 1;
             printf("\nThe new rise is %f\n", rise);
-            calculateGrids();
+            calculateGrids(&elevgrid);
             break;
         case '5':
             rise += 5;
             printf("The new rise is %f\n", rise);
-            calculateGrids();
+            calculateGrids(&elevgrid);
             break;
             
     }
     glutPostRedisplay();
 }
-
+void display(void) {
+    glClear(GL_COLOR_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity(); //clear the matrix
+    float coloring = 0;
+    if (interp_bfe_EXISTS) {
+        switch (DRAW) {
+            case ELEV:
+                setCurrGrid(&elevgrid);
+                coloring = COLOR;
+                break;
+            case SLR:
+                setCurrGrid(&slrgrid);
+                coloring = COLOR;
+                break;
+            case SLR_ELEV:
+                combineGrids_nobfe(&slrgrid, &elevgrid);
+                coloring = COMBINE_COLOR;
+                break;
+            case SLR_GRAY:
+                setCurrGrid(&slrgrid);
+                coloring = GRAY_BLUE;
+                break;
+            case WATER:
+                waterGrid(&elevgrid);
+                coloring = BINARY_COLOR;
+                break;
+            case WATER_SLR_ELEV:
+                combineGrids_nobfe(&slrgrid, &elevgrid);
+                coloring = COMBINE_WATER;
+                break;
+            case ORIG_BFE:
+                setCurrGrid(&bfegrid);
+                coloring = BLACK_COLOR;
+                break;
+            case INTERP_BFE:
+                setCurrGrid(&interp_bfegrid);
+                coloring = BLACK_COLOR;
+                break;
+            case SLRINTERP_BFE:
+                setCurrGrid(&slr_interp_bfegrid);
+                coloring = COLOR;
+                break;
+                
+            case SLRINTERP_BFE_ELEV:
+                combineGrids_bfe(&slr_interp_bfegrid, &elevgrid);
+                coloring = COMBINE_COLOR_BFE;
+                break;
+            case WATER_SLRINTERP_BFE_ELEV:
+                combineGrids_bfe(&slr_interp_bfegrid, &elevgrid);
+                coloring = COMBINE_WATER_BFE;
+                break;
+                
+            case SLRINTERP_BFEMINUSSLR:
+                diffGrids(&slr_interp_bfegrid, &slrgrid, NEW_WATER);
+                coloring = COMBINE_COLOR_BFE;
+                break;
+            default:
+                break;
+        }
+        
+    } else {
+        switch (DRAW) {
+            case ELEV:
+                setCurrGrid(&elevgrid);
+                coloring = COLOR;
+                break;
+            case SLR:
+                setCurrGrid(&slrgrid);
+                coloring = COLOR;
+                break;
+            case SLR_ELEV:
+                combineGrids_nobfe(&slrgrid, &elevgrid);
+                coloring = COMBINE_COLOR;
+                break;
+            case WATER:
+                waterGrid(&elevgrid);
+                coloring = BINARY_COLOR;
+                break;
+                
+            case WATER_SLR_ELEV:
+                combineGrids_nobfe(&slrgrid, &elevgrid);
+                coloring = COMBINE_WATER;
+                break;
+            default:
+//                break;
+                return;
+        }
+    }
+    draw_grid(&currgrid, coloring);
+    
+    /* execute the drawing commands */
+    glFlush();
+}
 /* Handler for window re-size event. Called back when the window first appears and
  whenever the window is re-sized with its new width and height */
 void reshape(GLsizei width, GLsizei height) {  // GLsizei for non-negative integer

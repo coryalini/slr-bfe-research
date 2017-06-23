@@ -8,26 +8,21 @@
 
 #ifndef flood_hpp
 #define flood_hpp
+
 #include "grid.hpp"
 #include <stdio.h>
 
 /*MARK SLR*/
-void start_slr(Grid* elevgrid, Grid* slrgrid,float rise);
+Grid start_slr(Grid* elevgrid,float rise);
 
-void compute_slr(Grid* elevgrid, Grid* slrgrid,float rise, std::queue<point>& queue);
+void compute_slr(Grid* elevgrid, Grid* local_slrgrid,float rise, std::queue<point>& queue);
 
-void setNotVisited(Grid* elevgrid, Grid* slrgrid, float rise);
+void setNotVisited(Grid* elevgrid, Grid* local_slrgrid, float rise);
 
 
 /*MARK SLR+interp_bfe*/
-void start_slr_interp_bfe(Grid* elevgrid, Grid* slr_interp_bfegrid, Grid* interp_bfegrid, float rise);
+Grid start_slr_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid, float rise);
 
-void compute_slr_interp_bfe(Grid* elevgrid, Grid* slr_interp_bfegrid, Grid* interp_bfegrid,float rise,std::queue<point>& queue);
-
-
-
-
-
-
+void compute_slr_interp_bfe(Grid* elevgrid, Grid* local_slr_interp_bfegrid, Grid* interp_bfegrid,float rise,std::queue<point>& queue);
 
 #endif /* flood_hpp */
