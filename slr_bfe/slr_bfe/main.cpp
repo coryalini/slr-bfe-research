@@ -62,7 +62,7 @@ void display(void);
 const int WINDOWSIZE = 500;
 const int POINT_SIZE  = 5.0f;
 int interp_bfe_EXISTS = 1, DRAW = 0;
-;
+const char *elevname, *writeGridname, *bfename;
 float rise;
 
 

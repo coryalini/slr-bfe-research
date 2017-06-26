@@ -19,17 +19,17 @@ GLfloat black[3] = {0.0, 0.0, 0.0};
 //GLfloat darkorange[3] = {0.611,0.349,0.08};
 //GLfloat red1[3] = {0.611,0.08,0.08};
 //GLfloat red2[3] = {0.262,0.10,0.039};
+//GLfloat lightyellow[3] = {0.988,1.0,0.898};
+//GLfloat red1[3] = {0.271,0.314,0.231};
 
 
 GLfloat blue[3] = {0.157, 0.325, 0.419};
 GLfloat lightblue[3] = {0.604, 0.820, 0.831};
-//GLfloat lightyellow[3] = {0.988,1.0,0.898};
 GLfloat green1[3] = {0.945, 1.0, 0.905};
 GLfloat greenmid[3] = {0.749, 0.918, 0.737};
 GLfloat green2[3] = {0.561, 0.839, 0.580};
 GLfloat darkyellow[3] = {0.424, 0.682, 0.459};
 GLfloat darkorange[3] = {0.545,0.580,0.455};
-//GLfloat red1[3] = {0.271,0.314,0.231};
 
 GLfloat red1[3] = {0.298,0.298,0.278};
 GLfloat red2[3] = {0.188,0.212,0.200};
@@ -54,9 +54,13 @@ void draw_grid(Grid* grid, int grid_type,float rise) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     assert(grid->data);
     //    findMaxMin(grid);
-    double minLand = findMinLand(grid);
-    double max = findMax(grid);
-    
+    double minLand, max = findMax(grid);
+    if (grid_type == COMBINE_COLOR || grid_type == COMBINE_COLOR_BFE ||grid_type == COMBINE_WATER || grid_type == COMBINE_WATER_BFE) {
+         minLand = findMinLand(&elevgrid);
+    } else {
+        minLand= findMinLand(grid);
+    }
+
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
             point newPoint;
@@ -79,13 +83,14 @@ void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, dou
     } else if (grid_type == GRAY_BLUE) {
         draw_point_see_slr_better(value, minLand,max);
     } else if (grid_type == COMBINE_COLOR){
-        draw_point_combine(value,rise);
+        draw_point_combine(value,minLand, rise);
     } else if (grid_type == COMBINE_COLOR_BFE){
-        draw_point_combine(value, rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
+        draw_point_combine(value,minLand, rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
     } else if(grid_type == COMBINE_WATER) {
-        draw_point_combine_water(value,rise);
+
+        draw_point_combine_water(value,minLand, rise);
     } else {
-        draw_point_combine_water(value,rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
+        draw_point_combine_water(value,minLand, rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
         
     }
     
@@ -117,10 +122,8 @@ void diffGrids(Grid* grid1, Grid* grid2, double diff,float rise) {
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
             
-            double currRise = bfegrid.data[i][j] + rise;
-            double value1 = grid1
-            
-            ->data[i][j];
+            double currRise = interp_bfegrid.data[i][j] + rise;
+            double value1 = grid1->data[i][j];
             double value2 = grid2->data[i][j];
             if (value1 == elevgrid.NODATA_value) {
                 currgrid.data[i][j] = elevgrid.NODATA_value;
@@ -168,7 +171,7 @@ void combineGrids_nobfe(Grid* grid1, Grid* grid2, float rise) {
                 currgrid.data[i][j] = elevgrid.NODATA_value;
                 
             } else {
-                currgrid.data[i][j] = grid2->data[i][j]- rise;
+                currgrid.data[i][j] = grid2->data[i][j]-rise;
             }
         }
     }
@@ -276,12 +279,11 @@ void draw_point_binary(double value) {
     }
 }
 
-void draw_point_combine(double value, double theRise) {
+void draw_point_combine(double value,double minLandElev, double theRise) {
     if (value > 0 || value == elevgrid.NODATA_value) {
         glColor3fv(black);
     } else {
         //assuming minimum (ie max negative number) is about zero
-        double minLandElev = findMinLand(&elevgrid);
         value += -(minLandElev-theRise);
         double maxNum = 1+ -(minLandElev-theRise);//this is going to be a number larger than all the others
         double base = maxNum/numCategories;
@@ -300,14 +302,13 @@ void draw_point_combine(double value, double theRise) {
         }
     }
 }
-void draw_point_combine_water(double value,double theRise) {
+void draw_point_combine_water(double value,double minLandElev, double theRise) {
     if (value > 0){
         glColor3fv(black);
     }else if(value == elevgrid.NODATA_value) {
         glColor3fv(blue);
     } else {
         //assuming minimum (ie max negative number) is about zero
-        double minLandElev = findMinLand(&elevgrid);
         value += -(minLandElev-theRise);
         double maxNum = 1+ -(minLandElev-theRise);//this is going to be a number larger than all the others
         double base = maxNum/numCategories;

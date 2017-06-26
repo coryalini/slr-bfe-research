@@ -74,8 +74,8 @@ void diffGrids(Grid* grid1, Grid* grid2, double diff,float rise);
 void draw_point_color(double value, double minLand, double max);
 void draw_point_black(double value,double minLand, double max);
 void draw_point_binary(double value);
-void draw_point_combine(double value, double theRise);
-void draw_point_combine_water(double value,double theRise);
+void draw_point_combine(double value, double minLandElev, double theRise);
+void draw_point_combine_water(double value,double minLandElev,double theRise);
 void draw_point_see_slr_better(double value,double minLand, double max);
 
 

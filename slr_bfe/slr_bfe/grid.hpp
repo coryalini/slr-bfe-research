@@ -32,15 +32,11 @@ typedef struct _grid {
     
 } Grid;
 extern Grid elevgrid, bfegrid, slrgrid, slr_interp_bfegrid, interp_bfegrid,currgrid;
-
-//extern Grid elevgrid, interp_bfegrid, slrgrid, slr_interp_bfegrid, originterp_bfegrid, currGrid;
 extern int offsets [8][2];
 
 extern const int NEW_WATER;
 extern const int HAVENT_VISITED;
-//extern double max,min,minLand;
-//extern double maxElev,minElev,minLandElev;
-extern const char *elevname, *writeGridname, *bfename;
+//extern const char *elevname, *writeGridname, *bfename;
 
 //parsing
 extern int ELEV_TYPE;
