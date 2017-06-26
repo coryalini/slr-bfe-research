@@ -102,9 +102,6 @@ int main(int argc, char * argv[]) {
             printf("ERROR:The %s [%ld,%ld] and elevgrid [%ld,%ld] do not have the same grid dimensions!\n",bfename, bfegrid.nrows,bfegrid.ncols,elevgrid.nrows, elevgrid.ncols);
             exit(0);
         }
-        
-        
-    
         diff2 = clock() - start2;
         unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
         printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
@@ -114,7 +111,9 @@ int main(int argc, char * argv[]) {
         
         clock_t start = clock(), diff;
         printf("start interp_bfe @ %g\n",rise);
-        start_interp_bfe(&elevgrid,&interp_bfegrid, rise);
+        start_interp_bfe_withFlooded(&elevgrid,&interp_bfegrid, rise);
+
+//        start_interp_bfe(&elevgrid,&interp_bfegrid, rise);
         diff = clock() - start;
         unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
         printf("interp_bfe took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);

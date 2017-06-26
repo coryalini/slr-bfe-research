@@ -21,7 +21,7 @@ int offsets [8][2] ={{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
 const int NEW_WATER = -8000;
 const int HAVENT_VISITED = -7000;
 
-float ELEV_CONVERTER = 1;
+float ELEV_CONVERTER = 3.048;
 float BFE_CONVERTER = 1;
 
 int ELEV_TYPE = 0;

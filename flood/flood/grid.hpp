@@ -31,7 +31,7 @@ typedef struct _grid {
     double h_max;
     
 } Grid;
-extern Grid elevgrid, bfegrid, slrgrid, slr_interp_bfegrid, interp_bfegrid,currgrid;
+//extern Grid elevgrid, bfegrid, interp_bfegrid, currgrid; //slrgrid, slr_interp_bfegrid, currgrid,interp_bfegrid,;
 extern int offsets [8][2];
 
 extern const int NEW_WATER;

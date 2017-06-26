@@ -148,11 +148,8 @@ void compute_interp_bfe(Grid* elevgrid, Grid* local_interp_bfegrid,int rise, cha
 
 
 /* MARK: bfe */
-Grid start_interp_bfe_withFlooded(Grid* elevgrid, float rise) {
+void start_interp_bfe_withFlooded(Grid* elevgrid, Grid* local_interp_bfegrid, float rise) {
     
-    Grid local_interp_bfegrid;
-    mallocGrid(*elevgrid, &local_interp_bfegrid);
-    setHeaders(*elevgrid, &local_interp_bfegrid);
     char** alreadySeen;
     alreadySeen = (char**)malloc(elevgrid->nrows * sizeof(char *));
     assert(alreadySeen);
@@ -160,7 +157,7 @@ Grid start_interp_bfe_withFlooded(Grid* elevgrid, float rise) {
         alreadySeen[a] = (char*) malloc(elevgrid->ncols * sizeof(char));
         assert(alreadySeen[a]);
     }
-    //initialize
+    
     for (int i = 0; i < elevgrid->nrows; i++) {
         for (int j = 0; j < elevgrid->ncols; j++) {
             alreadySeen[i][j] = 'u';
@@ -168,8 +165,8 @@ Grid start_interp_bfe_withFlooded(Grid* elevgrid, float rise) {
     }
     std::queue<point> queue;
     queue = findSeaPoint(elevgrid);
-    compute_interp_bfe_withFlooded(elevgrid,&local_interp_bfegrid,rise,alreadySeen,queue);
-    return local_interp_bfegrid;
+
+    compute_interp_bfe_withFlooded(elevgrid,local_interp_bfegrid,rise,alreadySeen,queue);
 }
 
 void compute_interp_bfe_withFlooded(Grid* elevgrid, Grid* local_interp_bfegrid,int rise, char** alreadySeen,std::queue<point>& queue) {
