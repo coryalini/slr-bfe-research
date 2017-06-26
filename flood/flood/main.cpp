@@ -54,6 +54,50 @@
 #include <GL/glut.h>
 #endif
 
+/* global variables */
+const int WINDOWSIZE = 500;
+const int POINT_SIZE  = 5.0f;
+double ELEV_CONVERTER = 3.28084;
+double BFE_CONVERTER = 1;
+
+
+int interp_bfe_EXISTS = 1, DRAW = 0;
+const char *elevname, *writeGridname, *bfename;
+enum {ELEV = 0, SLR = 1, SLR_ELEV = 2,SLR_GRAY =3, WATER = 4, WATER_SLR_ELEV = 5, ORIG_BFE = 6, INTERP_BFE = 7,SLRINTERP_BFE = 8, SLRINTERP_BFE_ELEV = 9,WATER_SLRINTERP_BFE_ELEV = 10,SLRINTERP_BFEMINUSSLR = 11};
+enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3,COMBINE_COLOR_BFE = 4, COMBINE_WATER = 5, COMBINE_WATER_BFE = 6, GRAY_BLUE= 7};
+
+
+
+static float numCategories = 6.0;
+Grid elevgrid, interp_bfegrid, currgrid, slrgrid, slr_interp_bfegrid;
+
+float rise;
+GLfloat red_pink[3] = {0.969, 0.396, 0.396};
+GLfloat black[3] = {0.0, 0.0, 0.0};
+
+GLfloat blue[3] = {0.157, 0.325, 0.419};
+GLfloat lightblue[3] = {0.604, 0.820, 0.831};
+GLfloat green1[3] = {0.945, 1.0, 0.905};
+GLfloat greenmid[3] = {0.749, 0.918, 0.737};
+GLfloat green2[3] = {0.561, 0.839, 0.580};
+GLfloat darkyellow[3] = {0.424, 0.682, 0.459};
+GLfloat darkorange[3] = {0.545,0.580,0.455};
+GLfloat red1[3] = {0.298,0.298,0.278};
+GLfloat red2[3] = {0.188,0.212,0.200};
+
+GLfloat gray1[3] = {0.949, 0.949, 0.949};
+GLfloat gray2[3] = {0.729, 0.729, 0.729};
+GLfloat gray3[3] = {0.518, 0.518, 0.518};
+GLfloat gray4[3] = {0.349, 0.349, 0.349};
+GLfloat gray5[3] = {0.196, 0.196, 0.196};
+GLfloat gray6[3] = {0.118, 0.118, 0.118};
+
+GLfloat blue1[3] = {0.568,0.776,0.792};
+GLfloat blue2[3] = {0.572,0.784,0.8};
+GLfloat blue3[3] = {0.529,0.737,0.756};
+GLfloat blue4[3] = {0.455,0.655,0.690};
+GLfloat blue5[3] = {0.380,0.568,0.619};
+GLfloat blue6[3] = {0.305,0.486,0.553};
 
 
 
@@ -86,46 +130,6 @@ void draw_point_see_slr_better(double value,double minLand, double max);
 GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);
 
 
-/* global variables */
-const int WINDOWSIZE = 500;
-const int POINT_SIZE  = 5.0f;
-int interp_bfe_EXISTS = 1, DRAW = 0;
-const char *elevname, *writeGridname, *bfename;
-enum {ELEV = 0, SLR = 1, SLR_ELEV = 2,SLR_GRAY =3, WATER = 4, WATER_SLR_ELEV = 5, ORIG_BFE = 6, INTERP_BFE = 7,SLRINTERP_BFE = 8, SLRINTERP_BFE_ELEV = 9,WATER_SLRINTERP_BFE_ELEV = 10,SLRINTERP_BFEMINUSSLR = 11};
-enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3,COMBINE_COLOR_BFE = 4, COMBINE_WATER = 5, COMBINE_WATER_BFE = 6, GRAY_BLUE= 7};
-
-static float numCategories = 6.0;
-Grid elevgrid, interp_bfegrid, currgrid, slrgrid, slr_interp_bfegrid;
-
-float rise;
-GLfloat red_pink[3] = {0.969, 0.396, 0.396};
-GLfloat black[3] = {0.0, 0.0, 0.0};
-
-GLfloat blue[3] = {0.157, 0.325, 0.419};
-GLfloat lightblue[3] = {0.604, 0.820, 0.831};
-GLfloat green1[3] = {0.945, 1.0, 0.905};
-GLfloat greenmid[3] = {0.749, 0.918, 0.737};
-GLfloat green2[3] = {0.561, 0.839, 0.580};
-GLfloat darkyellow[3] = {0.424, 0.682, 0.459};
-GLfloat darkorange[3] = {0.545,0.580,0.455};
-
-GLfloat red1[3] = {0.298,0.298,0.278};
-GLfloat red2[3] = {0.188,0.212,0.200};
-
-
-GLfloat gray1[3] = {0.949, 0.949, 0.949};
-GLfloat gray2[3] = {0.729, 0.729, 0.729};
-GLfloat gray3[3] = {0.518, 0.518, 0.518};
-GLfloat gray4[3] = {0.349, 0.349, 0.349};
-GLfloat gray5[3] = {0.196, 0.196, 0.196};
-GLfloat gray6[3] = {0.118, 0.118, 0.118};
-
-GLfloat blue1[3] = {0.568,0.776,0.792};
-GLfloat blue2[3] = {0.572,0.784,0.8};
-GLfloat blue3[3] = {0.529,0.737,0.756};
-GLfloat blue4[3] = {0.455,0.655,0.690};
-GLfloat blue5[3] = {0.380,0.568,0.619};
-GLfloat blue6[3] = {0.305,0.486,0.553};
 
 
 
@@ -146,7 +150,7 @@ int main(int argc, char * argv[]) {
     rise = atof(argv[3]);
     
     clock_t start = clock(), diff;
-    readGridfromFile(elevname, &elevgrid,ELEV_TYPE);
+    readGridfromFile(elevname, &elevgrid,ELEV_CONVERTER);
     diff = clock() - start;
     unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
     printf("Reading elevgrid took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);
@@ -156,7 +160,7 @@ int main(int argc, char * argv[]) {
     
     if (interp_bfe_EXISTS) {
         clock_t start2 = clock(), diff2;
-        readGridfromFile(bfename, &interp_bfegrid,BFE_TYPE);
+        readGridfromFile(bfename, &interp_bfegrid,BFE_CONVERTER);
         if (interp_bfegrid.ncols != elevgrid.ncols || interp_bfegrid.nrows !=elevgrid.nrows) {
             printf("ERROR:The %s [%ld,%ld] and elevgrid [%ld,%ld] do not have the same grid dimensions!\n",bfename, interp_bfegrid.nrows,interp_bfegrid.ncols,elevgrid.nrows, elevgrid.ncols);
             exit(0);

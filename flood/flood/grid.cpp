@@ -15,57 +15,43 @@
 #include <math.h>
 #include <time.h>
 
-//Grid elevgrid, bfegrid,interp_bfegrid,currgrid;// slrgrid, slr_interp_bfegrid,currgrid, interp_bfegrid,currgrid;
-int offsets [8][2] ={{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
+
 
 const int NEW_WATER = -8000;
 const int HAVENT_VISITED = -7000;
 
-float ELEV_CONVERTER = 0.3048;
-float BFE_CONVERTER = 1;
-
-int ELEV_TYPE = 0;
-int BFE_TYPE = 1;
-
-//float convertToMeters = 3.28;
-
-
 std::queue<point> findSeaPoint(Grid* elevgrid) {
     std::queue<point> queue;
     for (int i = 0; i < elevgrid->nrows; i++) {
+        point newPoint;
         if (elevgrid->data[i][0] == elevgrid->NODATA_value) {
-            point newPoint;
             newPoint.x = i;
             newPoint.y = 0;
             queue.push(newPoint);
         }
-    }
-    
-    for (int j = 0; j < elevgrid->ncols; j++) {
-        if (elevgrid->data[0][j] == elevgrid->NODATA_value) {
-            point newPoint;
-            newPoint.x = 0;
-            newPoint.y = j;
-            queue.push(newPoint);
-            
-        }
-    }
-    for (int i = 0; i < elevgrid->nrows; i++) {
         if (elevgrid->data[i][elevgrid->ncols-1] == elevgrid->NODATA_value) {
-            point newPoint;
             newPoint.x = i;
             newPoint.y = elevgrid->ncols-1;
             queue.push(newPoint);
         }
     }
+    
     for (int j = 0; j < elevgrid->ncols; j++) {
+        point newPoint;
+        if (elevgrid->data[0][j] == elevgrid->NODATA_value) {
+            newPoint.x = 0;
+            newPoint.y = j;
+            queue.push(newPoint);
+            
+        }
         if (elevgrid->data[elevgrid->nrows-1][j] == elevgrid->NODATA_value) {
-            point newPoint;
             newPoint.x = elevgrid->nrows-1;
             newPoint.y = j;
             queue.push(newPoint);
         }
+
     }
+
     
     return queue;
 }
@@ -175,7 +161,7 @@ void copyGrid(Grid* originalGrid, Grid* copyGrid) {
 }
 
 
-void readGridfromFile(const char* gridfname, Grid* g, int gridType) {
+void readGridfromFile(const char* gridfname, Grid* g, double converter) {
     FILE* f;
     
     //    printf("reading grid %s\n",gridfname);
@@ -200,10 +186,7 @@ void readGridfromFile(const char* gridfname, Grid* g, int gridType) {
         printf("ERROR: fscanf did not properly scan in the variables\n");
         exit(1);
     }
-    
-        
-    
-    
+
     
     g->data = (float**)malloc(g->nrows * sizeof(float *));
     assert(g->data);
@@ -220,12 +203,7 @@ void readGridfromFile(const char* gridfname, Grid* g, int gridType) {
                 exit(1);
             }
             if (g->data[i][j] != g->NODATA_value) {
-                if (gridType == ELEV_TYPE) {
-                    g->data[i][j] *= ELEV_CONVERTER;
-                } else {
-                    g->data[i][j] = g->data[i][j]*BFE_CONVERTER;
-                    
-                }
+                g->data[i][j] *= converter;
             }
         }
     }

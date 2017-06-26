@@ -38,46 +38,27 @@ void compute_slr(Grid* elevgrid, Grid* local_slrgrid,float rise, std::queue<poin
         point curr = queue.front();
         queue.pop();
         
-        
         //for each neighbor of (i,j)
-//        for (int k = curr.x-1; k <= curr.x+1; k++) {
-//            for (int l = curr.y-1; l <= curr.y+1;l++) {
-//                if (k == curr.x && l == curr.y) {
-//                    continue;
-//                }
-//                if (!insideGrid(elevgrid, k,l)) {
-//                    continue;
-//                }
-//                
-//                
-//                
-//                
-//                
-//                
-//                
-//            }
-//        }
-//        
-        
-        
-        
-        for (int k = 0; k < 8; k++) {
-            int newRow = curr.x + offsets[k][0];
-            int newCol = curr.y + offsets[k][1];
-            if (!insideGrid(elevgrid, (int)newRow, (int)newCol)) {
-                continue;
-            }
-            if (local_slrgrid->data[newRow][newCol] == HAVENT_VISITED) {// not visited
-                point newPoint;
-                newPoint.x = newRow;
-                newPoint.y = newCol;
-                if (elevgrid->data[newRow][newCol] ==  elevgrid->NODATA_value) { // if the data is water
-                    local_slrgrid->data[newRow][newCol] = elevgrid->NODATA_value;
-                    queue.push(newPoint);
-                } else {
-                    if (elevgrid->data[newRow][newCol] < rise) {
-                        local_slrgrid->data[newRow][newCol] = NEW_WATER;
+        for (int k = curr.x-1; k <= curr.x+1; k++) {
+            for (int l = curr.y-1; l <= curr.y+1;l++) {
+                if (k == curr.x && l == curr.y) {
+                    continue;
+                }
+                if (!insideGrid(elevgrid, k,l)) {
+                    continue;
+                }
+                if (local_slrgrid->data[k][l] == HAVENT_VISITED) {// not visited
+                    point newPoint;
+                    newPoint.x = k;
+                    newPoint.y = l;
+                    if (elevgrid->data[k][l] ==  elevgrid->NODATA_value) { // if the data is water
+                        local_slrgrid->data[k][l] = elevgrid->NODATA_value;
                         queue.push(newPoint);
+                    } else {
+                        if (elevgrid->data[k][l] < rise) {
+                            local_slrgrid->data[k][l] = NEW_WATER;
+                            queue.push(newPoint);
+                        }
                     }
                 }
             }
@@ -102,7 +83,7 @@ Grid start_slr_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid, float rise) {
     queue = findSeaPoint(elevgrid);
     compute_slr_interp_bfe(elevgrid, &local_slr_interp_bfegrid, interp_bfegrid, rise, queue);
     setinterp_bfeNotVisited(elevgrid,&local_slr_interp_bfegrid,interp_bfegrid, rise);
-
+    
     return local_slr_interp_bfegrid;
 }
 
@@ -112,39 +93,34 @@ void compute_slr_interp_bfe(Grid* elevgrid, Grid* local_slr_interp_bfegrid, Grid
         queue.pop();
         
         
-        
-        
-        for (int k = 0; k < 8; k++) {
-            int newRow = curr.x + offsets[k][0];
-            int newCol = curr.y + offsets[k][1];
-            if (!insideGrid(elevgrid, (int)newRow, (int)newCol)) {
-                continue;
-            }
-            if (local_slr_interp_bfegrid->data[newRow][newCol] == HAVENT_VISITED) {// not visited
-                if (elevgrid->data[newRow][newCol] ==  elevgrid->NODATA_value) { // if the data is water
-                    local_slr_interp_bfegrid->data[newRow][newCol] = elevgrid->NODATA_value;
+        for (int k = curr.x-1; k <= curr.x+1; k++) {
+            for (int l = curr.y-1; l <= curr.y+1;l++) {
+                if (k == curr.x && l == curr.y) {
+                    continue;
+                }
+                if (!insideGrid(elevgrid, k, l)) {
+                    continue;
+                }
+                if (local_slr_interp_bfegrid->data[k][l] == HAVENT_VISITED) {// not visited
                     point newPoint;
-                    newPoint.x = newRow;
-                    newPoint.y = newCol;
-                    queue.push(newPoint);
-                } else {// not given as water
-                    if (interp_bfegrid->data[newRow][newCol] != interp_bfegrid->NODATA_value) {
-                        if (elevgrid->data[newRow][newCol] < (rise + interp_bfegrid->data[newRow][newCol])) {
-                            local_slr_interp_bfegrid->data[newRow][newCol] = NEW_WATER;
-                            point newPoint;
-                            newPoint.x = newRow;
-                            newPoint.y = newCol;
-                            queue.push(newPoint);
+                    newPoint.x = k;
+                    newPoint.y = l;
+
+                    if (elevgrid->data[k][l] ==  elevgrid->NODATA_value) { // if the data is water
+                        local_slr_interp_bfegrid->data[k][l] = elevgrid->NODATA_value;
+                        queue.push(newPoint);
+                    } else {// not given as water
+                        if (interp_bfegrid->data[k][l] != interp_bfegrid->NODATA_value) {
+                            if (elevgrid->data[k][l] < (rise + interp_bfegrid->data[k][l])) {
+                                local_slr_interp_bfegrid->data[k][l] = NEW_WATER;
+                                queue.push(newPoint);
+                            }
+                        } else {
+                            if (elevgrid->data[k][l] < rise) {
+                                local_slr_interp_bfegrid->data[k][l] = NEW_WATER;
+                                queue.push(newPoint);
+                            }
                         }
-                    } else {
-                        if (elevgrid->data[newRow][newCol] < rise) {
-                            local_slr_interp_bfegrid->data[newRow][newCol] = NEW_WATER;
-                            point newPoint;
-                            newPoint.x = newRow;
-                            newPoint.y = newCol;
-                            queue.push(newPoint);
-                        }
-                        
                     }
                 }
             }

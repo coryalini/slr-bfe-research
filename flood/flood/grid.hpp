@@ -31,16 +31,9 @@ typedef struct _grid {
     double h_max;
     
 } Grid;
-//extern Grid elevgrid, bfegrid, interp_bfegrid, currgrid; //slrgrid, slr_interp_bfegrid, currgrid,interp_bfegrid,;
-extern int offsets [8][2];
-
 extern const int NEW_WATER;
 extern const int HAVENT_VISITED;
-//extern const char *elevname, *writeGridname, *bfename;
 
-//parsing
-extern int ELEV_TYPE;
-extern int BFE_TYPE;
 
 std::queue<point> findSeaPoint(Grid* elevgrid);
 
@@ -59,7 +52,7 @@ void outputGridWithDepth(Grid* g, Grid* slrgrid,Grid* elevgrid,float rise);
 void outputGridWithDepthWITHinterp_bfe(Grid* g, Grid* slrgrid,Grid* elevgrid,Grid* interp_bfegrid, float rise);
 
 //parsing
-void readGridfromFile(const char* gridfname, Grid* g, int gridType);
+void readGridfromFile(const char* gridfname, Grid* g, double converter);
 
 void gridtoFile(Grid *grid, const char* name);
 
