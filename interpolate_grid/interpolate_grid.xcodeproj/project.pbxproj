@@ -11,7 +11,7 @@
 		EA19F7741F0169DA009D4D41 /* bfe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA19F7721F0169DA009D4D41 /* bfe.cpp */; };
 		EA19F77A1F016A8F009D4D41 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA19F7791F016A8F009D4D41 /* OpenGL.framework */; };
 		EA19F77C1F016A95009D4D41 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA19F77B1F016A95009D4D41 /* GLUT.framework */; };
-		EA90A0F81F0199960052E94B /* drawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA90A0F41F0199960052E94B /* drawing.cpp */; };
+		EA6DBC191F019CF0003DB985 /* grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA6DBC171F019CF0003DB985 /* grid.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,8 +33,8 @@
 		EA19F7731F0169DA009D4D41 /* bfe.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = bfe.hpp; sourceTree = "<group>"; };
 		EA19F7791F016A8F009D4D41 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		EA19F77B1F016A95009D4D41 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
-		EA90A0F41F0199960052E94B /* drawing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = drawing.cpp; sourceTree = "<group>"; };
-		EA90A0F51F0199960052E94B /* drawing.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = drawing.hpp; sourceTree = "<group>"; };
+		EA6DBC171F019CF0003DB985 /* grid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grid.cpp; sourceTree = "<group>"; };
+		EA6DBC181F019CF0003DB985 /* grid.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = grid.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,8 +73,8 @@
 				EA19F76B1F01697D009D4D41 /* main.cpp */,
 				EA19F7721F0169DA009D4D41 /* bfe.cpp */,
 				EA19F7731F0169DA009D4D41 /* bfe.hpp */,
-				EA90A0F41F0199960052E94B /* drawing.cpp */,
-				EA90A0F51F0199960052E94B /* drawing.hpp */,
+				EA6DBC171F019CF0003DB985 /* grid.cpp */,
+				EA6DBC181F019CF0003DB985 /* grid.hpp */,
 			);
 			path = interpolate_grid;
 			sourceTree = "<group>";
@@ -146,8 +146,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA19F76C1F01697D009D4D41 /* main.cpp in Sources */,
-				EA90A0F81F0199960052E94B /* drawing.cpp in Sources */,
 				EA19F7741F0169DA009D4D41 /* bfe.cpp in Sources */,
+				EA6DBC191F019CF0003DB985 /* grid.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
