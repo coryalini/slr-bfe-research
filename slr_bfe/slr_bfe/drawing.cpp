@@ -49,8 +49,13 @@ GLfloat blue4[3] = {0.455,0.655,0.690};
 GLfloat blue5[3] = {0.380,0.568,0.619};
 GLfloat blue6[3] = {0.305,0.486,0.553};
 
+//Grid currgrid;
+
 
 void draw_grid(Grid* grid, int grid_type,float rise) {
+    
+//    mallocGrid(elevgrid, &currgrid);
+//    setHeaders(elevgrid, &currgrid);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     assert(grid->data);
     //    findMaxMin(grid);

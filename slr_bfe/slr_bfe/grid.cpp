@@ -15,7 +15,7 @@
 #include <math.h>
 #include <time.h>
 
-Grid elevgrid, bfegrid, slrgrid, slr_interp_bfegrid, interp_bfegrid,currgrid;
+Grid elevgrid, bfegrid,interp_bfegrid,currgrid;// slrgrid, slr_interp_bfegrid,currgrid, interp_bfegrid,currgrid;
 int offsets [8][2] ={{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
 
 const int NEW_WATER = -8000;
@@ -201,13 +201,7 @@ void readGridfromFile(const char* gridfname, Grid* g, int gridType) {
         exit(1);
     }
     
-    if (gridType != ELEV_TYPE) {
-        if (g->ncols != elevgrid.ncols || g->nrows !=elevgrid.nrows) {
-            printf("ERROR:The %s [%ld,%ld] and elevgrid [%ld,%ld] do not have the same grid dimensions!\n",gridfname, g->nrows,g->ncols,elevgrid.nrows, elevgrid.ncols);
-            exit(0);
-        }
-    }
-    
+        
     
     
     

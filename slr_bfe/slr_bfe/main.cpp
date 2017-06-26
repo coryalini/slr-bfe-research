@@ -64,6 +64,9 @@ const int POINT_SIZE  = 5.0f;
 int interp_bfe_EXISTS = 1, DRAW = 0;
 const char *elevname, *writeGridname, *bfename;
 float rise;
+//Grid elevgrid, bfegrid,interp_bfegrid,currgrid
+
+Grid slrgrid, slr_interp_bfegrid;
 
 
 
@@ -77,7 +80,7 @@ int main(int argc, char * argv[]) {
         interp_bfe_EXISTS = 0;
         
     } else {
-       bfename = argv[4];
+        bfename = argv[4];
     }
     elevname = argv[1];
     writeGridname = argv[2];
@@ -95,20 +98,27 @@ int main(int argc, char * argv[]) {
     if (interp_bfe_EXISTS) {
         clock_t start2 = clock(), diff2;
         readGridfromFile(bfename, &bfegrid,BFE_TYPE);
+        if (bfegrid.ncols != elevgrid.ncols || bfegrid.nrows !=elevgrid.nrows) {
+            printf("ERROR:The %s [%ld,%ld] and elevgrid [%ld,%ld] do not have the same grid dimensions!\n",bfename, bfegrid.nrows,bfegrid.ncols,elevgrid.nrows, elevgrid.ncols);
+            exit(0);
+        }
+        
+        
+    
         diff2 = clock() - start2;
         unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
         printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
         mallocGrid(bfegrid, &interp_bfegrid);
         setHeaders(bfegrid, &interp_bfegrid);
         copyGrid(&bfegrid, &interp_bfegrid);
-
+        
         clock_t start = clock(), diff;
         printf("start interp_bfe @ %g\n",rise);
         start_interp_bfe(&elevgrid,&interp_bfegrid, rise);
         diff = clock() - start;
         unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
         printf("interp_bfe took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);
-
+        
         
         mallocGrid(elevgrid, &slr_interp_bfegrid);
         setHeaders(elevgrid, &slr_interp_bfegrid);
@@ -226,7 +236,7 @@ void keypress(unsigned char key, int x, int y) {
             printf("Draw SLR_BFE\n");
             DRAW = SLRINTERP_BFE;
             break;
-    
+            
         case 'v':
             printf("Draw SLR_BFE-Flooded(SLR+BFE-Elev)\n");
             DRAW = SLRINTERP_BFE_ELEV;
@@ -352,7 +362,7 @@ void display(void) {
                 coloring = COMBINE_WATER;
                 break;
             default:
-//                break;
+                //                break;
                 return;
         }
     }
