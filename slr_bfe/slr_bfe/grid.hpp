@@ -34,29 +34,28 @@ typedef struct _grid {
 extern Grid elevgrid, bfegrid, slrgrid, slr_interp_bfegrid, interp_bfegrid,currgrid;
 
 //extern Grid elevgrid, interp_bfegrid, slrgrid, slr_interp_bfegrid, originterp_bfegrid, currGrid;
-extern int DRAW, offsets [8][2];
-extern float rise;
-//
+extern int offsets [8][2];
+
 extern const int NEW_WATER;
 extern const int HAVENT_VISITED;
-extern double max,min,minLand;
-extern double maxElev,minElev,minLandElev;
+//extern double max,min,minLand;
+//extern double maxElev,minElev,minLandElev;
 extern const char *elevname, *writeGridname, *bfename;
-//
-//
-////parsing
+
+//parsing
 extern int ELEV_TYPE;
 extern int BFE_TYPE;
-//
+
 std::queue<point> findSeaPoint(Grid* elevgrid);
 
 void setinterp_bfeNotVisited(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid, float rise);
 void setNotVisited(Grid* elevgrid, Grid* slrgrid, float rise);
 
 int insideGrid(Grid* grid, int i, int j);
-void findMaxMin(Grid* grid);
-void findMaxMinElev();
+double findMax(Grid* grid);
+double findMinLand(Grid* grid);
 
+void copyGrid(Grid* originalGrid, Grid* copyGrid);
 void freeGridData(Grid* grid);
 
 

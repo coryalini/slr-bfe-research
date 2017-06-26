@@ -50,10 +50,69 @@ GLfloat blue5[3] = {0.380,0.568,0.619};
 GLfloat blue6[3] = {0.305,0.486,0.553};
 
 
+void draw_grid(Grid* grid, int grid_type,float rise) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    assert(grid->data);
+    //    findMaxMin(grid);
+    double minLand = findMinLand(grid);
+    double max = findMax(grid);
+    
+    for (int i = 0; i < elevgrid.nrows; i++) {
+        for (int j = 0; j < elevgrid.ncols; j++) {
+            point newPoint;
+            newPoint.x = i;
+            newPoint.y = j;
+            general_draw_point(newPoint, grid, grid_type,rise,minLand, max);
+        }
+    }
+}
 
 
-void diffGrids(Grid* grid1, Grid* grid2, double diff) {
-    assert(DRAW == SLRINTERP_BFEMINUSSLR);
+void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, double minLand, double max) {
+    double value = grid->data[(int)mypoint.x][(int)mypoint.y];
+    if (grid_type == COLOR) {
+        draw_point_color(value, minLand,max);
+    } else if (grid_type == BINARY_COLOR) {
+        draw_point_binary(value);
+    } else if (grid_type == BLACK_COLOR){
+        draw_point_black(value, minLand,max);
+    } else if (grid_type == GRAY_BLUE) {
+        draw_point_see_slr_better(value, minLand,max);
+    } else if (grid_type == COMBINE_COLOR){
+        draw_point_combine(value,rise);
+    } else if (grid_type == COMBINE_COLOR_BFE){
+        draw_point_combine(value, rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
+    } else if(grid_type == COMBINE_WATER) {
+        draw_point_combine_water(value,rise);
+    } else {
+        draw_point_combine_water(value,rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
+        
+    }
+    
+    float x=0, y=0;  //just to initialize with something
+    
+    float larger,smaller;
+    if (grid->nrows > grid->ncols) {
+        larger = grid->nrows;
+        smaller = grid->ncols;
+        
+    } else {
+        larger = grid->ncols;
+        smaller = grid->ncols;
+    }
+    
+    x = (((mypoint.y)/(larger))*2) - smaller/larger;
+    y = -(((mypoint.x)/(larger))*2) + 1;
+    
+    glBegin(GL_POINTS);
+    glVertex2f(x, y);
+    glEnd();
+}
+
+
+
+void diffGrids(Grid* grid1, Grid* grid2, double diff,float rise) {
+//    assert(DRAW == SLRINTERP_BFEMINUSSLR);
     
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
@@ -102,7 +161,7 @@ void setCurrGrid(Grid* grid){
     }
 }
 
-void combineGrids_nobfe(Grid* grid1, Grid* grid2) {
+void combineGrids_nobfe(Grid* grid1, Grid* grid2, float rise) {
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
             if (grid1->data[i][j] == elevgrid.NODATA_value) {
@@ -116,8 +175,8 @@ void combineGrids_nobfe(Grid* grid1, Grid* grid2) {
 }
 
 
-void combineGrids_bfe(Grid* grid1, Grid* grid2) {
-    assert(DRAW == SLRINTERP_BFE_ELEV || DRAW == WATER_SLRINTERP_BFE_ELEV);
+void combineGrids_bfe(Grid* grid1, Grid* grid2, float rise) {
+//    assert(DRAW == SLRINTERP_BFE_ELEV || DRAW == WATER_SLRINTERP_BFE_ELEV);
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
             if (grid1->data[i][j] == elevgrid.NODATA_value) {
@@ -137,64 +196,8 @@ void combineGrids_bfe(Grid* grid1, Grid* grid2) {
         }
     }
 }
-void draw_grid(Grid* grid, int grid_type) {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    assert(grid->data);
-    findMaxMin(grid);
-    for (int i = 0; i < elevgrid.nrows; i++) {
-        for (int j = 0; j < elevgrid.ncols; j++) {
-            point newPoint;
-            newPoint.x = i;
-            newPoint.y = j;
-            general_draw_point(newPoint, grid, grid_type);
-        }
-    }
-}
 
-
-void general_draw_point(point mypoint, Grid* grid,int grid_type) {
-    double value = grid->data[(int)mypoint.x][(int)mypoint.y];
-    if (grid_type == COLOR) {
-        draw_point_color(value);
-    } else if (grid_type == BINARY_COLOR) {
-        draw_point_binary(value);
-    } else if (grid_type == BLACK_COLOR){
-        draw_point_black(value);
-    } else if (grid_type == GRAY_BLUE) {
-        draw_point_see_slr_better(value);
-    } else if (grid_type == COMBINE_COLOR){
-        draw_point_combine(value,rise);
-    } else if (grid_type == COMBINE_COLOR_BFE){
-        draw_point_combine(value,rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
-    } else if(grid_type == COMBINE_WATER) {
-        draw_point_combine_water(value,rise);
-    } else {
-        draw_point_combine_water(value,rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
-        
-    }
-    
-    float x=0, y=0;  //just to initialize with something
-    
-    float larger,smaller;
-    if (grid->nrows > grid->ncols) {
-        larger = grid->nrows;
-        smaller = grid->ncols;
-        
-    } else {
-        larger = grid->ncols;
-        smaller = grid->ncols;
-    }
-    
-    x = (((mypoint.y)/(larger))*2) - smaller/larger;
-    y = -(((mypoint.x)/(larger))*2) + 1;
-    
-    glBegin(GL_POINTS);
-    glVertex2f(x, y);
-    glEnd();
-}
-
-
-void draw_point_color(double value) {
+void draw_point_color(double value, double minLand, double max) {
     double base;
     double thisMin = minLand;
     if (minLand < 0) {
@@ -219,7 +222,7 @@ void draw_point_color(double value) {
         glColor3fv(interpolate_colors(red1, red2,value,(thisMin + 5*base),(thisMin+6*base)));
     }
 }
-void draw_point_see_slr_better(double value) {
+void draw_point_see_slr_better(double value,double minLand, double max) {
     double base;
     double thisMin = minLand;
     if (minLand < 0) {
@@ -245,7 +248,8 @@ void draw_point_see_slr_better(double value) {
         glColor3fv(interpolate_colors(gray6, black,value,thisMin+5*base,thisMin+6*base));
     }
 }
-void draw_point_black(double value) {
+
+void draw_point_black(double value,double minLand, double max) {
     assert(minLand > 0);
     double base = (max-minLand)/numCategories;
     if (value == elevgrid.NODATA_value) {
@@ -277,8 +281,9 @@ void draw_point_combine(double value, double theRise) {
         glColor3fv(black);
     } else {
         //assuming minimum (ie max negative number) is about zero
+        double minLandElev = findMinLand(&elevgrid);
         value += -(minLandElev-theRise);
-        double maxNum = 1+ -(minLandElev-theRise);
+        double maxNum = 1+ -(minLandElev-theRise);//this is going to be a number larger than all the others
         double base = maxNum/numCategories;
         if (value < base) {
             glColor3fv(interpolate_colors(blue6, blue5,value,0,base));
@@ -295,15 +300,16 @@ void draw_point_combine(double value, double theRise) {
         }
     }
 }
-void draw_point_combine_water(double value, double theRise) {
+void draw_point_combine_water(double value,double theRise) {
     if (value > 0){
         glColor3fv(black);
     }else if(value == elevgrid.NODATA_value) {
         glColor3fv(blue);
     } else {
         //assuming minimum (ie max negative number) is about zero
+        double minLandElev = findMinLand(&elevgrid);
         value += -(minLandElev-theRise);
-        double maxNum = 1+ -(minLandElev-theRise);
+        double maxNum = 1+ -(minLandElev-theRise);//this is going to be a number larger than all the others
         double base = maxNum/numCategories;
         if (value < base) {
             glColor3fv(interpolate_colors(blue6, blue5,value,0,base));

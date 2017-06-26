@@ -13,6 +13,7 @@
  e: Draw Elevgrid
  s: Draw SLR
  d: Draw SLR-Flooded (SLR-elev)
+ a: Draw SLR with gray land
  j: Draw the original sea
  k: Draw Sea+SLR-Flooded
  
@@ -60,7 +61,10 @@ void display(void);
 /* global variables */
 const int WINDOWSIZE = 500;
 const int POINT_SIZE  = 5.0f;
-int interp_bfe_EXISTS = 1;
+int interp_bfe_EXISTS = 1, DRAW = 0;
+;
+float rise;
+
 
 
 int main(int argc, char * argv[]) {
@@ -94,10 +98,13 @@ int main(int argc, char * argv[]) {
         diff2 = clock() - start2;
         unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
         printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
-        
+        mallocGrid(bfegrid, &interp_bfegrid);
+        setHeaders(bfegrid, &interp_bfegrid);
+        copyGrid(&bfegrid, &interp_bfegrid);
+
         clock_t start = clock(), diff;
         printf("start interp_bfe @ %g\n",rise);
-        start_interp_bfe_withFlooded(&elevgrid, rise);
+        start_interp_bfe(&elevgrid,&interp_bfegrid, rise);
         diff = clock() - start;
         unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
         printf("interp_bfe took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);
@@ -106,14 +113,10 @@ int main(int argc, char * argv[]) {
         mallocGrid(elevgrid, &slr_interp_bfegrid);
         setHeaders(elevgrid, &slr_interp_bfegrid);
     }
-
-    //printHeader(elevgrid);
-    printf("The number of cells is %ld\n", elevgrid.nrows * elevgrid.ncols);
     
     calculateGrids(&elevgrid);
     mallocGrid(elevgrid, &currgrid);
     setHeaders(elevgrid, &currgrid);
-    findMaxMinElev();
     
     
     //GLUT stuff
@@ -181,7 +184,6 @@ void keypress(unsigned char key, int x, int y) {
             freeGridData(&slrgrid);
             freeGridData(&slr_interp_bfegrid);
             freeGridData(&interp_bfegrid);
-            freeGridData(&interp_bfegrid);
             exit(0);
             break;
         case 'w':
@@ -203,6 +205,7 @@ void keypress(unsigned char key, int x, int y) {
         case 'a':
             printf("Draw SLR Gray\n");
             DRAW = SLR_GRAY;
+            break;
         case 'j':
             printf("Draw Water\n");
             DRAW = WATER;
@@ -276,7 +279,7 @@ void display(void) {
                 coloring = COLOR;
                 break;
             case SLR_ELEV:
-                combineGrids_nobfe(&slrgrid, &elevgrid);
+                combineGrids_nobfe(&slrgrid, &elevgrid,rise);
                 coloring = COMBINE_COLOR;
                 break;
             case SLR_GRAY:
@@ -288,7 +291,7 @@ void display(void) {
                 coloring = BINARY_COLOR;
                 break;
             case WATER_SLR_ELEV:
-                combineGrids_nobfe(&slrgrid, &elevgrid);
+                combineGrids_nobfe(&slrgrid, &elevgrid,rise);
                 coloring = COMBINE_WATER;
                 break;
             case ORIG_BFE:
@@ -305,16 +308,16 @@ void display(void) {
                 break;
                 
             case SLRINTERP_BFE_ELEV:
-                combineGrids_bfe(&slr_interp_bfegrid, &elevgrid);
+                combineGrids_bfe(&slr_interp_bfegrid, &elevgrid,rise);
                 coloring = COMBINE_COLOR_BFE;
                 break;
             case WATER_SLRINTERP_BFE_ELEV:
-                combineGrids_bfe(&slr_interp_bfegrid, &elevgrid);
+                combineGrids_bfe(&slr_interp_bfegrid, &elevgrid,rise);
                 coloring = COMBINE_WATER_BFE;
                 break;
                 
             case SLRINTERP_BFEMINUSSLR:
-                diffGrids(&slr_interp_bfegrid, &slrgrid, NEW_WATER);
+                diffGrids(&slr_interp_bfegrid, &slrgrid, NEW_WATER,rise);
                 coloring = COMBINE_COLOR_BFE;
                 break;
             default:
@@ -331,8 +334,12 @@ void display(void) {
                 setCurrGrid(&slrgrid);
                 coloring = COLOR;
                 break;
+            case SLR_GRAY:
+                setCurrGrid(&slrgrid);
+                coloring = GRAY_BLUE;
+                break;
             case SLR_ELEV:
-                combineGrids_nobfe(&slrgrid, &elevgrid);
+                combineGrids_nobfe(&slrgrid, &elevgrid,rise);
                 coloring = COMBINE_COLOR;
                 break;
             case WATER:
@@ -341,7 +348,7 @@ void display(void) {
                 break;
                 
             case WATER_SLR_ELEV:
-                combineGrids_nobfe(&slrgrid, &elevgrid);
+                combineGrids_nobfe(&slrgrid, &elevgrid,rise);
                 coloring = COMBINE_WATER;
                 break;
             default:
@@ -349,7 +356,7 @@ void display(void) {
                 return;
         }
     }
-    draw_grid(&currgrid, coloring);
+    draw_grid(&currgrid, coloring,rise);
     
     /* execute the drawing commands */
     glFlush();

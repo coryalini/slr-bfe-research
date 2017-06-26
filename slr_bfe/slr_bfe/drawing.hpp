@@ -60,23 +60,23 @@ enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3,COMBINE_CO
 
 static float numCategories = 6.0;
 
+void draw_grid(Grid* grid,int grid_type,float rise);
+void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, double minLand, double max);
+
+
 void waterGrid(Grid* grid);
 void setCurrGrid(Grid* grid);
-void combineGrids_nobfe(Grid* grid1, Grid* grid2);
-void combineGrids_bfe(Grid* grid1, Grid* grid2);
-void diffGrids(Grid* grid1, Grid* grid2, double diff);
+void combineGrids_nobfe(Grid* grid1, Grid* grid2, float rise);
+void combineGrids_bfe(Grid* grid1, Grid* grid2,float rise);
+void diffGrids(Grid* grid1, Grid* grid2, double diff,float rise);
 
 
-void draw_grid(Grid* grid,int grid_type);
-void general_draw_point(point mypoint, Grid* grid,int grid_type);
-
-void draw_point_color(double value);
-void draw_point_black(double value);
+void draw_point_color(double value, double minLand, double max);
+void draw_point_black(double value,double minLand, double max);
 void draw_point_binary(double value);
 void draw_point_combine(double value, double theRise);
-void draw_point_combine_water(double value, double theRise);
-void draw_point_see_slr_better(double value);
-
+void draw_point_combine_water(double value,double theRise);
+void draw_point_see_slr_better(double value,double minLand, double max);
 
 
 GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);

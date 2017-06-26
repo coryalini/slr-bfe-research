@@ -17,15 +17,19 @@
 
 const char *elevname, *writeGridname, *bfename;
 Grid elevgrid, bfegrid, slrgrid, slr_interp_bfegrid, interp_bfegrid,currgrid;
-int DRAW = 0;
 int offsets [8][2] ={{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
 
-float rise;
 
 const int NEW_WATER = -8000;
 const int HAVENT_VISITED = -7000;
-double max = 0, minLand =std::numeric_limits<double>::max(), min = std::numeric_limits<double>::max();
-double maxElev = 0, minLandElev =std::numeric_limits<double>::max();
+
+float ELEV_CONVERTER = 1;
+float BFE_CONVERTER = 1;
+
+int ELEV_TYPE = 0;
+int BFE_TYPE = 1;
+
+//float convertToMeters = 3.28;
 
 
 std::queue<point> findSeaPoint(Grid* elevgrid) {
@@ -107,39 +111,32 @@ int insideGrid(Grid* grid, int i, int j) {
     }
     return 1;
 }
-
-
-void findMaxMin(Grid* grid) {
-    max = 0;
-    minLand=std::numeric_limits<float>::max(), min = std::numeric_limits<float>::max();
+double findMax(Grid* grid) {
+    double max = 0;
     for (int i = 0; i < grid->nrows; i++) {
         for (int j = 0; j < grid->ncols; j++) {
             if (grid->data[i][j] > max) {
                 max = grid->data[i][j];
             }
-            if (grid->data[i][j] < min) {
-                min = grid->data[i][j];
-            }
-//            printf("%f vs %f \n",grid->data[i][j], minLand);
+        }
+    }
+    return max;
+ 
+}
+
+
+
+double findMinLand(Grid* grid) {
+    double minLand = std::numeric_limits<double>::max();
+    for (int i = 0; i < grid->nrows; i++) {
+        for (int j = 0; j < grid->ncols; j++) {
             if (grid->data[i][j] < minLand && grid->data[i][j] != grid->NODATA_value && grid->data[i][j] != NEW_WATER && grid->data[i][j] != HAVENT_VISITED) {
                 minLand = grid->data[i][j];
             }
         }
     }
-}
-void findMaxMinElev() {
-    maxElev = 0;
-    minLandElev=std::numeric_limits<float>::max();
-    for (int i = 0; i < elevgrid.nrows; i++) {
-        for (int j = 0; j < elevgrid.ncols; j++) {
-            if (elevgrid.data[i][j] > maxElev) {
-                maxElev = elevgrid.data[i][j];
-            }
-            if (elevgrid.data[i][j] < minLandElev && elevgrid.data[i][j] != elevgrid.NODATA_value) {
-                minLandElev = elevgrid.data[i][j];
-            }
-        }
-    }
+    return minLand;
+    
 }
 
 
@@ -151,44 +148,34 @@ void freeGridData(Grid* g) {
     free(g->data);
 }
 
-
-
-//const int NEW_WATER = -8000;
-void outputGridWithDepth(Grid* g, Grid* slrgrid,Grid* elevgrid,float rise) {
-    for (int i = 0; i < g->nrows; i++) {
-        for (int j = 0; j < g->ncols; j++) {
-            if (slrgrid->data[i][j] == NEW_WATER) {
-                g->data[i][j] = rise - elevgrid->data[i][j];
-            } else {
-                g->data[i][j] = g->NODATA_value;
-            }
-        }
-    }
+void mallocGrid(Grid eg, Grid* vg) {
     
-}
-void outputGridWithDepthWITHinterp_bfe(Grid* g, Grid* slrgrid,Grid* elevgrid,Grid* interp_bfegrid, float rise) {
-    for (int i = 0; i < g->nrows; i++) {
-        for (int j = 0; j < g->ncols; j++) {
-            if (slrgrid->data[i][j] == NEW_WATER) {
-                g->data[i][j] = (rise+interp_bfegrid->data[i][j]) - elevgrid->data[i][j];
-            } else {
-                g->data[i][j] = g->NODATA_value;
-            }
-        }
-    }
+    vg->data = (float**)malloc(eg.nrows * sizeof(float *));
+    assert(vg->data);
     
+    for(int a = 0; a < eg.nrows; a++) {
+        vg->data[a] = (float*)malloc(eg.ncols * sizeof(float));
+        assert(vg->data[a]);
+    }
 }
 
+void setHeaders(Grid elevgrid, Grid* newGrid) {
+    newGrid->nrows = elevgrid.nrows;
+    newGrid->ncols = elevgrid.ncols;
+    newGrid->xllcorner = elevgrid.xllcorner;
+    newGrid->yllcorner = elevgrid.yllcorner;
+    newGrid->cellsize = elevgrid.cellsize;
+    newGrid->NODATA_value = elevgrid.NODATA_value;
+}
 
-float ELEV_CONVERTER = 1;
-float BFE_CONVERTER = 1;
+void copyGrid(Grid* originalGrid, Grid* copyGrid) {
+    for (int i = 0; i < originalGrid->nrows; i++) {
+        for (int j = 0; j < originalGrid->ncols; j++) {
+            copyGrid->data[i][j] = originalGrid->data[i][j];
+        }
+    }
+}
 
-int ELEV_TYPE = 0;
-int BFE_TYPE = 1;
-
-int viewpointRow;
-int viewpointColumn;
-//float convertToMeters = 3.28;
 
 void readGridfromFile(const char* gridfname, Grid* g, int gridType) {
     FILE* f;
@@ -252,16 +239,7 @@ void readGridfromFile(const char* gridfname, Grid* g, int gridType) {
     }
     fclose(f);
 }
-void mallocGrid(Grid eg, Grid* vg) {
-    
-    vg->data = (float**)malloc(eg.nrows * sizeof(float *));
-    assert(vg->data);
-    
-    for(int a = 0; a < eg.nrows; a++) {
-        vg->data[a] = (float*)malloc(eg.ncols * sizeof(float));
-        assert(vg->data[a]);
-    }
-}
+
 void gridtoFile(Grid* g, const char* fileName) {
     FILE* file;
     
@@ -290,14 +268,6 @@ void gridtoFile(Grid* g, const char* fileName) {
 }
 
 
-void setHeaders(Grid elevgrid, Grid* newGrid) {
-    newGrid->nrows = elevgrid.nrows;
-    newGrid->ncols = elevgrid.ncols;
-    newGrid->xllcorner = elevgrid.xllcorner;
-    newGrid->yllcorner = elevgrid.yllcorner;
-    newGrid->cellsize = elevgrid.cellsize;
-    newGrid->NODATA_value = elevgrid.NODATA_value;
-}
 
 void printGrid(Grid g) {
     printHeader(g);

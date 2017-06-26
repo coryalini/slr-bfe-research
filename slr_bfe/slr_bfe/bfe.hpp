@@ -17,9 +17,12 @@
 #include <assert.h>
 
 /*MARK bfe*/
-Grid start_interp_bfe(Grid* elevgrid, float rise);
-
+void start_interp_bfe(Grid* elevgrid,Grid* local_interp_bfegrid, float rise);
 void compute_interp_bfe(Grid* elevgrid, Grid* local_interp_bfegrid,int rise, char** alreadySeen,std::queue<point>& queue);
+
+//Grid start_interp_bfe(Grid* elevgrid, Grid* bfegrid, float rise);
+//
+//void compute_interp_bfe(Grid* elevgrid,Grid* bfegrid, Grid* local_interp_bfegrid,int rise, char** alreadySeen,std::queue<point>& queue);
 
 Grid start_interp_bfe_withFlooded(Grid* elevgrid, float rise);
 

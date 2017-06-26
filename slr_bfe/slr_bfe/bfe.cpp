@@ -9,11 +9,8 @@
 #include "bfe.hpp"
 
 /* MARK: bfe */
-Grid start_interp_bfe(Grid* elevgrid,float rise) {
+void start_interp_bfe(Grid* elevgrid,Grid* local_interp_bfegrid, float rise) {
 
-    Grid local_interp_bfegrid;
-    mallocGrid(*elevgrid, &local_interp_bfegrid);
-    setHeaders(*elevgrid, &local_interp_bfegrid);
     char** alreadySeen;
     alreadySeen = (char**)malloc(elevgrid->nrows * sizeof(char *));
     assert(alreadySeen);
@@ -29,21 +26,13 @@ Grid start_interp_bfe(Grid* elevgrid,float rise) {
     }
     std::queue<point> queue;
     queue = findSeaPoint(elevgrid);
-    compute_interp_bfe(elevgrid,&local_interp_bfegrid,rise,alreadySeen,queue);
-    
-    //    std::queue<point> queue;
-    //    point start;
-    //    start.x = seaX;
-    //    start.y = seaY;
-    //    queue.push(start);
-    //    compute_interp_bfe(elevgrid,interp_bfegrid,rise,alreadySeen,queue);
-    return local_interp_bfegrid;
+    compute_interp_bfe(elevgrid,local_interp_bfegrid,rise,alreadySeen,queue);
 }
 
-void compute_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** alreadySeen,std::queue<point>& queue) {
+void compute_interp_bfe(Grid* elevgrid, Grid* local_interp_bfegrid,int rise, char** alreadySeen,std::queue<point>& queue) {
     //Iterate through the left edge of the terrain
     for (int i = 0; i < elevgrid->nrows; i++) {
-        if (interp_bfegrid->data[i][0] == interp_bfegrid->NODATA_value) {
+        if (local_interp_bfegrid->data[i][0] == local_interp_bfegrid->NODATA_value) {
             if(elevgrid->data[i][0] < rise) {
                 point newPoint;
                 newPoint.x = i;
@@ -56,7 +45,7 @@ void compute_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** al
     }
     //Iterate through the top edge of the terrain
     for (int j = 0; j < elevgrid->ncols; j++) {
-        if (interp_bfegrid->data[0][j] == interp_bfegrid->NODATA_value) {
+        if (local_interp_bfegrid->data[0][j] == local_interp_bfegrid->NODATA_value) {
             if(elevgrid->data[0][j] < rise) {
                 point newPoint;
                 newPoint.x = 0;
@@ -69,7 +58,7 @@ void compute_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** al
     }
     //Iterate through the right edge of the terrain
     for (int i = 0; i < elevgrid->nrows-1; i++) {
-        if (interp_bfegrid->data[i][elevgrid->ncols-1] == interp_bfegrid->NODATA_value) {
+        if (local_interp_bfegrid->data[i][elevgrid->ncols-1] == local_interp_bfegrid->NODATA_value) {
             if(elevgrid->data[i][elevgrid->ncols-1] < rise) {
                 point newPoint;
                 newPoint.x = i;
@@ -81,7 +70,7 @@ void compute_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** al
     }
     //Iterate through the bottom edge of the terrain
     for (int j = 0; j < elevgrid->ncols-1; j++) {
-        if (interp_bfegrid->data[elevgrid->nrows-1][j] == interp_bfegrid->NODATA_value) {
+        if (local_interp_bfegrid->data[elevgrid->nrows-1][j] == local_interp_bfegrid->NODATA_value) {
             if(elevgrid->data[elevgrid->nrows-1][j] < rise) {
                 point newPoint;
                 newPoint.x = elevgrid->nrows-1;
@@ -108,8 +97,8 @@ void compute_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** al
             newPoint.y = newCol;
             if(alreadySeen[newRow][newCol] == 'u') {
                 //if not interp_bfe  add to queue and continue
-                if(interp_bfegrid->data[newRow][newCol] == interp_bfegrid->NODATA_value) {
-                    interp_bfegrid->data[newRow][newCol] = interp_bfegrid->NODATA_value;
+                if(local_interp_bfegrid->data[newRow][newCol] == local_interp_bfegrid->NODATA_value) {
+                    local_interp_bfegrid->data[newRow][newCol] = local_interp_bfegrid->NODATA_value;
                     queue.push(newPoint);
                     alreadySeen[newRow][newCol] = 's';
                 } else {
@@ -135,10 +124,10 @@ void compute_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid,int rise, char** al
             if(alreadySeen[newRow][newCol] != 'u') {
                 continue;
             }
-            if (interp_bfegrid->data[newRow][newCol] == interp_bfegrid->NODATA_value) {
-                interp_bfegrid->data[newRow][newCol] = interp_bfegrid->data[(int)curr.x][(int)curr.y];
+            if (local_interp_bfegrid->data[newRow][newCol] == local_interp_bfegrid->NODATA_value) {
+                local_interp_bfegrid->data[newRow][newCol] = local_interp_bfegrid->data[(int)curr.x][(int)curr.y];
             }
-            assert(interp_bfegrid->data[newRow][newCol] != interp_bfegrid->NODATA_value);
+            assert(local_interp_bfegrid->data[newRow][newCol] != local_interp_bfegrid->NODATA_value);
             interp_bfequeue.push(newPoint);
             alreadySeen[newRow][newCol] = 'b';
         }
