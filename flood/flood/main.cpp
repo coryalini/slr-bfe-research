@@ -11,19 +11,12 @@
  w: write to files
  
  e: Draw Elevgrid
- s: Draw SLR
- d: Draw SLR-Flooded (SLR-elev)
- a: Draw SLR with gray land
- j: Draw the original sea
- k: Draw Sea+SLR-Flooded
- 
- b: Draw original BFE
- i: Draw interpolated BFE
- c: Draw BFE+SLR
- v: Draw BFE+SLR-Flooded
- l: Draw Sea+(BFE+SLR)-Flooded
- f: Draw Stormflooding (BFE+SLR)-SLR
- 
+ f: Draw Flooded grid
+ g: Draw Flooded grid with gray land
+ j: Draw just flooded grid (no elev)
+ s: Draw the sea
+ h: Draw just flooded grid displaying water
+ i: Draw interpolated bfe
  
  +: increase the sea level rise
  =: increase the sea level rise
@@ -64,13 +57,14 @@ double BFE_CONVERTER = 1;
 
 int interp_bfe_EXISTS = 1, DRAW = 0;
 const char *elevname, *writeGridname, *bfename;
-enum {ELEV = 0, SLR = 1, SLR_ELEV = 2,SLR_GRAY =3, WATER = 4, WATER_SLR_ELEV = 5, ORIG_BFE = 6, INTERP_BFE = 7,SLRINTERP_BFE = 8, SLRINTERP_BFE_ELEV = 9,WATER_SLRINTERP_BFE_ELEV = 10,SLRINTERP_BFEMINUSSLR = 11, BFE_ELEV = 12, BFE_STORMFLOODING = 13};
-enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3,COMBINE_COLOR_BFE = 4, COMBINE_WATER = 5, COMBINE_WATER_BFE = 6, GRAY_BLUE= 7,COMBINE_WITH_BFE=8, BFE_STORMFLOODING_COLOR=9};
+
+enum {ELEV = 0, FLOODED = 1,FLOODED_GRAY= 2,FLOODED_ELEV=3,SEA= 4,WATER_FLOODED_ELEV=5,INTERP_BFE=6 };
+enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3, COMBINE_WATER = 5, GRAY_BLUE= 7};
 
 
 
 static float numCategories = 6.0;
-Grid elevgrid, interp_bfegrid, currgrid, slrgrid, slr_interp_bfegrid;
+Grid elevgrid, interp_bfegrid, currgrid, floodedgrid;
 
 float rise;
 GLfloat red_pink[3] = {0.969, 0.396, 0.396};
@@ -108,17 +102,13 @@ void reset();
 void calculateGrids(Grid* elevgrid);
 void display(void);
 
-
 void draw_grid(Grid* grid,int grid_type,float rise);
 void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, double minLand, double max);
-
 
 void waterGrid(Grid* grid);
 void setCurrGrid(Grid* grid);
 void combineGrids_nobfe(Grid* grid1, Grid* grid2, float rise);
 void combineGrids_bfe(Grid* grid1, Grid* grid2,float rise);
-void diffGrids(Grid* grid1, Grid* grid2, double diff,float rise);
-void combineBFEandOther(Grid* grid1, Grid* grid2);
 
 void draw_point_color(double value, double minLand, double max);
 void draw_point_black(double value,double minLand, double max);
@@ -126,12 +116,8 @@ void draw_point_binary(double value);
 void draw_point_combine(double value, double minLandElev, double theRise);
 void draw_point_combine_water(double value,double minLandElev,double theRise);
 void draw_point_see_slr_better(double value,double minLand, double max);
-void draw_point_with_BFE(double value,int x, int y, double minLand, double max);
-void draw_point_Storm_BFE(double value,int x, int y, double minLand, double max);
 
 GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);
-
-
 
 
 
@@ -157,8 +143,8 @@ int main(int argc, char * argv[]) {
     unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
     printf("Reading elevgrid took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);
     
-    mallocGrid(elevgrid, &slrgrid);
-    setHeaders(elevgrid, &slrgrid);
+    mallocGrid(elevgrid, &floodedgrid);
+    setHeaders(elevgrid, &floodedgrid);
     
     if (interp_bfe_EXISTS) {
         clock_t start2 = clock(), diff2;
@@ -170,20 +156,18 @@ int main(int argc, char * argv[]) {
         diff2 = clock() - start2;
         unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
         printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
-        mallocGrid(elevgrid, &slr_interp_bfegrid);
-        setHeaders(elevgrid, &slr_interp_bfegrid);
     }
     
     
-    
-    elevgrid = start_slr(&elevgrid, 0);
-    for (int i = 0; i < elevgrid.nrows; i++) {
-        for(int j = 0; j < elevgrid.ncols; j++){
-            if (elevgrid.data[i][j] == NEW_WATER) {
-                elevgrid.data[i][j] = elevgrid.NODATA_value;
-            }
-        }
-    }
+    // HACK FOR NOAA DATA
+    //elevgrid = start_slr(&elevgrid, 0);
+//    for (int i = 0; i < elevgrid.nrows; i++) {
+//        for(int j = 0; j < elevgrid.ncols; j++){
+//            if (elevgrid.data[i][j] == NEW_WATER) {
+//                elevgrid.data[i][j] = elevgrid.NODATA_value;
+//            }
+//        }
+//    }
     
     calculateGrids(&elevgrid);
     mallocGrid(elevgrid, &currgrid);
@@ -224,25 +208,24 @@ int main(int argc, char * argv[]) {
 }
 
 void calculateGrids(Grid* elevgrid) {
-    clock_t start2 = clock(), diff2;
-    printf("start SLR @ %g\n",rise);
-    slrgrid = start_slr(elevgrid, rise);
-    
-    diff2 = clock() - start2;
-    unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
-    printf("SLR took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
-    
-    if (interp_bfe_EXISTS) {
+    if (!interp_bfe_EXISTS) {
+        clock_t start2 = clock(), diff2;
+        printf("start SLR @ %g\n",rise);
+        floodedgrid = start_slr(elevgrid, rise);
+        
+        diff2 = clock() - start2;
+        unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
+        printf("SLR took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
+    } else {
         clock_t start3 = clock(), diff3;
         printf("start SLR + interp_bfe @ %g\n",rise);
-        slr_interp_bfegrid = start_slr_interp_bfe(elevgrid, &interp_bfegrid, rise);
+        floodedgrid = start_slr_interp_bfe(elevgrid, &interp_bfegrid, rise);
         diff3 = clock() - start3;
         unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
         printf("interp_bfe+SLR took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
+        
     }
 }
-
-
 
 
 /* ***************************** */
@@ -251,8 +234,7 @@ void keypress(unsigned char key, int x, int y) {
         case 'q':
             freeGridData(&elevgrid);
             freeGridData(&currgrid);
-            freeGridData(&slrgrid);
-            freeGridData(&slr_interp_bfegrid);
+            freeGridData(&floodedgrid);
             freeGridData(&interp_bfegrid);
             exit(0);
             break;
@@ -264,56 +246,31 @@ void keypress(unsigned char key, int x, int y) {
             printf("Draw Elevgrid\n");
             DRAW = ELEV;
             break;
-        case 's':
-            printf("Draw SLR\n");
-            DRAW = SLR;
+            
+        case 'f':
+            printf("Draw Flooded grid\n");
+            DRAW = FLOODED;
             break;
-        case 'd':
-            printf("Draw SLR-Flooded(SLR-Elev)\n");
-            DRAW = SLR_ELEV;
-            break;
-        case 'a':
-            printf("Draw SLR Gray\n");
-            DRAW = SLR_GRAY;
+        case 'g':
+            printf("Draw Flooded grid with gray land\n");
+            DRAW = FLOODED_GRAY;
             break;
         case 'j':
-            printf("Draw Water\n");
-            DRAW = WATER;
+            printf("Draw just flooded grid (no elev)\n");
+            DRAW = FLOODED_ELEV;
             break;
-        case 'k':
+        case 's':
+            printf("Draw Sea\n");
+            DRAW = SEA;
+            break;
+        case 'h':
             printf("Draw Water+SLR-Flooded(SLR-Elev)\n");
-            DRAW = WATER_SLR_ELEV;
+            DRAW = WATER_FLOODED_ELEV;
             break;
             
         case 'i':
             printf("Draw Interpolated BFE\n");
             DRAW = INTERP_BFE;
-            break;
-        case 'u':
-            printf("Draw BFE with ELEV\n");
-            DRAW = BFE_ELEV;
-            break;
-        case 'c':
-            printf("Draw SLR_BFE\n");
-            DRAW = SLRINTERP_BFE;
-            break;
-            
-        case 'v':
-            printf("Draw SLR_BFE-Flooded(SLR+BFE-Elev)\n");
-            DRAW = SLRINTERP_BFE_ELEV;
-            break;
-        case 'l':
-            printf("Draw Water+SLR_BFE-Flooded(SLR+BFE-Elev)\n");
-            DRAW = WATER_SLRINTERP_BFE_ELEV;
-            break;
-        case 'f':
-            printf("Draw Stormflooding (BFE_SLR - SLR)\n");
-            DRAW = SLRINTERP_BFEMINUSSLR;
-            break;
-            
-        case 'g':
-            printf("Draw BFE with Stormflooding\n");
-            DRAW = BFE_STORMFLOODING;
             break;
         case '=':
             rise += 1;
@@ -339,109 +296,58 @@ void keypress(unsigned char key, int x, int y) {
     }
     glutPostRedisplay();
 }
+
 void display(void) {
     glClear(GL_COLOR_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); //clear the matrix
     float coloring = 0;
-    if (interp_bfe_EXISTS) {
-        switch (DRAW) {
-            case ELEV:
-                setCurrGrid(&elevgrid);
-                coloring = COLOR;
-                break;
-            case SLR:
-                setCurrGrid(&slrgrid);
-                coloring = COLOR;
-                break;
-            case SLR_ELEV:
-                combineGrids_nobfe(&slrgrid, &elevgrid,rise);
-                coloring = COMBINE_COLOR;
-                break;
-            case SLR_GRAY:
-                setCurrGrid(&slrgrid);
-                coloring = GRAY_BLUE;
-                break;
-            case WATER:
-                waterGrid(&elevgrid);
-                coloring = BINARY_COLOR;
-                break;
-            case WATER_SLR_ELEV:
-                combineGrids_nobfe(&slrgrid, &elevgrid,rise);
-                coloring = COMBINE_WATER;
-                break;
-            case INTERP_BFE:
+    double currRise = rise;
+    
+    switch (DRAW) {
+        case ELEV:
+            setCurrGrid(&elevgrid);
+            coloring = COLOR;
+            break;
+        case FLOODED:
+            setCurrGrid(&floodedgrid);
+            coloring = COLOR;
+            break;
+        case FLOODED_GRAY:
+            setCurrGrid(&floodedgrid);
+            coloring = GRAY_BLUE;
+            break;
+        case SEA:
+            waterGrid(&elevgrid);
+            coloring = BINARY_COLOR;
+            break;
+        case FLOODED_ELEV:
+            if (interp_bfe_EXISTS) {
+                combineGrids_bfe(&floodedgrid, &elevgrid,rise);
+            } else {
+                combineGrids_nobfe(&floodedgrid, &elevgrid,rise);
+            }
+            coloring = COMBINE_COLOR;
+            break;
+        case WATER_FLOODED_ELEV:
+            if (interp_bfe_EXISTS) {
+                combineGrids_bfe(&floodedgrid, &elevgrid,rise);
+
+            } else {
+                combineGrids_nobfe(&floodedgrid, &elevgrid,rise);
+            }
+            coloring = COMBINE_WATER;
+            break;
+        case INTERP_BFE:
+            if (interp_bfe_EXISTS) {
                 setCurrGrid(&interp_bfegrid);
                 coloring = BLACK_COLOR;
                 break;
-            case SLRINTERP_BFE:
-                setCurrGrid(&slr_interp_bfegrid);
-                coloring = COLOR;
-                break;
-            case BFE_ELEV:
-                combineBFEandOther(&interp_bfegrid,&elevgrid);
-                coloring = COMBINE_WITH_BFE;
-                break;
-            case BFE_STORMFLOODING:
-                diffGrids(&slr_interp_bfegrid, &slrgrid, NEW_WATER,rise);
-                Grid tempgrid;
-                mallocGrid(elevgrid, &tempgrid);
-                setHeaders(elevgrid, &tempgrid);
-                copyGrid(&currgrid, &tempgrid);
-                combineBFEandOther(&interp_bfegrid,&tempgrid);
-                freeGridData(&tempgrid);
-                coloring = BFE_STORMFLOODING_COLOR;
-                
-                
-                break;
-            case SLRINTERP_BFE_ELEV:
-                combineGrids_bfe(&slr_interp_bfegrid, &elevgrid,rise);
-                coloring = COMBINE_COLOR_BFE;
-                break;
-            case WATER_SLRINTERP_BFE_ELEV:
-                combineGrids_bfe(&slr_interp_bfegrid, &elevgrid,rise);
-                coloring = COMBINE_WATER_BFE;
-                break;
-                
-            case SLRINTERP_BFEMINUSSLR:
-                diffGrids(&slr_interp_bfegrid, &slrgrid, NEW_WATER,rise);
-                coloring = COMBINE_COLOR_BFE;
-                break;
-            default:
-                break;
-        }
-        
-    } else {
-        switch (DRAW) {
-            case ELEV:
-                setCurrGrid(&elevgrid);
-                coloring = COLOR;
-                break;
-            case SLR:
-                setCurrGrid(&slrgrid);
-                coloring = COLOR;
-                break;
-            case SLR_GRAY:
-                setCurrGrid(&slrgrid);
-                coloring = GRAY_BLUE;
-                break;
-            case SLR_ELEV:
-                combineGrids_nobfe(&slrgrid, &elevgrid,rise);
-                coloring = COMBINE_COLOR;
-                break;
-            case WATER:
-                waterGrid(&elevgrid);
-                coloring = BINARY_COLOR;
-                break;
-                
-            case WATER_SLR_ELEV:
-                combineGrids_nobfe(&slrgrid, &elevgrid,rise);
-                coloring = COMBINE_WATER;
-                break;
-            default:
-                //                break;
+            } else {
                 return;
-        }
+            }
+        default:
+            break;
     }
     draw_grid(&currgrid, coloring,rise);
     
@@ -467,20 +373,36 @@ void draw_grid(Grid* grid, int grid_type,float rise) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     assert(grid->data);
     double minLand, max = findMax(grid);
-    if (grid_type == COMBINE_COLOR || grid_type == COMBINE_COLOR_BFE ||grid_type == COMBINE_WATER || grid_type == COMBINE_WATER_BFE) {
+    if (grid_type == COMBINE_COLOR || grid_type == COMBINE_WATER) {
         minLand = findMinLand(&elevgrid);
     } else {
         minLand= findMinLand(grid);
     }
-    
-    for (int i = 0; i < elevgrid.nrows; i++) {
-        for (int j = 0; j < elevgrid.ncols; j++) {
-            point newPoint;
-            newPoint.x = i;
-            newPoint.y = j;
-            general_draw_point(newPoint, grid, grid_type,rise,minLand, max);
+    if (interp_bfe_EXISTS) {
+        for (int i = 0; i < elevgrid.nrows; i++) {
+            for (int j = 0; j < elevgrid.ncols; j++) {
+                point newPoint;
+                newPoint.x = i;
+                newPoint.y = j;
+                if (interp_bfegrid.data[i][j] != elevgrid.NODATA_value) {
+                    general_draw_point(newPoint, grid, grid_type,rise +interp_bfegrid.data[i][j] ,minLand, max);
+
+                } else {
+                    general_draw_point(newPoint, grid, grid_type,rise,minLand, max);
+                }
+            }
+        }
+    } else {
+        for (int i = 0; i < elevgrid.nrows; i++) {
+            for (int j = 0; j < elevgrid.ncols; j++) {
+                point newPoint;
+                newPoint.x = i;
+                newPoint.y = j;
+                general_draw_point(newPoint, grid, grid_type,rise,minLand, max);
+            }
         }
     }
+    
 }
 
 
@@ -502,27 +424,15 @@ void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, dou
         case COMBINE_COLOR:
             draw_point_combine(value,minLand, rise);
             break;
-        case COMBINE_COLOR_BFE:
-            draw_point_combine(value,minLand, rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
-            break;
         case COMBINE_WATER:
             draw_point_combine_water(value,minLand, rise);
             break;
-        case COMBINE_WATER_BFE:
-            draw_point_combine_water(value,minLand, rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
-            break;
-        case COMBINE_WITH_BFE:
-            draw_point_with_BFE(value,(int)mypoint.x,(int)mypoint.y, minLand, max);
-            break;
-        case BFE_STORMFLOODING_COLOR:
-            draw_point_Storm_BFE(value,(int)mypoint.x,(int)mypoint.y, minLand, max);
-            break;
         default:
             break;
-
+            
     }
-
-
+    
+    
     
     float x=0, y=0;  //just to initialize with something
     
@@ -546,26 +456,6 @@ void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, dou
 
 
 
-void diffGrids(Grid* grid1, Grid* grid2, double diff,float rise) {
-//    assert(DRAW == SLuRINTERP_BFEMINUSSLR);
-    
-    for (int i = 0; i < elevgrid.nrows; i++) {
-        for (int j = 0; j < elevgrid.ncols; j++) {
-            
-            double currRise = interp_bfegrid.data[i][j] + rise;
-            double value1 = grid1->data[i][j];
-            double value2 = grid2->data[i][j];
-            if (value1 == elevgrid.NODATA_value) {
-                currgrid.data[i][j] = elevgrid.NODATA_value;
-            }else if (value1 == diff && value2 != diff) {
-                currgrid.data[i][j] = value2-currRise;
-            } else {
-                currgrid.data[i][j] = 1;
-            }
-        }
-    }
-}
-
 
 void waterGrid(Grid* grid) {
     for (int i = 0; i < elevgrid.nrows; i++) {
@@ -578,14 +468,7 @@ void waterGrid(Grid* grid) {
         }
     }
 }
-/*
- When called,ex: grid1 is slr or slr+bfe and grid2 is elev.
- 
- This function sets the global variable, currGrid.
- If there is a bfe available, the code utilizes the bfe data given to find what values will be flooded.
- Even if the bfe is given, some values in the bfe grid are NODATA_values, thus
- 
- */
+
 void setCurrGrid(Grid* grid){
     for (int i = 0; i < grid->nrows; i++) {
         for (int j = 0; j < grid->ncols; j++) {
@@ -594,22 +477,14 @@ void setCurrGrid(Grid* grid){
     }
 }
 
-
-
-void combineBFEandOther(Grid* grid1, Grid* grid2) {
-    for (int i = 0; i < elevgrid.nrows; i++) {
-        for (int j = 0; j < elevgrid.ncols; j++) {
-            if (grid1->data[i][j] != elevgrid.NODATA_value) {
-                currgrid.data[i][j] = grid1->data[i][j];
-            } else {
-                currgrid.data[i][j] = grid2->data[i][j];
-            }
-        }
-    }
-}
-
-
-
+/*
+ When called,ex: grid1 is slr or slr+bfe and grid2 is elev.
+ 
+ This function sets the global variable, currGrid.
+ If there is a bfe available, the code utilizes the bfe data given to find what values will be flooded.
+ Even if the bfe is given, some values in the bfe grid are NODATA_values, thus
+ 
+ */
 
 void combineGrids_nobfe(Grid* grid1, Grid* grid2, float rise) {
     for (int i = 0; i < elevgrid.nrows; i++) {
@@ -723,93 +598,6 @@ void draw_point_binary(double value) {
         glColor3fv(blue);
     } else {
         glColor3fv(black);
-    }
-}
-
-void draw_point_Storm_BFE(double value,int x, int y, double minLand, double max) {
-    double base;
-    if(value == interp_bfegrid.data[x][y]) {
-        base = (max-minLand)/numCategories;
-        if (value == elevgrid.NODATA_value) {
-            glColor3fv(blue);
-        } else if (value < minLand+base) {
-            glColor3fv(interpolate_colors(gray1, gray2,value,minLand,minLand+base));
-        } else if (value < (minLand+2 * base)) {
-            glColor3fv(interpolate_colors(gray2, gray3,value,minLand+base,minLand+2*base));
-        } else if (value < (minLand+3 * base)) {
-            glColor3fv(interpolate_colors(gray3, gray4,value,minLand+2*base,minLand+3*base));
-        } else if (value < (minLand+4 * base)) {
-            glColor3fv(interpolate_colors(gray4, gray5,value,minLand+3*base,minLand+4*base));
-        } else if (value < (minLand+5 * base)) {
-            glColor3fv(interpolate_colors(gray5, gray6,value,minLand+4*base,minLand+5*base));
-        }  else {
-            glColor3fv(interpolate_colors(gray6, black,value,minLand+5*base,minLand+6*base));
-        }
-    } else {
-        double thisMin = minLand;
-        if (minLand < 0) {
-            thisMin = 0;
-        }
-        base = (max-thisMin)/numCategories;
-        if (value < base) {
-            glColor3fv(interpolate_colors(blue6, blue5,value,0,base));
-        } else if (value < (2 * base)) {
-            glColor3fv(interpolate_colors(blue5, blue4,value,base,2*base));
-        } else if (value < (3 * base)) {
-            glColor3fv(interpolate_colors(blue4, blue3,value,2*base,3*base));
-        } else if (value < (4 * base)) {
-            glColor3fv(interpolate_colors(blue3, blue2,value,3*base,4*base));
-        } else if (value < (5 * base)) {
-            glColor3fv(interpolate_colors(blue2, blue1,value,4*base,5*base));
-        }  else {
-            glColor3fv(interpolate_colors(blue1, lightblue,value,5*base,6*base));
-        }
-    }
-}
-
-void draw_point_with_BFE(double value,int x, int y, double minLand, double max) {
-    double base;
-    if(value == interp_bfegrid.data[x][y]) {
-        base = (max-minLand)/numCategories;
-        if (value == elevgrid.NODATA_value) {
-            glColor3fv(blue);
-        } else if (value < minLand+base) {
-            glColor3fv(interpolate_colors(gray1, gray2,value,minLand,minLand+base));
-        } else if (value < (minLand+2 * base)) {
-            glColor3fv(interpolate_colors(gray2, gray3,value,minLand+base,minLand+2*base));
-        } else if (value < (minLand+3 * base)) {
-            glColor3fv(interpolate_colors(gray3, gray4,value,minLand+2*base,minLand+3*base));
-        } else if (value < (minLand+4 * base)) {
-            glColor3fv(interpolate_colors(gray4, gray5,value,minLand+3*base,minLand+4*base));
-        } else if (value < (minLand+5 * base)) {
-            glColor3fv(interpolate_colors(gray5, gray6,value,minLand+4*base,minLand+5*base));
-        }  else {
-            glColor3fv(interpolate_colors(gray6, black,value,minLand+5*base,minLand+6*base));
-        }
-    } else {
-        double thisMin = minLand;
-        if (minLand < 0) {
-            thisMin = 0;
-        }
-        base = (max-thisMin)/numCategories;
-        if (value == elevgrid.NODATA_value) {
-            glColor3fv(blue);
-        } else if (value == NEW_WATER) {
-            glColor3fv(lightblue);
-        } else if (value < (thisMin+base)) {
-            glColor3fv(interpolate_colors(green1, greenmid,value,thisMin,(thisMin + base)));
-        } else if (value < (thisMin + 2 * base)) {
-            glColor3fv(interpolate_colors(greenmid, green2,value,(thisMin + base),(thisMin + 2*base)));
-        } else if (value < (thisMin + 3 * base)) {
-            glColor3fv(interpolate_colors(green2, darkyellow,value,(thisMin + 2*base),(thisMin + 3*base)));
-        } else if (value < (thisMin + 4 * base)) {
-            glColor3fv(interpolate_colors(darkyellow, darkorange,value,(thisMin + 3*base),(thisMin + 4*base)));
-        } else if (value < (thisMin + 5 * base)) {
-            glColor3fv(interpolate_colors(darkorange, red1,value,(thisMin + 4*base),(thisMin + 5*base)));
-        }  else {
-            glColor3fv(interpolate_colors(red1, red2,value,(thisMin + 5*base),(thisMin+6*base)));
-        }
-
     }
 }
 
