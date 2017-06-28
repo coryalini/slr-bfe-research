@@ -9,9 +9,29 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>interp.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
+		<key>renderFlood.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>EA24B1B41F04246000C26E71</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>EA24B1C71F04250F00C26E71</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>EA4A6C461F0183C200DB1363</key>
 		<dict>
 			<key>primary</key>

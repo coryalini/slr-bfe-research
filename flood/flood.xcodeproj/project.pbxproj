@@ -7,14 +7,40 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EA4A6C4B1F0183C200DB1363 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA4A6C4A1F0183C200DB1363 /* main.cpp */; };
+		EA24B1C21F0424CF00C26E71 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA4A6C521F0183DA00DB1363 /* GLUT.framework */; };
+		EA24B1C31F0424D400C26E71 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA4A6C541F0183DF00DB1363 /* OpenGL.framework */; };
+		EA24B1CF1F04253500C26E71 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA4A6C521F0183DA00DB1363 /* GLUT.framework */; };
+		EA24B1D01F04253B00C26E71 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA4A6C541F0183DF00DB1363 /* OpenGL.framework */; };
+		EA24B1D91F04263A00C26E71 /* floodmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA24B1D11F04254E00C26E71 /* floodmain.cpp */; };
+		EA24B1DA1F04263A00C26E71 /* flood.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA0CE701F018471009DFA61 /* flood.cpp */; };
+		EA24B1E71F04267B00C26E71 /* grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA24B1E11F04267B00C26E71 /* grid.cpp */; };
+		EA24B1E91F0426B000C26E71 /* grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA24B1E11F04267B00C26E71 /* grid.cpp */; };
+		EA24B1EA1F0426B400C26E71 /* interpmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA24B1E31F04267B00C26E71 /* interpmain.cpp */; };
+		EA24B1EB1F0426B800C26E71 /* bfe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA24B1DC1F04267B00C26E71 /* bfe.cpp */; };
 		EA4A6C531F0183DA00DB1363 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA4A6C521F0183DA00DB1363 /* GLUT.framework */; };
 		EA4A6C551F0183DF00DB1363 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA4A6C541F0183DF00DB1363 /* OpenGL.framework */; };
-		EAA0CE741F018471009DFA61 /* flood.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA0CE701F018471009DFA61 /* flood.cpp */; };
-		EAA0CE751F018471009DFA61 /* grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EAA0CE721F018471009DFA61 /* grid.cpp */; };
+		EA53EAE31F04270300F6939F /* renderFlood.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA53EAE11F0426FA00F6939F /* renderFlood.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		EA24B1B31F04246000C26E71 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		EA24B1C61F04250F00C26E71 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		EA4A6C451F0183C200DB1363 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -27,17 +53,41 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		EA24B1B51F04246000C26E71 /* interp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = interp; sourceTree = BUILT_PRODUCTS_DIR; };
+		EA24B1C81F04250F00C26E71 /* renderFlood */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = renderFlood; sourceTree = BUILT_PRODUCTS_DIR; };
+		EA24B1D11F04254E00C26E71 /* floodmain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = floodmain.cpp; sourceTree = "<group>"; };
+		EA24B1DC1F04267B00C26E71 /* bfe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bfe.cpp; sourceTree = "<group>"; };
+		EA24B1DD1F04267B00C26E71 /* bfe.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = bfe.hpp; sourceTree = "<group>"; };
+		EA24B1E11F04267B00C26E71 /* grid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grid.cpp; sourceTree = "<group>"; };
+		EA24B1E21F04267B00C26E71 /* grid.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = grid.hpp; sourceTree = "<group>"; };
+		EA24B1E31F04267B00C26E71 /* interpmain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = interpmain.cpp; sourceTree = "<group>"; };
 		EA4A6C471F0183C200DB1363 /* flood */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = flood; sourceTree = BUILT_PRODUCTS_DIR; };
-		EA4A6C4A1F0183C200DB1363 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		EA4A6C521F0183DA00DB1363 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		EA4A6C541F0183DF00DB1363 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		EA53EAE11F0426FA00F6939F /* renderFlood.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderFlood.cpp; sourceTree = "<group>"; };
 		EAA0CE701F018471009DFA61 /* flood.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = flood.cpp; sourceTree = "<group>"; };
 		EAA0CE711F018471009DFA61 /* flood.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = flood.hpp; sourceTree = "<group>"; };
-		EAA0CE721F018471009DFA61 /* grid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grid.cpp; sourceTree = "<group>"; };
-		EAA0CE731F018471009DFA61 /* grid.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = grid.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		EA24B1B21F04246000C26E71 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EA24B1C31F0424D400C26E71 /* OpenGL.framework in Frameworks */,
+				EA24B1C21F0424CF00C26E71 /* GLUT.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EA24B1C51F04250F00C26E71 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EA24B1D01F04253B00C26E71 /* OpenGL.framework in Frameworks */,
+				EA24B1CF1F04253500C26E71 /* GLUT.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EA4A6C441F0183C200DB1363 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -50,10 +100,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		EA24B1B61F04246000C26E71 /* interp */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = interp;
+			sourceTree = "<group>";
+		};
+		EA24B1C91F04250F00C26E71 /* renderFlood */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = renderFlood;
+			sourceTree = "<group>";
+		};
 		EA4A6C3E1F0183C200DB1363 = {
 			isa = PBXGroup;
 			children = (
 				EA4A6C491F0183C200DB1363 /* flood */,
+				EA24B1B61F04246000C26E71 /* interp */,
+				EA24B1C91F04250F00C26E71 /* renderFlood */,
 				EA4A6C481F0183C200DB1363 /* Products */,
 				EA4A6C511F0183DA00DB1363 /* Frameworks */,
 			);
@@ -63,6 +129,8 @@
 			isa = PBXGroup;
 			children = (
 				EA4A6C471F0183C200DB1363 /* flood */,
+				EA24B1B51F04246000C26E71 /* interp */,
+				EA24B1C81F04250F00C26E71 /* renderFlood */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,11 +138,15 @@
 		EA4A6C491F0183C200DB1363 /* flood */ = {
 			isa = PBXGroup;
 			children = (
-				EA4A6C4A1F0183C200DB1363 /* main.cpp */,
+				EA24B1D11F04254E00C26E71 /* floodmain.cpp */,
 				EAA0CE701F018471009DFA61 /* flood.cpp */,
 				EAA0CE711F018471009DFA61 /* flood.hpp */,
-				EAA0CE721F018471009DFA61 /* grid.cpp */,
-				EAA0CE731F018471009DFA61 /* grid.hpp */,
+				EA24B1E31F04267B00C26E71 /* interpmain.cpp */,
+				EA24B1DC1F04267B00C26E71 /* bfe.cpp */,
+				EA24B1DD1F04267B00C26E71 /* bfe.hpp */,
+				EA24B1E11F04267B00C26E71 /* grid.cpp */,
+				EA24B1E21F04267B00C26E71 /* grid.hpp */,
+				EA53EAE11F0426FA00F6939F /* renderFlood.cpp */,
 			);
 			path = flood;
 			sourceTree = "<group>";
@@ -91,6 +163,40 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		EA24B1B41F04246000C26E71 /* interp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EA24B1BB1F04246000C26E71 /* Build configuration list for PBXNativeTarget "interp" */;
+			buildPhases = (
+				EA24B1B11F04246000C26E71 /* Sources */,
+				EA24B1B21F04246000C26E71 /* Frameworks */,
+				EA24B1B31F04246000C26E71 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = interp;
+			productName = interp;
+			productReference = EA24B1B51F04246000C26E71 /* interp */;
+			productType = "com.apple.product-type.tool";
+		};
+		EA24B1C71F04250F00C26E71 /* renderFlood */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EA24B1CC1F04250F00C26E71 /* Build configuration list for PBXNativeTarget "renderFlood" */;
+			buildPhases = (
+				EA24B1C41F04250F00C26E71 /* Sources */,
+				EA24B1C51F04250F00C26E71 /* Frameworks */,
+				EA24B1C61F04250F00C26E71 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = renderFlood;
+			productName = renderFlood;
+			productReference = EA24B1C81F04250F00C26E71 /* renderFlood */;
+			productType = "com.apple.product-type.tool";
+		};
 		EA4A6C461F0183C200DB1363 /* flood */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = EA4A6C4E1F0183C200DB1363 /* Build configuration list for PBXNativeTarget "flood" */;
@@ -117,6 +223,14 @@
 				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = slr_bfe.coryalini;
 				TargetAttributes = {
+					EA24B1B41F04246000C26E71 = {
+						CreatedOnToolsVersion = 8.3.3;
+						ProvisioningStyle = Automatic;
+					};
+					EA24B1C71F04250F00C26E71 = {
+						CreatedOnToolsVersion = 8.3.3;
+						ProvisioningStyle = Automatic;
+					};
 					EA4A6C461F0183C200DB1363 = {
 						CreatedOnToolsVersion = 8.3.3;
 						ProvisioningStyle = Automatic;
@@ -136,24 +250,72 @@
 			projectRoot = "";
 			targets = (
 				EA4A6C461F0183C200DB1363 /* flood */,
+				EA24B1B41F04246000C26E71 /* interp */,
+				EA24B1C71F04250F00C26E71 /* renderFlood */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		EA24B1B11F04246000C26E71 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EA24B1EB1F0426B800C26E71 /* bfe.cpp in Sources */,
+				EA24B1EA1F0426B400C26E71 /* interpmain.cpp in Sources */,
+				EA24B1E91F0426B000C26E71 /* grid.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EA24B1C41F04250F00C26E71 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EA53EAE31F04270300F6939F /* renderFlood.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EA4A6C431F0183C200DB1363 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EAA0CE741F018471009DFA61 /* flood.cpp in Sources */,
-				EA4A6C4B1F0183C200DB1363 /* main.cpp in Sources */,
-				EAA0CE751F018471009DFA61 /* grid.cpp in Sources */,
+				EA24B1E71F04267B00C26E71 /* grid.cpp in Sources */,
+				EA24B1D91F04263A00C26E71 /* floodmain.cpp in Sources */,
+				EA24B1DA1F04263A00C26E71 /* flood.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		EA24B1B91F04246000C26E71 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		EA24B1BA1F04246000C26E71 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		EA24B1CD1F04250F00C26E71 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		EA24B1CE1F04250F00C26E71 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		EA4A6C4C1F0183C200DB1363 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -260,6 +422,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		EA24B1BB1F04246000C26E71 /* Build configuration list for PBXNativeTarget "interp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EA24B1B91F04246000C26E71 /* Debug */,
+				EA24B1BA1F04246000C26E71 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EA24B1CC1F04250F00C26E71 /* Build configuration list for PBXNativeTarget "renderFlood" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EA24B1CD1F04250F00C26E71 /* Debug */,
+				EA24B1CE1F04250F00C26E71 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		EA4A6C421F0183C200DB1363 /* Build configuration list for PBXProject "flood" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
