@@ -64,7 +64,7 @@ enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3, COMBINE_W
 
 
 static float numCategories = 6.0;
-Grid elevgrid, interp_bfegrid, currgrid, floodedgrid;
+Grid elevgrid, interp_bfegrid, currgrid,floodedgrid;
 
 float rise;
 GLfloat red_pink[3] = {0.969, 0.396, 0.396};
@@ -211,7 +211,7 @@ void calculateGrids(Grid* elevgrid) {
     if (!interp_bfe_EXISTS) {
         clock_t start2 = clock(), diff2;
         printf("start SLR @ %g\n",rise);
-        floodedgrid = start_slr(elevgrid, rise);
+        start_slr(elevgrid,&floodedgrid, rise);
         
         diff2 = clock() - start2;
         unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
@@ -219,7 +219,7 @@ void calculateGrids(Grid* elevgrid) {
     } else {
         clock_t start3 = clock(), diff3;
         printf("start SLR + interp_bfe @ %g\n",rise);
-        floodedgrid = start_slr_interp_bfe(elevgrid, &interp_bfegrid, rise);
+        start_slr_interp_bfe(elevgrid, &interp_bfegrid,&floodedgrid, rise);
         diff3 = clock() - start3;
         unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
         printf("interp_bfe+SLR took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
