@@ -57,14 +57,15 @@
 /* global variables */
 const int WINDOWSIZE = 500;
 const int POINT_SIZE  = 5.0f;
-double ELEV_CONVERTER = 3.28084;
+//double ELEV_CONVERTER = 3.28084;
+double ELEV_CONVERTER = 1;
 double BFE_CONVERTER = 1;
 
 
 int interp_bfe_EXISTS = 1, DRAW = 0;
 const char *elevname, *writeGridname, *bfename;
-enum {ELEV = 0, SLR = 1, SLR_ELEV = 2,SLR_GRAY =3, WATER = 4, WATER_SLR_ELEV = 5, ORIG_BFE = 6, INTERP_BFE = 7,SLRINTERP_BFE = 8, SLRINTERP_BFE_ELEV = 9,WATER_SLRINTERP_BFE_ELEV = 10,SLRINTERP_BFEMINUSSLR = 11};
-enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3,COMBINE_COLOR_BFE = 4, COMBINE_WATER = 5, COMBINE_WATER_BFE = 6, GRAY_BLUE= 7};
+enum {ELEV = 0, SLR = 1, SLR_ELEV = 2,SLR_GRAY =3, WATER = 4, WATER_SLR_ELEV = 5, ORIG_BFE = 6, INTERP_BFE = 7,SLRINTERP_BFE = 8, SLRINTERP_BFE_ELEV = 9,WATER_SLRINTERP_BFE_ELEV = 10,SLRINTERP_BFEMINUSSLR = 11, BFE_ELEV = 12, BFE_STORMFLOODING = 13};
+enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3,COMBINE_COLOR_BFE = 4, COMBINE_WATER = 5, COMBINE_WATER_BFE = 6, GRAY_BLUE= 7,COMBINE_WITH_BFE=8, BFE_STORMFLOODING_COLOR=9};
 
 
 
@@ -117,7 +118,7 @@ void setCurrGrid(Grid* grid);
 void combineGrids_nobfe(Grid* grid1, Grid* grid2, float rise);
 void combineGrids_bfe(Grid* grid1, Grid* grid2,float rise);
 void diffGrids(Grid* grid1, Grid* grid2, double diff,float rise);
-
+void combineBFEandOther(Grid* grid1, Grid* grid2);
 
 void draw_point_color(double value, double minLand, double max);
 void draw_point_black(double value,double minLand, double max);
@@ -125,7 +126,8 @@ void draw_point_binary(double value);
 void draw_point_combine(double value, double minLandElev, double theRise);
 void draw_point_combine_water(double value,double minLandElev,double theRise);
 void draw_point_see_slr_better(double value,double minLand, double max);
-
+void draw_point_with_BFE(double value,int x, int y, double minLand, double max);
+void draw_point_Storm_BFE(double value,int x, int y, double minLand, double max);
 
 GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);
 
@@ -170,6 +172,17 @@ int main(int argc, char * argv[]) {
         printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
         mallocGrid(elevgrid, &slr_interp_bfegrid);
         setHeaders(elevgrid, &slr_interp_bfegrid);
+    }
+    
+    
+    
+    elevgrid = start_slr(&elevgrid, 0);
+    for (int i = 0; i < elevgrid.nrows; i++) {
+        for(int j = 0; j < elevgrid.ncols; j++){
+            if (elevgrid.data[i][j] == NEW_WATER) {
+                elevgrid.data[i][j] = elevgrid.NODATA_value;
+            }
+        }
     }
     
     calculateGrids(&elevgrid);
@@ -271,9 +284,14 @@ void keypress(unsigned char key, int x, int y) {
             printf("Draw Water+SLR-Flooded(SLR-Elev)\n");
             DRAW = WATER_SLR_ELEV;
             break;
+            
         case 'i':
             printf("Draw Interpolated BFE\n");
             DRAW = INTERP_BFE;
+            break;
+        case 'u':
+            printf("Draw BFE with ELEV\n");
+            DRAW = BFE_ELEV;
             break;
         case 'c':
             printf("Draw SLR_BFE\n");
@@ -291,6 +309,11 @@ void keypress(unsigned char key, int x, int y) {
         case 'f':
             printf("Draw Stormflooding (BFE_SLR - SLR)\n");
             DRAW = SLRINTERP_BFEMINUSSLR;
+            break;
+            
+        case 'g':
+            printf("Draw BFE with Stormflooding\n");
+            DRAW = BFE_STORMFLOODING;
             break;
         case '=':
             rise += 1;
@@ -355,7 +378,22 @@ void display(void) {
                 setCurrGrid(&slr_interp_bfegrid);
                 coloring = COLOR;
                 break;
+            case BFE_ELEV:
+                combineBFEandOther(&interp_bfegrid,&elevgrid);
+                coloring = COMBINE_WITH_BFE;
+                break;
+            case BFE_STORMFLOODING:
+                diffGrids(&slr_interp_bfegrid, &slrgrid, NEW_WATER,rise);
+                Grid tempgrid;
+                mallocGrid(elevgrid, &tempgrid);
+                setHeaders(elevgrid, &tempgrid);
+                copyGrid(&currgrid, &tempgrid);
+                combineBFEandOther(&interp_bfegrid,&tempgrid);
+                freeGridData(&tempgrid);
+                coloring = BFE_STORMFLOODING_COLOR;
                 
+                
+                break;
             case SLRINTERP_BFE_ELEV:
                 combineGrids_bfe(&slr_interp_bfegrid, &elevgrid,rise);
                 coloring = COMBINE_COLOR_BFE;
@@ -448,25 +486,43 @@ void draw_grid(Grid* grid, int grid_type,float rise) {
 
 void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, double minLand, double max) {
     double value = grid->data[(int)mypoint.x][(int)mypoint.y];
-    if (grid_type == COLOR) {
-        draw_point_color(value, minLand,max);
-    } else if (grid_type == BINARY_COLOR) {
-        draw_point_binary(value);
-    } else if (grid_type == BLACK_COLOR){
-        draw_point_black(value, minLand,max);
-    } else if (grid_type == GRAY_BLUE) {
-        draw_point_see_slr_better(value, minLand,max);
-    } else if (grid_type == COMBINE_COLOR){
-        draw_point_combine(value,minLand, rise);
-    } else if (grid_type == COMBINE_COLOR_BFE){
-        draw_point_combine(value,minLand, rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
-    } else if(grid_type == COMBINE_WATER) {
-        
-        draw_point_combine_water(value,minLand, rise);
-    } else {
-        draw_point_combine_water(value,minLand, rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
-        
+    switch (grid_type) {
+        case COLOR:
+            draw_point_color(value, minLand,max);
+            break;
+        case BINARY_COLOR:
+            draw_point_binary(value);
+            break;
+        case BLACK_COLOR:
+            draw_point_black(value, minLand,max);
+            break;
+        case GRAY_BLUE:
+            draw_point_see_slr_better(value, minLand,max);
+            break;
+        case COMBINE_COLOR:
+            draw_point_combine(value,minLand, rise);
+            break;
+        case COMBINE_COLOR_BFE:
+            draw_point_combine(value,minLand, rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
+            break;
+        case COMBINE_WATER:
+            draw_point_combine_water(value,minLand, rise);
+            break;
+        case COMBINE_WATER_BFE:
+            draw_point_combine_water(value,minLand, rise + interp_bfegrid.data[(int)mypoint.x][(int)mypoint.y]);
+            break;
+        case COMBINE_WITH_BFE:
+            draw_point_with_BFE(value,(int)mypoint.x,(int)mypoint.y, minLand, max);
+            break;
+        case BFE_STORMFLOODING_COLOR:
+            draw_point_Storm_BFE(value,(int)mypoint.x,(int)mypoint.y, minLand, max);
+            break;
+        default:
+            break;
+
     }
+
+
     
     float x=0, y=0;  //just to initialize with something
     
@@ -491,7 +547,7 @@ void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, dou
 
 
 void diffGrids(Grid* grid1, Grid* grid2, double diff,float rise) {
-    //    assert(DRAW == SLRINTERP_BFEMINUSSLR);
+//    assert(DRAW == SLuRINTERP_BFEMINUSSLR);
     
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
@@ -537,6 +593,23 @@ void setCurrGrid(Grid* grid){
         }
     }
 }
+
+
+
+void combineBFEandOther(Grid* grid1, Grid* grid2) {
+    for (int i = 0; i < elevgrid.nrows; i++) {
+        for (int j = 0; j < elevgrid.ncols; j++) {
+            if (grid1->data[i][j] != elevgrid.NODATA_value) {
+                currgrid.data[i][j] = grid1->data[i][j];
+            } else {
+                currgrid.data[i][j] = grid2->data[i][j];
+            }
+        }
+    }
+}
+
+
+
 
 void combineGrids_nobfe(Grid* grid1, Grid* grid2, float rise) {
     for (int i = 0; i < elevgrid.nrows; i++) {
@@ -650,6 +723,93 @@ void draw_point_binary(double value) {
         glColor3fv(blue);
     } else {
         glColor3fv(black);
+    }
+}
+
+void draw_point_Storm_BFE(double value,int x, int y, double minLand, double max) {
+    double base;
+    if(value == interp_bfegrid.data[x][y]) {
+        base = (max-minLand)/numCategories;
+        if (value == elevgrid.NODATA_value) {
+            glColor3fv(blue);
+        } else if (value < minLand+base) {
+            glColor3fv(interpolate_colors(gray1, gray2,value,minLand,minLand+base));
+        } else if (value < (minLand+2 * base)) {
+            glColor3fv(interpolate_colors(gray2, gray3,value,minLand+base,minLand+2*base));
+        } else if (value < (minLand+3 * base)) {
+            glColor3fv(interpolate_colors(gray3, gray4,value,minLand+2*base,minLand+3*base));
+        } else if (value < (minLand+4 * base)) {
+            glColor3fv(interpolate_colors(gray4, gray5,value,minLand+3*base,minLand+4*base));
+        } else if (value < (minLand+5 * base)) {
+            glColor3fv(interpolate_colors(gray5, gray6,value,minLand+4*base,minLand+5*base));
+        }  else {
+            glColor3fv(interpolate_colors(gray6, black,value,minLand+5*base,minLand+6*base));
+        }
+    } else {
+        double thisMin = minLand;
+        if (minLand < 0) {
+            thisMin = 0;
+        }
+        base = (max-thisMin)/numCategories;
+        if (value < base) {
+            glColor3fv(interpolate_colors(blue6, blue5,value,0,base));
+        } else if (value < (2 * base)) {
+            glColor3fv(interpolate_colors(blue5, blue4,value,base,2*base));
+        } else if (value < (3 * base)) {
+            glColor3fv(interpolate_colors(blue4, blue3,value,2*base,3*base));
+        } else if (value < (4 * base)) {
+            glColor3fv(interpolate_colors(blue3, blue2,value,3*base,4*base));
+        } else if (value < (5 * base)) {
+            glColor3fv(interpolate_colors(blue2, blue1,value,4*base,5*base));
+        }  else {
+            glColor3fv(interpolate_colors(blue1, lightblue,value,5*base,6*base));
+        }
+    }
+}
+
+void draw_point_with_BFE(double value,int x, int y, double minLand, double max) {
+    double base;
+    if(value == interp_bfegrid.data[x][y]) {
+        base = (max-minLand)/numCategories;
+        if (value == elevgrid.NODATA_value) {
+            glColor3fv(blue);
+        } else if (value < minLand+base) {
+            glColor3fv(interpolate_colors(gray1, gray2,value,minLand,minLand+base));
+        } else if (value < (minLand+2 * base)) {
+            glColor3fv(interpolate_colors(gray2, gray3,value,minLand+base,minLand+2*base));
+        } else if (value < (minLand+3 * base)) {
+            glColor3fv(interpolate_colors(gray3, gray4,value,minLand+2*base,minLand+3*base));
+        } else if (value < (minLand+4 * base)) {
+            glColor3fv(interpolate_colors(gray4, gray5,value,minLand+3*base,minLand+4*base));
+        } else if (value < (minLand+5 * base)) {
+            glColor3fv(interpolate_colors(gray5, gray6,value,minLand+4*base,minLand+5*base));
+        }  else {
+            glColor3fv(interpolate_colors(gray6, black,value,minLand+5*base,minLand+6*base));
+        }
+    } else {
+        double thisMin = minLand;
+        if (minLand < 0) {
+            thisMin = 0;
+        }
+        base = (max-thisMin)/numCategories;
+        if (value == elevgrid.NODATA_value) {
+            glColor3fv(blue);
+        } else if (value == NEW_WATER) {
+            glColor3fv(lightblue);
+        } else if (value < (thisMin+base)) {
+            glColor3fv(interpolate_colors(green1, greenmid,value,thisMin,(thisMin + base)));
+        } else if (value < (thisMin + 2 * base)) {
+            glColor3fv(interpolate_colors(greenmid, green2,value,(thisMin + base),(thisMin + 2*base)));
+        } else if (value < (thisMin + 3 * base)) {
+            glColor3fv(interpolate_colors(green2, darkyellow,value,(thisMin + 2*base),(thisMin + 3*base)));
+        } else if (value < (thisMin + 4 * base)) {
+            glColor3fv(interpolate_colors(darkyellow, darkorange,value,(thisMin + 3*base),(thisMin + 4*base)));
+        } else if (value < (thisMin + 5 * base)) {
+            glColor3fv(interpolate_colors(darkorange, red1,value,(thisMin + 4*base),(thisMin + 5*base)));
+        }  else {
+            glColor3fv(interpolate_colors(red1, red2,value,(thisMin + 5*base),(thisMin+6*base)));
+        }
+
     }
 }
 

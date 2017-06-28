@@ -121,6 +121,11 @@ int main(int argc, char * argv[]) {
     diff2 = clock() - start2;
     unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
     printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
+    if (bfegrid.ncols != elevgrid.ncols || bfegrid.nrows !=elevgrid.nrows) {
+        printf("ERROR:The %s [%ld,%ld] and elevgrid [%ld,%ld] do not have the same grid dimensions!\n",bfename, bfegrid.nrows,bfegrid.ncols,elevgrid.nrows, elevgrid.ncols);
+        exit(0);
+    }
+
     mallocGrid(bfegrid, &interp_bfegrid);
     setHeaders(bfegrid, &interp_bfegrid);
     copyGrid(&bfegrid, &interp_bfegrid);

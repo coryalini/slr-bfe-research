@@ -66,6 +66,14 @@
             argument = "dem_sp.asc dem_spvis.asc 1 bfe_sp.asc"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "noaa_coast_southport_10m.asc vis.asc 3.2"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "easy.asc easyvis.asc 0"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>

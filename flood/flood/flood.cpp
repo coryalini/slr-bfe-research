@@ -51,11 +51,11 @@ void compute_slr(Grid* elevgrid, Grid* local_slrgrid,float rise, std::queue<poin
                     point newPoint;
                     newPoint.x = k;
                     newPoint.y = l;
-                    if (elevgrid->data[k][l] ==  elevgrid->NODATA_value) { // if the data is water
+                    if (elevgrid->data[k][l] ==  elevgrid->NODATA_value || elevgrid->data[k][l] ==NEW_WATER) { // if the data is water
                         local_slrgrid->data[k][l] = elevgrid->NODATA_value;
                         queue.push(newPoint);
                     } else {
-                        if (elevgrid->data[k][l] < rise) {
+                        if (elevgrid->data[k][l] <= rise) {
                             local_slrgrid->data[k][l] = NEW_WATER;
                             queue.push(newPoint);
                         }
@@ -116,7 +116,7 @@ void compute_slr_interp_bfe(Grid* elevgrid, Grid* local_slr_interp_bfegrid, Grid
                                 queue.push(newPoint);
                             }
                         } else {
-                            if (elevgrid->data[k][l] < rise) {
+                            if (elevgrid->data[k][l] <= rise) {
                                 local_slr_interp_bfegrid->data[k][l] = NEW_WATER;
                                 queue.push(newPoint);
                             }
