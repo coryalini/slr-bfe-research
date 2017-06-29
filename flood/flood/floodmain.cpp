@@ -50,8 +50,8 @@
 /* global variables */
 const int WINDOWSIZE = 500;
 const int POINT_SIZE  = 5.0f;
-//double ELEV_CONVERTER = 3.28084;
-double ELEV_CONVERTER = 1;
+double ELEV_CONVERTER = 3.28084;
+//double ELEV_CONVERTER = 1;
 double BFE_CONVERTER = 1;
 
 

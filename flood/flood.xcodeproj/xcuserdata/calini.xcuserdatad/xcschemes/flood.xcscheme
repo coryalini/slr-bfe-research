@@ -67,12 +67,20 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "dem_sp.asc dem_spvis.asc 1 "
+            argument = "sp_dem2.asc vis.asc 1 fz_2.asc"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "southport_dem2mtry4.asc southport_dem2mvis.asc 1 southportfemafz.asc"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "dem_sp.asc dem_spvis.asc 1.92 "
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "noaa_coast_southport_10m.asc vis.asc 3.2"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "easy.asc easyvis.asc 0"

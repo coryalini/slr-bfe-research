@@ -60,8 +60,11 @@ double ELEV_CONVERTER = 3.28084;
 double BFE_CONVERTER = 1;
 int interp_bfe_EXISTS = 1, DRAW = 0;
 const char *elevname, *writeGridname, *bfename;
-float rise;
 Grid elevgrid, bfegrid, interp_bfegrid, currgrid;
+
+
+//HACKKK
+double rise = 0;
 
 enum {ELEV = 0, SLR = 1, SLR_ELEV = 2,SLR_GRAY =3, WATER = 4, WATER_SLR_ELEV = 5, ORIG_BFE = 6, INTERP_BFE = 7,SLRINTERP_BFE = 8, SLRINTERP_BFE_ELEV = 9,WATER_SLRINTERP_BFE_ELEV = 10,SLRINTERP_BFEMINUSSLR = 11};
 enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3,COMBINE_COLOR_BFE = 4, COMBINE_WATER = 5, COMBINE_WATER_BFE = 6, GRAY_BLUE= 7};
@@ -99,6 +102,8 @@ GLfloat blue6[3] = {0.305,0.486,0.553};
 
 
 int main(int argc, char * argv[]) {
+   
+    
     
     if (argc != 4) {
         printf("ERROR: Arguments were not included. %d \n", argc);
@@ -131,7 +136,7 @@ int main(int argc, char * argv[]) {
     copyGrid(&bfegrid, &interp_bfegrid);
     
     clock_t start3 = clock(), diff3;
-    printf("start interp_bfe @ %g\n",rise);
+    printf("start interp_bfe\n");
     start_interp_bfe_withFlooded(&elevgrid,&interp_bfegrid, rise);
     diff3 = clock() - start3;
     unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
