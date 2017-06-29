@@ -37,8 +37,8 @@ extern const int HAVENT_VISITED;
 
 std::queue<point> findSeaPoint(Grid* elevgrid);
 
-void setinterp_bfeNotVisited(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid, float rise);
-void setNotVisited(Grid* elevgrid, Grid* slrgrid, float rise);
+void setinterp_bfeNotVisited(Grid* elevgrid, Grid* interp_bfegrid,Grid* floodedgrid, float rise);
+void setNotVisited(Grid* elevgrid, Grid* floodedgrid, float rise);
 
 int insideGrid(Grid* grid, int i, int j);
 double findMax(Grid* grid);
@@ -46,10 +46,6 @@ double findMinLand(Grid* grid);
 
 void copyGrid(Grid* originalGrid, Grid* copyGrid);
 void freeGridData(Grid* grid);
-
-
-void outputGridWithDepth(Grid* g, Grid* slrgrid,Grid* elevgrid,float rise);
-void outputGridWithDepthWITHinterp_bfe(Grid* g, Grid* slrgrid,Grid* elevgrid,Grid* interp_bfegrid, float rise);
 
 //parsing
 void readGridfromFile(const char* gridfname, Grid* g, double converter);

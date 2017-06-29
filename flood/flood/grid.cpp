@@ -55,37 +55,36 @@ std::queue<point> findSeaPoint(Grid* elevgrid) {
     
     return queue;
 }
-
-
-void setinterp_bfeNotVisited(Grid* elevgrid, Grid* slrgrid, Grid* interp_bfegrid, float rise) {
-    for (int i = 0; i < slrgrid->nrows; i++) {
-        for (int j = 0; j < slrgrid->ncols; j++) {
-            if (slrgrid->data[i][j] == HAVENT_VISITED) {
+void setNotVisited(Grid* elevgrid, Grid* floodedgrid, float rise) {
+    for (int i = 0; i < elevgrid->nrows; i++) {
+        for (int j = 0; j < elevgrid->ncols; j++) {
+            if (floodedgrid->data[i][j] == HAVENT_VISITED) {
+                floodedgrid->data[i][j] = elevgrid->data[i][j] - rise;
+            }
+        }
+    }
+}
+void setinterp_bfeNotVisited(Grid* elevgrid, Grid* interp_bfegrid,Grid* floodedgrid, float rise) {
+    for (int i = 0; i < floodedgrid->nrows; i++) {
+        for (int j = 0; j < floodedgrid->ncols; j++) {
+            if (floodedgrid->data[i][j] == HAVENT_VISITED) {
                 if (interp_bfegrid->data[i][j] != interp_bfegrid->NODATA_value) {
-                    if (slrgrid->data[i][j] == NEW_WATER) {
-                        slrgrid->data[i][j] = elevgrid->data[i][j] - (rise+ interp_bfegrid->data[i][j]);
+                    if (floodedgrid->data[i][j] == NEW_WATER) {
+                        floodedgrid->data[i][j] = elevgrid->data[i][j] - (rise+ interp_bfegrid->data[i][j]);
 
                     } else {
-                        slrgrid->data[i][j] = elevgrid->data[i][j] - rise;
+                        floodedgrid->data[i][j] = elevgrid->data[i][j] - rise;
 
                     }
                     
                 } else {
-                    slrgrid->data[i][j] = elevgrid->data[i][j] - rise;
+                    floodedgrid->data[i][j] = elevgrid->data[i][j] - rise;
                 }
             }
         }
     }
 }
-void setNotVisited(Grid* elevgrid, Grid* slrgrid, float rise) {
-    for (int i = 0; i < elevgrid->nrows; i++) {
-        for (int j = 0; j < elevgrid->ncols; j++) {
-            if (slrgrid->data[i][j] == HAVENT_VISITED) {
-                slrgrid->data[i][j] = elevgrid->data[i][j] - rise;
-            }
-        }
-    }
-}
+
 
 /* MARK: Extra stuff */
 

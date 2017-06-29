@@ -20,6 +20,7 @@
 		EA4A6C531F0183DA00DB1363 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA4A6C521F0183DA00DB1363 /* GLUT.framework */; };
 		EA4A6C551F0183DF00DB1363 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA4A6C541F0183DF00DB1363 /* OpenGL.framework */; };
 		EA53EAE31F04270300F6939F /* renderFlood.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA53EAE11F0426FA00F6939F /* renderFlood.cpp */; };
+		EA67C8E71F05552E00AB8BBF /* grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA24B1E11F04267B00C26E71 /* grid.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -271,6 +272,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EA67C8E71F05552E00AB8BBF /* grid.cpp in Sources */,
 				EA53EAE31F04270300F6939F /* renderFlood.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

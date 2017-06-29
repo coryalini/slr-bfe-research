@@ -61,6 +61,12 @@
             ReferencedContainer = "container:flood.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "southport_dem_2cellsize.asc southport_floodzones_2cellsize.asc vis2.asc newvis.asc"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>

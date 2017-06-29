@@ -51,7 +51,7 @@ void compute_slr(Grid* elevgrid, Grid* floodgrid,float rise, std::queue<point>& 
                         floodgrid->data[k][l] = elevgrid->NODATA_value;
                         queue.push(newPoint);
                     } else {
-                        if (elevgrid->data[k][l] <= rise) {
+                        if (elevgrid->data[k][l] < rise) {
                             floodgrid->data[k][l] = NEW_WATER;
                             queue.push(newPoint);
                         }
@@ -74,8 +74,8 @@ void start_slr_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid,Grid* floodgrid, 
     }
     std::queue<point> queue;
     queue = findSeaPoint(elevgrid);
-    compute_slr_interp_bfe(elevgrid, floodgrid, interp_bfegrid, rise, queue);
-    setinterp_bfeNotVisited(elevgrid,floodgrid,interp_bfegrid, rise);
+    compute_slr_interp_bfe(elevgrid, interp_bfegrid, floodgrid,rise, queue);
+    setinterp_bfeNotVisited(elevgrid,interp_bfegrid, floodgrid, rise);
 }
 
 void compute_slr_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid, Grid* floodgrid,float rise, std::queue<point>& queue) {
