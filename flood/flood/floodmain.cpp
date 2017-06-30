@@ -47,6 +47,8 @@
 #include <GL/glut.h>
 #endif
 
+#define PRINT_HELP(arg) printf("    " arg " \n");
+
 /* global variables */
 const int WINDOWSIZE = 500;
 const int POINT_SIZE  = 5.0f;
@@ -102,6 +104,12 @@ void reset();
 void calculateGrids(Grid* elevgrid);
 void display(void);
 
+void getOptExecution(int argc, char* const* argv);
+void testMandatoryFlags(int flag, char opt, char* argv);
+void tooManyFlagError(char flag, char opt);
+void helpFlag();
+void commandFlag();
+
 void draw_grid(Grid* grid,int grid_type,float rise);
 void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, double minLand, double max);
 
@@ -127,20 +135,7 @@ GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double valu
 
 int main(int argc, char * argv[]) {
     
-    if (argc < 4 || argc > 5) {
-        printf("ERROR: Arguments were not included. %d \n", argc);
-        return 1;
-    }
-    if (argc < 5) {
-        interp_bfe_EXISTS = 0;
-        
-    } else {
-        bfename = argv[4];
-    }
-    elevname = argv[1];
-    writeGridname = argv[2];
-    rise = atof(argv[3]);
-    
+    getOptExecution(argc, argv);
     clock_t start = clock(), diff;
     readGridfromFile(elevname, &elevgrid,ELEV_CONVERTER);
     diff = clock() - start;
@@ -230,6 +225,102 @@ void calculateGrids(Grid* elevgrid) {
         unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
         printf("interp_bfe+SLR took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
     }
+}
+/*
+ * This function uses getOpt to read the terminal prompt and do the
+ * desired action depending on what it was given.
+ * It uses a switch statement to figure out which flag
+ * was used.
+ */
+void getOptExecution(int argc, char* const* argv) {
+
+    int opt;
+    int hflag = 0, cflag =0, eflag = 0, wflag = 0, iflag = 0, rflag = 0;
+    
+    extern char* optarg;
+    extern int optopt;
+    
+    while ((opt = getopt(argc, argv, "hce:i:r:w:" )) != -1) {
+        switch (opt) {
+            case 'h':
+                hflag += 1;
+                helpFlag();
+                break;
+            case 'c':
+                commandFlag();
+                cflag+=1;
+                break;
+            case 'e':
+                elevname = optarg;
+                eflag += 1;
+                break;
+            case 'w':
+                writeGridname = optarg;
+                wflag+=1;
+                break;
+            case 'i':
+                bfename = optarg;
+                interp_bfe_EXISTS = 1;
+                iflag+=1;
+                break;
+            case 'r':
+                rise = atof(optarg);
+                rflag+=1;
+                break;
+        }
+    }
+    testMandatoryFlags(eflag, 'e', argv[0]);
+    testMandatoryFlags(wflag, 'w', argv[0]);
+    testMandatoryFlags(rflag, 'r', argv[0]);
+    
+    tooManyFlagError(hflag, 'h');
+    tooManyFlagError(cflag, 'c');
+    tooManyFlagError(eflag, 'e');
+    tooManyFlagError(wflag, 'w');
+    tooManyFlagError(iflag, 'i');
+    tooManyFlagError(rflag, 'r');
+}
+void testMandatoryFlags(int flag, char opt, char* argv) {
+    if (flag != 1) {	//flag was mandatory
+        fprintf(stderr, "%s: missing -%c option\n", argv, opt);
+        fprintf(stderr, "usage: %s [-h] [-c] -e elevname [-b bfename] -w file_to_write -r rise \n", argv);
+        exit(1);
+    }
+}
+
+void tooManyFlagError(char flag, char opt) {
+    if (flag > 1) { //flag declared too often
+        printf("Error:  -%c is set multiple times\n", opt);
+        exit(1);
+    }
+}
+
+void helpFlag() {
+    printf("\nThe reference simulator takes the following command-line arguments: \n");
+    PRINT_HELP("-c: Optional command flag that prints usage info for rendering")
+    PRINT_HELP("-h: Optional help flag that prints usage info")
+    PRINT_HELP("-e <e>: Elevation grid flag")
+    PRINT_HELP("-i <i>: Interpolated elevation grid")
+    PRINT_HELP("-w <w>: Filename you wish to write your grid to")
+    PRINT_HELP("-r <r>: The desired rise amount")
+}
+void commandFlag() {
+    
+    printf("\nThe rendering map takes the following commands: \n");
+    PRINT_HELP("q: quit")
+    PRINT_HELP("w: write to files")
+    
+    PRINT_HELP("e: Draw Elevgrid")
+    PRINT_HELP("f: Draw Flooded grid")
+    PRINT_HELP("g: Draw Flooded grid with gray land")
+    PRINT_HELP("j: Draw just flooded grid (no elev)")
+    PRINT_HELP("s: Draw the sea")
+    PRINT_HELP("h: Draw just flooded grid displaying water")
+    PRINT_HELP("i: Draw interpolated bfe")
+    
+    PRINT_HELP("+: increase the sea level rise")
+    PRINT_HELP("=: increase the sea level rise")
+    PRINT_HELP("-: decrease the sea level rise")
 }
 
 

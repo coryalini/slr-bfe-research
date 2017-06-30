@@ -37,8 +37,8 @@
 #include <GL/glut.h>
 #endif
 
-
-#define HAT = 0;
+#define PRINT_HELP(arg) printf("    " arg " \n");
+int HAT = 0;
 /* global variables */
 const int WINDOWSIZE = 500;
 //const int POINT_SIZE  = 5.0f;
@@ -91,6 +91,12 @@ void keypress(unsigned char key, int x, int y);
 void reset();
 void display(void);
 
+void getOptExecution(int argc, char* const* argv);
+void testMandatoryFlags(int flag, char opt, char* argv);
+void tooManyFlagError(char flag, char opt);
+void helpFlag();
+void commandFlag();
+
 void draw_grid(Grid* grid,int grid_type,float rise);
 void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, double minLand, double max);
 
@@ -110,15 +116,15 @@ void change_color_blue(double value, double base, double thisMin);
 
 int main(int argc, char * argv[]) {
     
-    if (argc != 4) {
-        printf("ERROR: Arguments were not included. %d \n", argc);
-        return 1;
-    }
-    
-    elevname = argv[1];
-    bfename = argv[2];
-    writeGridname = argv[3];
-    
+//    if (argc != 4) {
+//        printf("ERROR: Arguments were not included. %d \n", argc);
+//        return 1;
+//    }
+//    
+//    elevname = argv[1];
+//    bfename = argv[2];
+//    writeGridname = argv[3];
+    getOptExecution(argc, argv);
     clock_t start = clock(), diff;
     readGridfromFile(elevname, &elevgrid,ELEV_CONVERTER);
     diff = clock() - start;
@@ -183,6 +189,98 @@ int main(int argc, char * argv[]) {
     glutMainLoop();
     
     return 0;
+}
+
+/*
+ * This function uses getOpt to read the terminal prompt and do the
+ * desired action depending on what it was given.
+ * It uses a switch statement to figure out which flag
+ * was used.
+ */
+void getOptExecution(int argc, char* const* argv) {
+    
+    int opt;
+    int hflag = 0, cflag =0, eflag = 0, wflag = 0, iflag = 0;
+    
+    extern char* optarg;
+    extern int optopt;
+    while ((opt = getopt(argc, argv, "hce:i:w:" )) != -1) {
+        switch (opt) {
+            case 'h':
+                hflag += 1;
+                helpFlag();
+                break;
+            case 'c':
+                commandFlag();
+                cflag+=1;
+                break;
+            case 'e':
+                elevname = optarg;
+                eflag += 1;
+                break;
+            case 'w':
+                writeGridname = optarg;
+                wflag+=1;
+                break;
+            case 'i':
+                HAT = 1;
+                iflag+=1;
+                bfename = optarg;
+                break;
+            case 'b':
+                bfename = optarg;
+                iflag+=1;
+                break;
+//            case 'r':
+//                rise = atof(optarg);
+//                rflag+=1;
+//                break;
+        }
+    }
+    testMandatoryFlags(eflag, 'e', argv[0]);
+    testMandatoryFlags(wflag, 'w', argv[0]);
+    testMandatoryFlags(iflag, 'i', argv[0]);
+    
+    tooManyFlagError(hflag, 'h');
+    tooManyFlagError(cflag, 'c');
+    tooManyFlagError(eflag, 'e');
+    tooManyFlagError(wflag, 'w');
+    tooManyFlagError(iflag, 'i');
+//    tooManyFlagError(rflag, 'r');
+}
+void testMandatoryFlags(int flag, char opt, char* argv) {
+    if (flag != 1) {	//flag was mandatory
+        fprintf(stderr, "%s: missing -%c option\n", argv, opt);
+        fprintf(stderr, "usage: %s [-h] [-c] -e elevname [-b bfename] -w file_to_write -r rise \n", argv);
+        exit(1);
+    }
+}
+
+void tooManyFlagError(char flag, char opt) {
+    if (flag > 1) { //flag declared too often
+        printf("Error:  -%c is set multiple times\n", opt);
+        exit(1);
+    }
+}
+
+void helpFlag() {
+    printf("\nThe reference simulator takes the following command-line arguments: \n");
+    PRINT_HELP("-h: Optional help flag that prints usage info")
+    PRINT_HELP("-c: Optional command flag that prints usage info for rendering")
+    PRINT_HELP("-e <e>: Elevation grid flag")
+    PRINT_HELP("-i <i>: Interpolated elevation grid")
+    PRINT_HELP("-w <w>: Filename you wish to write your grid to")
+}
+void commandFlag() {
+    
+    printf("\nThe rendering map takes the following commands: \n");
+    PRINT_HELP("q: quit")
+    PRINT_HELP("w: write to files")
+    
+    PRINT_HELP("e: Draw Elevgrid")
+    PRINT_HELP("s: Draw the sea")
+    PRINT_HELP("i: Draw interpolated grid with original on top")
+
 }
 
 /* ***************************** */
