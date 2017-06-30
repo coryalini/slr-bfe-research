@@ -38,7 +38,7 @@
 #endif
 
 
-#define HAT = 1;
+#define HAT = 0;
 /* global variables */
 const int WINDOWSIZE = 500;
 //const int POINT_SIZE  = 5.0f;
@@ -398,7 +398,7 @@ void draw_point_combineBFE(double value,double minLand,double max) {
         glPointSize(7.0f);
 #endif
         value +=elevgrid.NODATA_value;
-        change_color_land(value, base, thisMin);
+        change_color_blue(value, base, thisMin);
     }
 }
 

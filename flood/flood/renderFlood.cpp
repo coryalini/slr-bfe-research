@@ -355,7 +355,7 @@ void draw_point_combineBFE(double value,double minLand,double max) {
     if (value > 1000) {
         value -=1000;
         base = (bfemax-bfemin)/numCategories;
-        change_color_gray(value, base, bfemin);
+        change_color_blue(value, base, bfemin);
     } else if (value == NEW_WATER) {
         glColor3fv(purple);
     } else {

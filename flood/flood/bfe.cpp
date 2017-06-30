@@ -200,7 +200,6 @@ void compute_interp_bfe_withFlooded(Grid* elevgrid, Grid* local_interp_bfegrid,i
                 newPoint.y = 0;
                 alreadySeen[i][0] = 's';
             } else if(elevgrid->data[i][0] < rise) {
-                printf("yup\n");
                 newPoint.x = i;
                 newPoint.y = 0;
                 alreadySeen[i][0] = 'f';
