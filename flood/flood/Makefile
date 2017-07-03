@@ -1,5 +1,25 @@
-CFLAGS += -m64
-INCLUDEPATH  = -I/usr/include/GL/
+PLATFORM = $(shell uname)
+
+
+## Compilation flags
+##comment out one or the other 
+##debugging 
+CFLAGS = -g 
+##release
+#CFLAGS = -O3 -DNDEBUG
+LDFLAGS=
+
+CFLAGS+= -Wall
+
+
+ifeq ($(PLATFORM),Darwin)
+## Mac OS X
+CFLAGS += -m64 -isystem/usr/local/include -Wno-deprecated
+LDFLAGS+= -m64 -lc -framework AGL -framework OpenGL -framework GLUT -framework Foundation
+else
+## Linux
+CFLAGS += -m64 -Wno-deprecated
+INCLUDEPATH  = -I/usr/include/GL/ 
 LIBPATH = -L/usr/lib64 -L/usr/X11R6/lib
 LDFLAGS+=  -lGL -lglut -lrt -lGLU -lX11 -lm  -lXmu -lXext -lXi
 endif
@@ -8,33 +28,35 @@ endif
 CC = g++ -O3 -Wall $(INCLUDEPATH)
 
 
-PROGS = modelflood interpbfe
+PROGS = interp modelflood ##renderflood
 
 default: $(PROGS)
 
-modelflood: modelflood.o grid.o bfe.o flood.o 
-	$(CC) -o $@ modelflood.o grid.o bfe.o flood.o $(LDFLAGS)
+interp: interpmain.o bfe.o grid.o 
+	$(CC) -o $@ interpmain.o bfe.o grid.o $(LDFLAGS)
 
-interpbfe: interpbfe.o bfe.o grid.o 
-  $(CC) -o $@ interpbfe. bfe.o grid.o $(LDFLAGS)
+modelflood: floodmain.o flood.o grid.o 
+	$(CC) -o $@ floodmain.o grid.o flood.o $(LDFLAGS)
 
-modelflood.o: floodmain.cpp grid.hpp flood.hpp  
+
+floodmain.o: floodmain.cpp grid.hpp flood.hpp  
 	$(CC) -c $(INCLUDEPATH) $(CFLAGS) floodmain.cpp  -o $@
+
+flood.o: flood.cpp flood.hpp grid.hpp
+	$(CC) -c $(INCLUDEPATH) $(CFLAGS) flood.cpp -o $@
 
 grid.o: grid.cpp grid.hpp
 	$(CC) -c $(INCLUDEPATH) $(CFLAGS) grid.cpp -o $@
 
-bfe.o: bfe.cpp bfe.hpp
+bfe.o: bfe.cpp bfe.hpp grid.hpp
 	$(CC) -c $(INCLUDEPATH) $(CFLAGS) bfe.cpp -o $@
 
-flood.o: flood.cpp flood.hpp
-	$(CC) -c $(INCLUDEPATH) $(CFLAGS) flood.cpp -o $@
 
-interpbfe.o: interpbfe.cpp bfe.hpp grid.hpp
-	$(CC) -c $(INCLUDEPATH) $(CFLAGS) interpbfe.cpp -o $@
+interpmain.o: interpmain.cpp bfe.hpp grid.hpp
+	$(CC) -c $(INCLUDEPATH) $(CFLAGS) interpmain.cpp -o $@
 
 
 
 clean::
 	rm *.o
-	rm modelflood interpbfe
+	rm modelflood interpbfe renderflood
