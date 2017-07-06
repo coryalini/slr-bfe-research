@@ -59,4 +59,4 @@ interpmain.o: interpmain.cpp bfe.hpp grid.hpp
 
 clean::
 	rm *.o
-	rm modelflood interpbfe renderflood
+	rm modelflood interp renderflood
