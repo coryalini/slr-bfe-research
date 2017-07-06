@@ -112,8 +112,12 @@ void change_color_gray(double value, double base, double thisMin);
 void change_color_blue(double value, double base, double thisMin);
 
 int main(int argc, char * argv[]) {
-
-    getOptExecution(argc, argv);
+    if (argc != 1) {
+        getOptExecution(argc, argv);
+    } else {
+        helpFlag();
+        exit(0);
+    }
     clock_t start = clock(), diff;
     readGridfromFile(elevname, &elevgrid,ELEV_CONVERTER);
     diff = clock() - start;
@@ -195,10 +199,6 @@ void getOptExecution(int argc, char* const* argv) {
     extern int optopt;
     while ((opt = getopt(argc, argv, "hce:i:b:w:" )) != -1) {
         switch (opt) {
-            case 'h':
-                hflag += 1;
-                helpFlag();
-                break;
             case 'c':
                 commandFlag();
                 cflag+=1;
@@ -226,7 +226,6 @@ void getOptExecution(int argc, char* const* argv) {
     testMandatoryFlags(wflag, 'w', argv[0]);
     testMandatoryFlags(iflag, 'i', argv[0]);
     
-    tooManyFlagError(hflag, 'h');
     tooManyFlagError(cflag, 'c');
     tooManyFlagError(eflag, 'e');
     tooManyFlagError(wflag, 'w');
@@ -235,7 +234,7 @@ void getOptExecution(int argc, char* const* argv) {
 void testMandatoryFlags(int flag, char opt, char* argv) {
     if (flag != 1) {	//flag was mandatory
         fprintf(stderr, "%s: missing -%c option\n", argv, opt);
-        fprintf(stderr, "usage: %s [-h] [-c] -e elevname [-b bfename] -w file_to_write\n", argv);
+        fprintf(stderr, "usage: %s [-c] -e elevname -b bfename -w file_to_write\n", argv);
         exit(1);
     }
 }
@@ -249,10 +248,10 @@ void tooManyFlagError(char flag, char opt) {
 
 void helpFlag() {
     printf("The interpolation simulator takes the following command-line arguments: \n");
-    PRINT_HELP("-h: Optional help flag that prints usage info")
-    PRINT_HELP("-c: Optional command flag that prints usage info for rendering")
+    PRINT_HELP("-c <c>: Optional command flag that prints usage info for rendering")
     PRINT_HELP("-e <e>: Elevation grid flag")
     PRINT_HELP("-i <i>: Interpolated elevation grid")
+    PRINT_HELP("-b <b>: BFE grid")
     PRINT_HELP("-w <w>: Filename you wish to write your grid to")
 }
 void commandFlag() {
