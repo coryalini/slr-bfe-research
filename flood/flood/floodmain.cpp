@@ -134,8 +134,13 @@ GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double valu
 
 
 int main(int argc, char * argv[]) {
-    
-    getOptExecution(argc, argv);
+    if (argc != 1) {
+        getOptExecution(argc, argv);
+    } else {
+        helpFlag();
+        exit(0);
+    }
+    printf("%s\n",elevname);
     clock_t start = clock(), diff;
     readGridfromFile(elevname, &elevgrid,ELEV_CONVERTER);
     diff = clock() - start;
@@ -239,13 +244,8 @@ void getOptExecution(int argc, char* const* argv) {
     
     extern char* optarg;
     extern int optopt;
-    
-    while ((opt = getopt(argc, argv, "hce:i:r:w:" )) != -1) {
+    while ((opt = getopt(argc, argv, "ce:i:w:r:" )) != -1) {
         switch (opt) {
-            case 'h':
-                hflag += 1;
-                helpFlag();
-                break;
             case 'c':
                 commandFlag();
                 cflag+=1;
@@ -273,7 +273,6 @@ void getOptExecution(int argc, char* const* argv) {
     testMandatoryFlags(wflag, 'w', argv[0]);
     testMandatoryFlags(rflag, 'r', argv[0]);
     
-    tooManyFlagError(hflag, 'h');
     tooManyFlagError(cflag, 'c');
     tooManyFlagError(eflag, 'e');
     tooManyFlagError(wflag, 'w');
@@ -283,7 +282,7 @@ void getOptExecution(int argc, char* const* argv) {
 void testMandatoryFlags(int flag, char opt, char* argv) {
     if (flag != 1) {	//flag was mandatory
         fprintf(stderr, "%s: missing -%c option\n", argv, opt);
-        fprintf(stderr, "usage: %s [-h] [-c] -e elevname [-b bfename] -w file_to_write -r rise \n", argv);
+        fprintf(stderr, "usage: %s [-c] -e elevname [-i interpname] -w file_to_write -r rise \n", argv);
         exit(1);
     }
 }
@@ -296,9 +295,8 @@ void tooManyFlagError(char flag, char opt) {
 }
 
 void helpFlag() {
-    printf("\nThe reference simulator takes the following command-line arguments: \n");
+    printf("The flooding simulator takes the following command-line arguments: \n");
     PRINT_HELP("-c: Optional command flag that prints usage info for rendering")
-    PRINT_HELP("-h: Optional help flag that prints usage info")
     PRINT_HELP("-e <e>: Elevation grid flag")
     PRINT_HELP("-i <i>: Interpolated elevation grid")
     PRINT_HELP("-w <w>: Filename you wish to write your grid to")
@@ -306,7 +304,7 @@ void helpFlag() {
 }
 void commandFlag() {
     
-    printf("\nThe rendering map takes the following commands: \n");
+    printf("The rendering map takes the following commands: \n");
     PRINT_HELP("q: quit")
     PRINT_HELP("w: write to files")
     

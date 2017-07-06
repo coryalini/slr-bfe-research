@@ -25,8 +25,15 @@ void start_interp_bfe(Grid* elevgrid,Grid* local_interp_bfegrid) {
         }
     }
     std::queue<point> queue;
+
     queue = findSeaPoint(elevgrid);
+    fflush(stdout);
+
     compute_interp_bfe(elevgrid,local_interp_bfegrid,alreadySeen,queue);
+    for(int a = 0; a < elevgrid->nrows; a++) {
+        free(alreadySeen[a]);
+    }
+    free(alreadySeen);
 }
 
 void compute_interp_bfe(Grid* elevgrid, Grid* local_interp_bfegrid, char** alreadySeen,std::queue<point>& queue) {
@@ -132,12 +139,6 @@ void compute_interp_bfe(Grid* elevgrid, Grid* local_interp_bfegrid, char** alrea
             }
         }
     }
-    for(int a = 0; a < elevgrid->nrows; a++) {
-        free(alreadySeen[a]);
-    }
-    free(alreadySeen);
-    
-    
 }
 
 

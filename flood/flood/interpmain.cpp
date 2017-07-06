@@ -50,9 +50,6 @@ int interp_bfe_EXISTS = 1, DRAW = 0;
 const char *elevname, *writeGridname, *bfename;
 Grid elevgrid, bfegrid, interp_bfegrid, currgrid;
 
-//HACKKK
-double rise = 0;
-
 enum {ELEV = 0, SEA = 1, INTERP_BFE= 2,COMBINE_INTERP=3};
 enum {COLOR = 0, BINARY_COLOR = 1,BLACK_COLOR = 2, COMBINE_COLOR = 3};
 
@@ -97,8 +94,8 @@ void tooManyFlagError(char flag, char opt);
 void helpFlag();
 void commandFlag();
 
-void draw_grid(Grid* grid,int grid_type,float rise);
-void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, double minLand, double max);
+void draw_grid(Grid* grid,int grid_type);
+void general_draw_point(point mypoint, Grid* grid,int grid_type, double minLand, double max);
 
 void waterGrid(Grid* grid);
 void setCurrGrid(Grid* grid);
@@ -115,15 +112,7 @@ void change_color_gray(double value, double base, double thisMin);
 void change_color_blue(double value, double base, double thisMin);
 
 int main(int argc, char * argv[]) {
-    
-//    if (argc != 4) {
-//        printf("ERROR: Arguments were not included. %d \n", argc);
-//        return 1;
-//    }
-//    
-//    elevname = argv[1];
-//    bfename = argv[2];
-//    writeGridname = argv[3];
+
     getOptExecution(argc, argv);
     clock_t start = clock(), diff;
     readGridfromFile(elevname, &elevgrid,ELEV_CONVERTER);
@@ -204,7 +193,7 @@ void getOptExecution(int argc, char* const* argv) {
     
     extern char* optarg;
     extern int optopt;
-    while ((opt = getopt(argc, argv, "hce:i:w:" )) != -1) {
+    while ((opt = getopt(argc, argv, "hce:i:b:w:" )) != -1) {
         switch (opt) {
             case 'h':
                 hflag += 1;
@@ -231,10 +220,6 @@ void getOptExecution(int argc, char* const* argv) {
                 bfename = optarg;
                 iflag+=1;
                 break;
-//            case 'r':
-//                rise = atof(optarg);
-//                rflag+=1;
-//                break;
         }
     }
     testMandatoryFlags(eflag, 'e', argv[0]);
@@ -246,12 +231,11 @@ void getOptExecution(int argc, char* const* argv) {
     tooManyFlagError(eflag, 'e');
     tooManyFlagError(wflag, 'w');
     tooManyFlagError(iflag, 'i');
-//    tooManyFlagError(rflag, 'r');
 }
 void testMandatoryFlags(int flag, char opt, char* argv) {
     if (flag != 1) {	//flag was mandatory
         fprintf(stderr, "%s: missing -%c option\n", argv, opt);
-        fprintf(stderr, "usage: %s [-h] [-c] -e elevname [-b bfename] -w file_to_write -r rise \n", argv);
+        fprintf(stderr, "usage: %s [-h] [-c] -e elevname [-b bfename] -w file_to_write\n", argv);
         exit(1);
     }
 }
@@ -264,7 +248,7 @@ void tooManyFlagError(char flag, char opt) {
 }
 
 void helpFlag() {
-    printf("\nThe reference simulator takes the following command-line arguments: \n");
+    printf("The interpolation simulator takes the following command-line arguments: \n");
     PRINT_HELP("-h: Optional help flag that prints usage info")
     PRINT_HELP("-c: Optional command flag that prints usage info for rendering")
     PRINT_HELP("-e <e>: Elevation grid flag")
@@ -273,7 +257,7 @@ void helpFlag() {
 }
 void commandFlag() {
     
-    printf("\nThe rendering map takes the following commands: \n");
+    printf("The rendering map takes the following commands: \n");
     PRINT_HELP("q: quit")
     PRINT_HELP("w: write to files")
     
@@ -345,8 +329,7 @@ void display(void) {
             break;
     }
     
-    draw_grid(&currgrid, coloring,rise);
-    
+    draw_grid(&currgrid, coloring);
     /* execute the drawing commands */
     glFlush();
 }
@@ -363,7 +346,7 @@ void reshape(GLsizei width, GLsizei height) {  // GLsizei for non-negative integ
 }
 
 
-void draw_grid(Grid* grid, int grid_type,float rise) {
+void draw_grid(Grid* grid, int grid_type) {
     
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     assert(grid->data);
@@ -380,13 +363,13 @@ void draw_grid(Grid* grid, int grid_type,float rise) {
             point newPoint;
             newPoint.x = i;
             newPoint.y = j;
-            general_draw_point(newPoint, grid, grid_type,rise,minLand, max);
+            general_draw_point(newPoint, grid, grid_type,minLand, max);
         }
     }
 }
 
 
-void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, double minLand, double max) {
+void general_draw_point(point mypoint, Grid* grid,int grid_type,    double minLand, double max) {
     double value = grid->data[(int)mypoint.x][(int)mypoint.y];
     if (grid_type == COLOR) {
         draw_point_color(value, minLand,max);

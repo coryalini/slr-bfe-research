@@ -163,12 +163,12 @@ void copyGrid(Grid* originalGrid, Grid* copyGrid) {
 void readGridfromFile(const char* gridfname, Grid* g, double converter) {
     FILE* f;
     
-    //    printf("reading grid %s\n",gridfname);
+    printf("reading grid %s\n",gridfname);
     f=fopen(gridfname, "r");
     
     //check to see that usr entered a file
     if (f== NULL) {
-        printf("cannot open file..\n");
+        printf("cannot open file %s...\n",gridfname);
         exit(1);
     }
     
