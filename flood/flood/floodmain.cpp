@@ -397,7 +397,6 @@ void display(void) {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); //clear the matrix
     float coloring = 0;
-    double currRise = rise;
     
     switch (DRAW) {
         case ELEV:

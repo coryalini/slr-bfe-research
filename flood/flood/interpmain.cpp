@@ -193,11 +193,11 @@ int main(int argc, char * argv[]) {
 void getOptExecution(int argc, char* const* argv) {
     
     int opt;
-    int hflag = 0, cflag =0, eflag = 0, wflag = 0, iflag = 0;
+    int cflag =0, eflag = 0, wflag = 0, iflag = 0;
     
     extern char* optarg;
     extern int optopt;
-    while ((opt = getopt(argc, argv, "hce:i:b:w:" )) != -1) {
+    while ((opt = getopt(argc, argv, "ce:i:b:w:" )) != -1) {
         switch (opt) {
             case 'c':
                 commandFlag();
