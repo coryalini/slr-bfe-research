@@ -212,7 +212,7 @@ void getOptExecution(int argc, char* const* argv) {
                 wflag+=1;
                 break;
             case 'i':
-                HAT = 1;
+//              HAT = 1;
                 iflag+=1;
                 bfename = optarg;
                 break;
@@ -224,12 +224,12 @@ void getOptExecution(int argc, char* const* argv) {
     }
     testMandatoryFlags(eflag, 'e', argv[0]);
     testMandatoryFlags(wflag, 'w', argv[0]);
-//    testMandatoryFlags(iflag, 'i', argv[0]);
+    testMandatoryFlags(iflag, 'i', argv[0]);
     
     tooManyFlagError(cflag, 'c');
     tooManyFlagError(eflag, 'e');
     tooManyFlagError(wflag, 'w');
-//    tooManyFlagError(iflag, 'i');
+    tooManyFlagError(iflag, 'i');
 }
 void testMandatoryFlags(int flag, char opt, char* argv) {
     if (flag != 1) {	//flag was mandatory
