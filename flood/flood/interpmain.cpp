@@ -45,14 +45,12 @@ int POINT_SIZE;
 int WRITE_TO_FILE = 0;
 
 double ELEV_CONVERTER = 3.28084;
-double BFE_CONVERTER = 1;
+double ORIG_CONVERTER = 1;
 int interp_bfe_EXISTS = 1, DRAW = 0;
-const char *elevname, *writeGridname, *bfename;
-Grid elevgrid, bfegrid, interp_bfegrid, currgrid;
+const char *elevname, *writeGridname, *origname;
+Grid elevgrid, origgrid, interpgrid;
 
-enum {ELEV = 0, SEA = 1, COMBINE_INTERP=2};
-enum {COLOR = 0, BINARY_COLOR = 1, COMBINE_COLOR = 2};
-
+enum {ELEV = 0, SEA = 1,ELEV_ORIG =2, COMBINE_INTERP=3};
 static float numCategories = 6.0;
 
 GLfloat red_pink[3] = {0.969, 0.396, 0.396};
@@ -94,17 +92,17 @@ void tooManyFlagError(char flag, char opt);
 void helpFlag();
 void printRenderCommands();
 
-void draw_grid(Grid* grid,int grid_type);
-void general_draw_point(point mypoint, Grid* grid,int grid_type, double minLand, double max);
+void draw_elevgrid();
+void draw_sea();
+void draw_elev_orig();
+void draw_interp_and_original();
+void draw_point(int i, int j, Grid* grid);
 
-void waterGrid(Grid* grid);
-void setCurrGrid(Grid* grid);
-void combineBFEGrids(Grid* bfe, Grid* interp);
+void draw_color(double value, double minLand, double max);
+void draw_binary(double value);
+void draw_black(double value,double minLand, double max);
+void draw_combinedOrig_Interp(double value,int orig_or_interp,  double minLand,double max);
 
-void draw_point_color(double value, double minLand, double max);
-void draw_point_binary(double value);
-void draw_point_black(double value,double minLand, double max);
-void draw_point_combineBFE(double value,double minLand, double max);
 GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);
 
 void change_color_land(double value, double base, double thisMin);
@@ -128,32 +126,29 @@ int main(int argc, char * argv[]) {
 
     
     clock_t start2 = clock(), diff2;
-    readGridfromFile(bfename, &bfegrid,BFE_CONVERTER);
+    readGridfromFile(origname, &origgrid,ORIG_CONVERTER);
     diff2 = clock() - start2;
     unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
     printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
-    if (bfegrid.ncols != elevgrid.ncols || bfegrid.nrows !=elevgrid.nrows) {
-        printf("ERROR:The %s [%ld,%ld] and elevgrid [%ld,%ld] do not have the same grid dimensions!\n",bfename, bfegrid.nrows,bfegrid.ncols,elevgrid.nrows, elevgrid.ncols);
+    if (origgrid.ncols != elevgrid.ncols || origgrid.nrows !=elevgrid.nrows) {
+        printf("ERROR:The %s [%ld,%ld] and elevgrid [%ld,%ld] do not have the same grid dimensions!\n",origname, origgrid.nrows,origgrid.ncols,elevgrid.nrows, elevgrid.ncols);
         exit(0);
     }
 
-    mallocGrid(bfegrid, &interp_bfegrid);
-    setHeaders(bfegrid, &interp_bfegrid);
-    copyGrid(&bfegrid, &interp_bfegrid);
+    mallocGrid(origgrid, &interpgrid);
+    setHeaders(origgrid, &interpgrid);
+    copyGrid(&origgrid, &interpgrid);
     
     clock_t start3 = clock(), diff3;
     printf("start interp_bfe\n");
-    start_interp_bfe(&elevgrid,&interp_bfegrid);
+    start_interp_bfe_withFlooded(&elevgrid,&interpgrid);
     diff3 = clock() - start3;
     unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
     printf("interp_bfe took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
     if (WRITE_TO_FILE) {
         printf("Writing to file %s\n", writeGridname);
-        gridtoFile(&interp_bfegrid, writeGridname);
+        gridtoFile(&interpgrid, writeGridname);
     }
-    
-    mallocGrid(elevgrid, &currgrid);
-    setHeaders(elevgrid, &currgrid);
     
     
     //GLUT stuff
@@ -210,7 +205,7 @@ void getOptExecution(int argc, char* const* argv) {
                 break;
             case 'i':
                 iflag+=1;
-                bfename = optarg;
+                origname = optarg;
                 break;
             case 'o':
                 writeGridname = optarg;
@@ -256,11 +251,11 @@ void printRenderCommands() {
     
     printf("The rendering map takes the following commands: \n");
     PRINT_HELP("q: quit")
-    PRINT_HELP("w: write to files")
-    
     PRINT_HELP("e: Draw Elevgrid")
     PRINT_HELP("s: Draw the sea")
+    PRINT_HELP("b: Draw the original grid on top of the elevgrid")
     PRINT_HELP("i: Draw interpolated grid with original on top")
+    printf("\n");
 
 }
 
@@ -269,9 +264,8 @@ void keypress(unsigned char key, int x, int y) {
     switch(key)    {
         case 'q':
             freeGridData(&elevgrid);
-            freeGridData(&bfegrid);
-            freeGridData(&currgrid);
-            freeGridData(&interp_bfegrid);
+            freeGridData(&origgrid);
+            freeGridData(&interpgrid);
             exit(0);
             break;
         case 'e':
@@ -286,6 +280,9 @@ void keypress(unsigned char key, int x, int y) {
             printf("Draw interpolated grid with original on top\n");
             DRAW = COMBINE_INTERP;
             break;
+        case 'b':
+            printf("Draw elevation grid with the original grid on top\n");
+            DRAW =ELEV_ORIG;
         default:
             break;
             
@@ -297,27 +294,23 @@ void display(void) {
     glClear(GL_COLOR_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity(); //clear the matrix
-    float coloring = 0;
     switch (DRAW) {
         case ELEV:
-            setCurrGrid(&elevgrid);
-            coloring = COLOR;
+            draw_elevgrid();
             break;
         case SEA:
-            waterGrid(&elevgrid);
-            coloring = BINARY_COLOR;
+            draw_sea();
             break;
-
+        case ELEV_ORIG:
+            draw_elev_orig();
+            break;
         case COMBINE_INTERP:
-            combineBFEGrids(&bfegrid, &interp_bfegrid);
-            coloring = COMBINE_COLOR;
+            draw_interp_and_original();
             break;
         default:
             break;
     }
-    
-    draw_grid(&currgrid, coloring);
-    /* execute the drawing commands */
+        /* execute the drawing commands */
     glFlush();
 }
 /* Handler for window re-size event. Called back when the window first appears and
@@ -333,41 +326,110 @@ void reshape(GLsizei width, GLsizei height) {  // GLsizei for non-negative integ
 }
 
 /*
- This function is used to draw a general grid. No particular grid needed
+ This function is used to draws the elevgrid. 
+ It calls draw_color and draw_point.
+ 
  */
-void draw_grid(Grid* grid, int grid_type) {
-    
+void draw_elevgrid() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    assert(grid->data);
-    double max;
-    double minLand= findMinLand(grid);
-    if (grid_type == COMBINE_COLOR) {
-        max = findMax(&bfegrid);
-    } else {
-        max = findMax(grid);
-    }
+    assert(elevgrid.data);
+    double max = findMax(&elevgrid);
+    double minLand= findMinLand(&elevgrid);
     
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
-            point newPoint;
-            newPoint.x = i;
-            newPoint.y = j;
-            general_draw_point(newPoint, grid, grid_type,minLand, max);
+            double value = elevgrid.data[i][j];
+            draw_color(value, minLand,max);
+            draw_point(i,j, &elevgrid);
+        }
+    }
+}
+/*
+ This function is used to draws the sea. If the elevgrid value is no data
+ then the function will set the value to 0, otherwise set value to 1.
+ It calls draw_binary and draw_point.
+ 
+ */
+void draw_sea() {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    assert(elevgrid.data);
+    for (int i = 0; i < elevgrid.nrows; i++) {
+        for (int j = 0; j < elevgrid.ncols; j++) {
+            double value = elevgrid.data[i][j];
+            if (value == elevgrid.NODATA_value) {
+                value = 0;
+            } else {
+                value = 1;
+            }
+            draw_binary(value);
+            draw_point(i,j, &elevgrid);
+        }
+    }
+}
+/*
+ This function is used to draws the elevgrid with the origgrid on top.
+ If the origgrid has a value (ie not nodata) then it sets value to that value
+ and calls draw_black. Otherwise it sets the value to the same as the elevgrid
+ and calls draw_color
+ It calls draw_color, draw_black and draw_point.
+ 
+ */
+void draw_elev_orig() {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    double maxBFE = findMax(&origgrid);
+    double minLandBFE= findMinLand(&origgrid);
+    double maxELEV = findMax(&elevgrid);
+    double minLandELEV= findMinLand(&elevgrid);
+    
+    
+    for (int i = 0; i < elevgrid.nrows; i++) {
+        for (int j = 0; j < elevgrid.ncols; j++) {
+            double value;
+            if (origgrid.data[i][j] != elevgrid.NODATA_value) {
+                value = origgrid.data[i][j];
+                draw_black(value, minLandBFE, maxBFE);
+            } else {
+                value = elevgrid.data[i][j];
+                draw_color(value, minLandELEV,maxELEV);
+            }
+            draw_point(i,j, &elevgrid);
+        }
+    }
+}
+/*
+ This function is used to draws the elevgrid with the origgrid on top.
+ If the origgrid has a value (ie not nodata) then calls draw_combinedOrig_Interp 
+ with a type of 1. Otherwise the type is 0
+ It calls draw_combinedOrig_Interp and draw_point.
+ 
+ */
+void draw_interp_and_original() {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    double max = findMax(&origgrid);
+    double minLand= findMinLand(&origgrid);
+    for (int i = 0; i < elevgrid.nrows; i++) {
+        for (int j = 0; j < elevgrid.ncols; j++) {
+            double value = interpgrid.data[i][j];
+            if (origgrid.data[i][j] != elevgrid.NODATA_value) {
+                draw_combinedOrig_Interp(value,1,minLand,max);
+            } else {
+                draw_combinedOrig_Interp(value,0,minLand,max);
+            }
+            draw_point(i,j, &elevgrid);
         }
     }
 }
 
-//Draws points depending on the color
-void general_draw_point(point mypoint, Grid* grid,int grid_type,    double minLand, double max) {
-    double value = grid->data[(int)mypoint.x][(int)mypoint.y];
-    if (grid_type == COLOR) {
-        draw_point_color(value, minLand,max);
-    } else if (grid_type == BINARY_COLOR) {
-        draw_point_binary(value);
-    }  else {
-        draw_point_combineBFE(value,minLand, max);
-    }
-    
+/*
+ This function is used to draw a particular point of a grid. It takes the grid and
+ the point as inputs. It calculates which is larger row or column and calculates 
+ where the point should land on the window.
+ */
+
+void draw_point(int i, int j, Grid* grid) {
+    point myPoint;
+    myPoint.x = i;
+    myPoint.y = j;
     float x=0, y=0;  //just to initialize with something
     
     float larger,smaller;
@@ -380,61 +442,16 @@ void general_draw_point(point mypoint, Grid* grid,int grid_type,    double minLa
         smaller = grid->ncols;
     }
     
-    x = (((mypoint.y)/(larger))*2) - smaller/larger;
-    y = -(((mypoint.x)/(larger))*2) + 1;
+    x = (((myPoint.y)/(larger))*2) - smaller/larger;
+    y = -(((myPoint.x)/(larger))*2) + 1;
     
     glBegin(GL_POINTS);
     glVertex2f(x, y);
     glEnd();
 }
-/*
- This combination just sets the no data value to 0 and all other values to 1
- */
-
-void waterGrid(Grid* grid) {
-    for (int i = 0; i < elevgrid.nrows; i++) {
-        for (int j = 0; j < elevgrid.ncols; j++) {
-            if(grid->data[i][j] == grid->NODATA_value) {
-                currgrid.data[i][j] = 0;
-            } else {
-                currgrid.data[i][j] = 1;
-            }
-        }
-    }
-}
-/*
- 
- This function sets the global variable, currGrid.
- If there is a bfe available, the code utilizes the bfe data given to find what values will be flooded.
- Even if the bfe is given, some values in the bfe grid are NODATA_values, thus
- 
- */
-void setCurrGrid(Grid* grid){
-    for (int i = 0; i < grid->nrows; i++) {
-        for (int j = 0; j < grid->ncols; j++) {
-            currgrid.data[i][j] = grid->data[i][j];
-        }
-    }
-}
-/*
- This function combines the bfe grid with the interpolation grid. 
- The -elevgrid.NODATA_value aspect is used to create two set of distinct numbers.
- This is used for rendering purposes (so we can tell the difference between the two grids)
- */
-void combineBFEGrids(Grid* bfe, Grid* interp) {
-    for (int i = 0; i < elevgrid.nrows; i++) {
-        for (int j = 0; j < elevgrid.ncols; j++) {
-            if (bfe->data[i][j] != elevgrid.NODATA_value) {
-                currgrid.data[i][j] = bfe->data[i][j]+ -elevgrid.NODATA_value;//just a very unlikely value
-            } else {
-                currgrid.data[i][j] = interp->data[i][j];
-            }
-        }
-    }
-}
 
 
-void draw_point_color(double value, double minLand, double max) {
+void draw_color(double value, double minLand, double max) {
     double base;
     double thisMin = minLand;
     if (minLand < 0) {
@@ -444,36 +461,35 @@ void draw_point_color(double value, double minLand, double max) {
     change_color_land(value, base, thisMin);
 }
 
-void draw_point_binary(double value) {
+void draw_binary(double value) {
     if (value == 0) {
         glColor3fv(blue);
     } else {
         glColor3fv(black);
     }
 }
-void draw_point_black(double value,double minLand, double max) {
+void draw_black(double value,double minLand, double max) {
     assert(minLand > 0);
     double base = (max-minLand)/numCategories;
     change_color_gray(value, base, minLand);
     
 }
+
 /*
  This particular draw_point is used to render the bfe
- with interp grid. The numbers are adjusted so that the value 
+ with interp grid. The numbers are adjusted so that the value
  gets corrected
  */
 
-void draw_point_combineBFE(double value,double minLand,double max) {
+void draw_combinedOrig_Interp(double value,int orig_or_interp,  double minLand,double max) {
     double thisMin = minLand;
     if (minLand < 0) {
         thisMin = 0;
     }
     double base = (max-thisMin)/numCategories;
-    if (value < -elevgrid.NODATA_value|| value == elevgrid.NODATA_value) {
+    if (orig_or_interp == 0) {
         change_color_gray(value, base, thisMin);
     } else {
-
-        value +=elevgrid.NODATA_value;
         change_color_blue(value, base, thisMin);
     }
 }
@@ -542,5 +558,4 @@ GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double valu
     return newColor;
     
 }
-
 

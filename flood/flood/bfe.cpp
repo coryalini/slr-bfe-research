@@ -179,7 +179,10 @@ void start_interp_bfe_withFlooded(Grid* elevgrid, Grid* local_interp_bfegrid) {
         }
     }
     std::queue<point> queue;
+
     queue = findSeaPoint(elevgrid);
+    fflush(stdout);
+
     compute_interp_bfe_withFlooded(elevgrid,local_interp_bfegrid,alreadySeen,queue);
 }
 
