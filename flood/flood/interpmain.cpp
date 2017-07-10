@@ -150,7 +150,9 @@ int main(int argc, char * argv[]) {
     
     clock_t start3 = clock(), diff3;
     printf("start interp_bfe\n");
-    start_interp_bfe_withFlooded(&elevgrid,&interpgrid);
+//    start_interp_bfe_withFlooded(&elevgrid,&interpgrid);
+    start_interpolation(&origgrid, &interpgrid);
+
     diff3 = clock() - start3;
     unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
     printf("interp_bfe took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);

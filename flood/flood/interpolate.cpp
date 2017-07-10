@@ -200,39 +200,24 @@ void start_interpolation(Grid* origgrid, Grid* interpgrid) {
     while(interpqueue.empty() != true) {
         point curr = interpqueue.front();
         interpqueue.pop();
-        assert(origgrid->data[(int)curr.x][(int)curr.y]!=origgrid->NODATA_value);
+        assert(interpgrid->data[(int)curr.x][(int)curr.y]!= origgrid->NODATA_value);
         
         for (int k = curr.x-1; k <= curr.x+1; k++) {
             for (int l = curr.y-1; l <= curr.y+1;l++) {
-                if (k == curr.x && l == curr.y ||!insideGrid(elevgrid, k,l)) {
+                if ((k == curr.x && l == curr.y)) {
                     continue;
                 }
-            
-                point newPoint;
-                newPoint.x = k;
-                newPoint.y = l;
-                //if the point is not unseen, floooded, or land then just skip it
-                if(alreadySeen[k][l] != 'u' &&  alreadySeen[k][l] != 'l') {
-                    continue;
+                if (insideGrid(origgrid, k,l) && interpgrid->data[k][l] == origgrid->NODATA_value) {
+                    point newPoint;
+                    newPoint.x = k;
+                    newPoint.y = l;
+                    interpgrid->data[k][l] = interpgrid->data[(int)curr.x][(int)curr.y];
+                    interpqueue.push(newPoint);
+                
                 }
-                if (local_interp_bfegrid->data[k][l] == local_interp_bfegrid->NODATA_value) {
-                    local_interp_bfegrid->data[k][l] = local_interp_bfegrid->data[(int)curr.x][(int)curr.y];
-                }
-                assert(local_interp_bfegrid->data[k][l] != local_interp_bfegrid->NODATA_value);
-                interp_bfequeue.push(newPoint);
-                alreadySeen[k][l] = 'b'; // change the value so it has a bfe
             }
         }
     }
-
-    
-    
-    
-    
-    
-    
-    
-    
     
 }
 
