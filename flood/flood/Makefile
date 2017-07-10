@@ -32,8 +32,8 @@ PROGS = interp modelflood ##renderflood
 
 default: $(PROGS)
 
-interp: interpmain.o bfe.o grid.o 
-	$(CC) -o $@ interpmain.o bfe.o grid.o $(LDFLAGS)
+interp: interpmain.o interpolate.o grid.o 
+	$(CC) -o $@ interpmain.o interpolate.o grid.o $(LDFLAGS)
 
 modelflood: floodmain.o flood.o grid.o 
 	$(CC) -o $@ floodmain.o grid.o flood.o $(LDFLAGS)
@@ -48,11 +48,11 @@ flood.o: flood.cpp flood.hpp grid.hpp
 grid.o: grid.cpp grid.hpp
 	$(CC) -c $(INCLUDEPATH) $(CFLAGS) grid.cpp -o $@
 
-bfe.o: bfe.cpp bfe.hpp grid.hpp
-	$(CC) -c $(INCLUDEPATH) $(CFLAGS) bfe.cpp -o $@
+interpolate.o: interpolate.cpp interpolate.hpp grid.hpp
+	$(CC) -c $(INCLUDEPATH) $(CFLAGS) interpolate.cpp -o $@
 
 
-interpmain.o: interpmain.cpp bfe.hpp grid.hpp
+interpmain.o: interpmain.cpp interpolate.hpp grid.hpp
 	$(CC) -c $(INCLUDEPATH) $(CFLAGS) interpmain.cpp -o $@
 
 

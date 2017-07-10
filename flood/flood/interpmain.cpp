@@ -21,7 +21,7 @@
 
 #include <iostream>
 #include "grid.hpp"
-#include "bfe.hpp"
+#include "interpolate.hpp"
 
 #include <iostream>
 #include <stdlib.h>
@@ -57,6 +57,7 @@ GLfloat red_pink[3] = {0.969, 0.396, 0.396};
 GLfloat black[3] = {0.0, 0.0, 0.0};
 
 GLfloat blue[3] = {0.157, 0.325, 0.419};
+//GLfloat blue[3] = {0, 0, 1.0};
 GLfloat lightblue[3] = {0.604, 0.820, 0.831};
 GLfloat green1[3] = {0.945, 1.0, 0.905};
 GLfloat greenmid[3] = {0.749, 0.918, 0.737};
@@ -74,12 +75,18 @@ GLfloat gray4[3] = {0.349, 0.349, 0.349};
 GLfloat gray5[3] = {0.196, 0.196, 0.196};
 GLfloat gray6[3] = {0.118, 0.118, 0.118};
 
-GLfloat blue1[3] = {0.568,0.776,0.792};
-GLfloat blue2[3] = {0.572,0.784,0.8};
-GLfloat blue3[3] = {0.529,0.737,0.756};
-GLfloat blue4[3] = {0.455,0.655,0.690};
-GLfloat blue5[3] = {0.380,0.568,0.619};
-GLfloat blue6[3] = {0.305,0.486,0.553};
+//GLfloat blue1[3] = {0.568,0.776,0.792};
+//GLfloat blue2[3] = {0.572,0.784,0.8};
+//GLfloat blue3[3] = {0.529,0.737,0.756};
+//GLfloat blue4[3] = {0.455,0.655,0.690};
+//GLfloat blue5[3] = {0.380,0.568,0.619};
+//GLfloat blue6[3] = {0.305,0.486,0.553};
+GLfloat blue1[3] = {0, 0,1.0};
+GLfloat blue2[3] = {0, 0,0.9};
+GLfloat blue3[3] = {0, 0,0.8};
+GLfloat blue4[3] = {0, 0,0.7};
+GLfloat blue5[3] = {0, 0,0.6};
+GLfloat blue6[3] = {0, 0, 0.5};
 
 /* forward declarations of functions */
 void keypress(unsigned char key, int x, int y);
@@ -101,6 +108,7 @@ void draw_point(int i, int j, Grid* grid);
 void draw_color(double value, double minLand, double max);
 void draw_binary(double value);
 void draw_black(double value,double minLand, double max);
+void draw_blue(double value,double minLand, double max);
 void draw_combinedOrig_Interp(double value,int orig_or_interp,  double minLand,double max);
 
 GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);
@@ -110,12 +118,13 @@ void change_color_gray(double value, double base, double thisMin);
 void change_color_blue(double value, double base, double thisMin);
 
 int main(int argc, char * argv[]) {
-    printRenderCommands();
 
     if (argc != 1) {
+        printRenderCommands();
         getOptExecution(argc, argv);
     } else {
         helpFlag();
+        printRenderCommands();
         exit(0);
     }
     clock_t start = clock(), diff;
@@ -387,7 +396,7 @@ void draw_elev_orig() {
             double value;
             if (origgrid.data[i][j] != elevgrid.NODATA_value) {
                 value = origgrid.data[i][j];
-                draw_black(value, minLandBFE, maxBFE);
+                draw_blue(value, minLandBFE, maxBFE);
             } else {
                 value = elevgrid.data[i][j];
                 draw_color(value, minLandELEV,maxELEV);
@@ -472,6 +481,12 @@ void draw_black(double value,double minLand, double max) {
     assert(minLand > 0);
     double base = (max-minLand)/numCategories;
     change_color_gray(value, base, minLand);
+    
+}
+void draw_blue(double value,double minLand, double max) {
+    assert(minLand > 0);
+    double base = (max-minLand)/numCategories;
+    change_color_blue(value, base, minLand);
     
 }
 

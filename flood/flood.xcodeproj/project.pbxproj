@@ -16,11 +16,12 @@
 		EA24B1E71F04267B00C26E71 /* grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA24B1E11F04267B00C26E71 /* grid.cpp */; };
 		EA24B1E91F0426B000C26E71 /* grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA24B1E11F04267B00C26E71 /* grid.cpp */; };
 		EA24B1EA1F0426B400C26E71 /* interpmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA24B1E31F04267B00C26E71 /* interpmain.cpp */; };
-		EA24B1EB1F0426B800C26E71 /* bfe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA24B1DC1F04267B00C26E71 /* bfe.cpp */; };
 		EA4A6C531F0183DA00DB1363 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA4A6C521F0183DA00DB1363 /* GLUT.framework */; };
 		EA4A6C551F0183DF00DB1363 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA4A6C541F0183DF00DB1363 /* OpenGL.framework */; };
 		EA53EAE31F04270300F6939F /* renderFlood.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA53EAE11F0426FA00F6939F /* renderFlood.cpp */; };
 		EA67C8E71F05552E00AB8BBF /* grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA24B1E11F04267B00C26E71 /* grid.cpp */; };
+		EA74DD9A1F13F6E8005DC613 /* interpolate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA74DD981F13F6E8005DC613 /* interpolate.cpp */; };
+		EA74DD9B1F13F6FA005DC613 /* interpolate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA74DD981F13F6E8005DC613 /* interpolate.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -57,8 +58,6 @@
 		EA24B1B51F04246000C26E71 /* interp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = interp; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA24B1C81F04250F00C26E71 /* renderFlood */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = renderFlood; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA24B1D11F04254E00C26E71 /* floodmain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = floodmain.cpp; sourceTree = "<group>"; };
-		EA24B1DC1F04267B00C26E71 /* bfe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bfe.cpp; sourceTree = "<group>"; };
-		EA24B1DD1F04267B00C26E71 /* bfe.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = bfe.hpp; sourceTree = "<group>"; };
 		EA24B1E11F04267B00C26E71 /* grid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grid.cpp; sourceTree = "<group>"; };
 		EA24B1E21F04267B00C26E71 /* grid.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = grid.hpp; sourceTree = "<group>"; };
 		EA24B1E31F04267B00C26E71 /* interpmain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = interpmain.cpp; sourceTree = "<group>"; };
@@ -66,6 +65,8 @@
 		EA4A6C521F0183DA00DB1363 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		EA4A6C541F0183DF00DB1363 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		EA53EAE11F0426FA00F6939F /* renderFlood.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = renderFlood.cpp; sourceTree = "<group>"; };
+		EA74DD981F13F6E8005DC613 /* interpolate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = interpolate.cpp; sourceTree = "<group>"; };
+		EA74DD991F13F6E8005DC613 /* interpolate.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = interpolate.hpp; sourceTree = "<group>"; };
 		EAA0CE701F018471009DFA61 /* flood.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = flood.cpp; sourceTree = "<group>"; };
 		EAA0CE711F018471009DFA61 /* flood.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = flood.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -143,8 +144,8 @@
 				EAA0CE701F018471009DFA61 /* flood.cpp */,
 				EAA0CE711F018471009DFA61 /* flood.hpp */,
 				EA24B1E31F04267B00C26E71 /* interpmain.cpp */,
-				EA24B1DC1F04267B00C26E71 /* bfe.cpp */,
-				EA24B1DD1F04267B00C26E71 /* bfe.hpp */,
+				EA74DD981F13F6E8005DC613 /* interpolate.cpp */,
+				EA74DD991F13F6E8005DC613 /* interpolate.hpp */,
 				EA24B1E11F04267B00C26E71 /* grid.cpp */,
 				EA24B1E21F04267B00C26E71 /* grid.hpp */,
 				EA53EAE11F0426FA00F6939F /* renderFlood.cpp */,
@@ -262,7 +263,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EA24B1EB1F0426B800C26E71 /* bfe.cpp in Sources */,
+				EA74DD9B1F13F6FA005DC613 /* interpolate.cpp in Sources */,
 				EA24B1EA1F0426B400C26E71 /* interpmain.cpp in Sources */,
 				EA24B1E91F0426B000C26E71 /* grid.cpp in Sources */,
 			);
@@ -284,6 +285,7 @@
 				EA24B1E71F04267B00C26E71 /* grid.cpp in Sources */,
 				EA24B1D91F04263A00C26E71 /* floodmain.cpp in Sources */,
 				EA24B1DA1F04263A00C26E71 /* flood.cpp in Sources */,
+				EA74DD9A1F13F6E8005DC613 /* interpolate.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

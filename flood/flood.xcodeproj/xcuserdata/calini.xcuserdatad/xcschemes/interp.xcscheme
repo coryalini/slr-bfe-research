@@ -64,6 +64,10 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-e southport_dem_2cellsize.asc -i southport_floodzones_2cellsize.asc"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-e southport_dem_2cellsize.asc -i southport_hat_2cellsize.asc"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
