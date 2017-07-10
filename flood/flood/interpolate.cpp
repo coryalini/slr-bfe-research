@@ -173,6 +173,68 @@ void compute_interp_bfe_withFlooded(Grid* elevgrid, Grid* local_interp_bfegrid, 
 
 
 
+void start_interpolation(Grid* origgrid, Grid* interpgrid) {
+    
+    char** alreadySeen;
+    alreadySeen = (char**)malloc(origgrid->nrows * sizeof(char *));
+    assert(alreadySeen);
+    for(int a = 0; a < origgrid->nrows; a++) {
+        alreadySeen[a] = (char*) malloc(origgrid->ncols * sizeof(char));
+        assert(alreadySeen[a]);
+    }
+    //initialize
+    point newPoint;
+    std::queue<point> interpqueue;
+    for (int i = 0; i < origgrid->nrows; i++) {
+        for (int j = 0; j < origgrid->ncols; j++) {
+            alreadySeen[i][j] = 'u';
+            if (origgrid->data[i][j] != origgrid->NODATA_value){
+                newPoint.x = i;
+                newPoint.y = j;
+                interpqueue.push(newPoint);
+            }
+            
+        }
+    }
+    //GO THROUGH THE BFE POINTS AND INTERPOLATE
+    while(interpqueue.empty() != true) {
+        point curr = interpqueue.front();
+        interpqueue.pop();
+        assert(origgrid->data[(int)curr.x][(int)curr.y]!=origgrid->NODATA_value);
+        
+        for (int k = curr.x-1; k <= curr.x+1; k++) {
+            for (int l = curr.y-1; l <= curr.y+1;l++) {
+                if (k == curr.x && l == curr.y ||!insideGrid(elevgrid, k,l)) {
+                    continue;
+                }
+            
+                point newPoint;
+                newPoint.x = k;
+                newPoint.y = l;
+                //if the point is not unseen, floooded, or land then just skip it
+                if(alreadySeen[k][l] != 'u' &&  alreadySeen[k][l] != 'l') {
+                    continue;
+                }
+                if (local_interp_bfegrid->data[k][l] == local_interp_bfegrid->NODATA_value) {
+                    local_interp_bfegrid->data[k][l] = local_interp_bfegrid->data[(int)curr.x][(int)curr.y];
+                }
+                assert(local_interp_bfegrid->data[k][l] != local_interp_bfegrid->NODATA_value);
+                interp_bfequeue.push(newPoint);
+                alreadySeen[k][l] = 'b'; // change the value so it has a bfe
+            }
+        }
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+}
 
 
 

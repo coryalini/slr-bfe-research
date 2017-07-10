@@ -21,5 +21,7 @@ void start_interp_bfe_withFlooded(Grid* elevgrid, Grid* local_interp_bfegrid);
 
 void compute_interp_bfe_withFlooded(Grid* elevgrid, Grid* local_interp_bfegrid, char** alreadySeen);
 
+void start_interpolation(Grid* origgrid, Grid* interpgrid);
+void compute_interpolation(Grid* origgrid, Grid* interpgrid, char** alreadySeen);
 
 #endif /* bfe_hpp */
