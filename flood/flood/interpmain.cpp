@@ -38,11 +38,11 @@
 #endif
 
 #define PRINT_HELP(arg) printf("    " arg " \n");
-int HAT = 0;
 /* global variables */
 const int WINDOWSIZE = 500;
 //const int POINT_SIZE  = 5.0f;
 int POINT_SIZE;
+int WRITE_TO_FILE = 0;
 
 double ELEV_CONVERTER = 3.28084;
 double BFE_CONVERTER = 1;
@@ -50,8 +50,8 @@ int interp_bfe_EXISTS = 1, DRAW = 0;
 const char *elevname, *writeGridname, *bfename;
 Grid elevgrid, bfegrid, interp_bfegrid, currgrid;
 
-enum {ELEV = 0, SEA = 1, INTERP_BFE= 2,COMBINE_INTERP=3};
-enum {COLOR = 0, BINARY_COLOR = 1,BLACK_COLOR = 2, COMBINE_COLOR = 3};
+enum {ELEV = 0, SEA = 1, COMBINE_INTERP=2};
+enum {COLOR = 0, BINARY_COLOR = 1, COMBINE_COLOR = 2};
 
 static float numCategories = 6.0;
 
@@ -92,7 +92,7 @@ void getOptExecution(int argc, char* const* argv);
 void testMandatoryFlags(int flag, char opt, char* argv);
 void tooManyFlagError(char flag, char opt);
 void helpFlag();
-void commandFlag();
+void printRenderCommands();
 
 void draw_grid(Grid* grid,int grid_type);
 void general_draw_point(point mypoint, Grid* grid,int grid_type, double minLand, double max);
@@ -112,6 +112,8 @@ void change_color_gray(double value, double base, double thisMin);
 void change_color_blue(double value, double base, double thisMin);
 
 int main(int argc, char * argv[]) {
+    printRenderCommands();
+
     if (argc != 1) {
         getOptExecution(argc, argv);
     } else {
@@ -145,7 +147,10 @@ int main(int argc, char * argv[]) {
     diff3 = clock() - start3;
     unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
     printf("interp_bfe took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
-    
+    if (WRITE_TO_FILE) {
+        printf("Writing to file %s\n", writeGridname);
+        gridtoFile(&interp_bfegrid, writeGridname);
+    }
     
     mallocGrid(elevgrid, &currgrid);
     setHeaders(elevgrid, &currgrid);
@@ -193,43 +198,38 @@ int main(int argc, char * argv[]) {
 void getOptExecution(int argc, char* const* argv) {
     
     int opt;
-    int cflag =0, eflag = 0, wflag = 0, iflag = 0;
+    int eflag = 0, oflag = 0, iflag = 0;
     
     extern char* optarg;
     extern int optopt;
-    while ((opt = getopt(argc, argv, "ce:i:b:w:" )) != -1) {
+    while ((opt = getopt(argc, argv, "e:i:o:" )) != -1) {
         switch (opt) {
-            case 'c':
-                commandFlag();
-                cflag+=1;
-                break;
             case 'e':
                 elevname = optarg;
                 eflag += 1;
                 break;
-            case 'w':
-                writeGridname = optarg;
-                wflag+=1;
-                break;
             case 'i':
-//              HAT = 1;
                 iflag+=1;
                 bfename = optarg;
                 break;
-            case 'b':
-                bfename = optarg;
-                iflag+=1;
+            case 'o':
+                writeGridname = optarg;
+                WRITE_TO_FILE = 1;
+                oflag+=1;
                 break;
+            default:
+                printf("Illegal option given\n");
+                exit(2);
+        
         }
     }
     testMandatoryFlags(eflag, 'e', argv[0]);
-    testMandatoryFlags(wflag, 'w', argv[0]);
     testMandatoryFlags(iflag, 'i', argv[0]);
     
-    tooManyFlagError(cflag, 'c');
     tooManyFlagError(eflag, 'e');
-    tooManyFlagError(wflag, 'w');
     tooManyFlagError(iflag, 'i');
+    tooManyFlagError(oflag, 'o');
+
 }
 void testMandatoryFlags(int flag, char opt, char* argv) {
     if (flag != 1) {	//flag was mandatory
@@ -248,13 +248,11 @@ void tooManyFlagError(char flag, char opt) {
 
 void helpFlag() {
     printf("The interpolation simulator takes the following command-line arguments: \n");
-    PRINT_HELP("-c <c>: Optional command flag that prints usage info for rendering")
     PRINT_HELP("-e <e>: Elevation grid flag")
-    PRINT_HELP("-i <i>: Interpolated elevation grid")
-    PRINT_HELP("-b <b>: BFE grid")
-    PRINT_HELP("-w <w>: Filename you wish to write your grid to")
+    PRINT_HELP("-i <i>: Grid that will be interpolated(input)")
+    PRINT_HELP("-o <o>: Filename you wish to write your grid to(output). If not given, the code will not write to output")
 }
-void commandFlag() {
+void printRenderCommands() {
     
     printf("The rendering map takes the following commands: \n");
     PRINT_HELP("q: quit")
@@ -276,10 +274,6 @@ void keypress(unsigned char key, int x, int y) {
             freeGridData(&interp_bfegrid);
             exit(0);
             break;
-        case 'w':
-            printf("Write to file\n");
-            gridtoFile(&currgrid, writeGridname);
-            break;
         case 'e':
             printf("Draw Elevgrid\n");
             DRAW = ELEV;
@@ -288,13 +282,9 @@ void keypress(unsigned char key, int x, int y) {
             printf("Draw the sea\n");
             DRAW = SEA;
             break;
-        case 'b':
+        case 'i':
             printf("Draw interpolated grid with original on top\n");
             DRAW = COMBINE_INTERP;
-            break;
-        case 'i':
-            printf("Draw interpolated grid\n");
-            DRAW = INTERP_BFE;
             break;
         default:
             break;
@@ -317,10 +307,7 @@ void display(void) {
             waterGrid(&elevgrid);
             coloring = BINARY_COLOR;
             break;
-        case INTERP_BFE:
-            setCurrGrid(&interp_bfegrid);
-            coloring = BLACK_COLOR;
-            break;
+
         case COMBINE_INTERP:
             combineBFEGrids(&bfegrid, &interp_bfegrid);
             coloring = COMBINE_COLOR;
@@ -483,15 +470,9 @@ void draw_point_combineBFE(double value,double minLand,double max) {
     }
     double base = (max-thisMin)/numCategories;
     if (value < -elevgrid.NODATA_value|| value == elevgrid.NODATA_value) {
-#ifdef HAT
-        glPointSize(5.0f);
-#endif
-
         change_color_gray(value, base, thisMin);
     } else {
-#ifdef HAT
-        glPointSize(7.0f);
-#endif
+
         value +=elevgrid.NODATA_value;
         change_color_blue(value, base, thisMin);
     }

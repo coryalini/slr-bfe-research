@@ -63,16 +63,8 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "dem_sp.asc bfe_sp.asc dem_spvis.asc"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "-e southport_dem_2cellsize.asc -i southport_floodzones_2cellsize.asc -w interp_floodzones.asc"
+            argument = "-e southport_dem_2cellsize.asc -i southport_floodzones_2cellsize.asc"
             isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "southport_dem_2cellsize.asc southport_hat_2cellsize.asc interp_floodzones.asc"
-            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>
