@@ -9,6 +9,13 @@
 #include "bfe.hpp"
 
 /* MARK: bfe */
+/*
+ This function is used to start the interp bfe WITHOUT going in both directions.
+ It is not used anymore but kept around for future reference.
+ 
+ It creates a grid alreadySeen which keeps track of which cells we have already visited.
+ */
+
 void start_interp_bfe(Grid* elevgrid,Grid* local_interp_bfegrid) {
     
     char** alreadySeen;
@@ -35,7 +42,12 @@ void start_interp_bfe(Grid* elevgrid,Grid* local_interp_bfegrid) {
     }
     free(alreadySeen);
 }
-
+/*
+ This function gets called by start_interp_bfe. It begins by going through the edge and finding all the points
+ that are sea and pushes it to the queue.Then it goes through and BFS to find all the values that have a bfe 
+ value and adds them to a different queue. After, the code goes through the bfe_queue and interpolates inwards.
+ 
+ */
 void compute_interp_bfe(Grid* elevgrid, Grid* local_interp_bfegrid, char** alreadySeen,std::queue<point>& queue) {
     //Iterate through left and right edges of the terrain
     for (int i = 0; i < elevgrid->nrows; i++) {
@@ -143,10 +155,12 @@ void compute_interp_bfe(Grid* elevgrid, Grid* local_interp_bfegrid, char** alrea
 
 
 
-
-
-
-
+/*
+ This function is used to start the interp bfe WITH going in both directions.
+ It is not used anymore but kept around for future reference.
+ 
+ It creates a grid alreadySeen which keeps track of which cells we have already visited.
+ */
 
 /* MARK: bfe */
 void start_interp_bfe_withFlooded(Grid* elevgrid, Grid* local_interp_bfegrid) {
@@ -169,6 +183,12 @@ void start_interp_bfe_withFlooded(Grid* elevgrid, Grid* local_interp_bfegrid) {
     compute_interp_bfe_withFlooded(elevgrid,local_interp_bfegrid,alreadySeen,queue);
 }
 
+/*
+ This function gets called by start_interp_bfe. It begins by going through the edge and finding all the points
+ that are sea and pushes it to the queue.Then it goes through and BFS to find all the values that have a bfe
+ value and adds them to a different queue. After, the code goes through the bfe_queue and interpolates inwards AND outwards.
+ 
+ */
 void compute_interp_bfe_withFlooded(Grid* elevgrid, Grid* local_interp_bfegrid, char** alreadySeen,std::queue<point>& queue) {
     
     //Iterate through left and right edges of the terrain

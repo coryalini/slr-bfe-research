@@ -20,6 +20,12 @@
 const int NEW_WATER = -8000;
 const int HAVENT_VISITED = -7000;
 
+
+/*
+ This function takes the elevgrid and goes through the perimeter and finds
+ which points are considered sea. Then it puts them on a queue and returns the queue
+ 
+ */
 std::queue<point> findSeaPoint(Grid* elevgrid) {
     std::queue<point> queue;
     for (int i = 0; i < elevgrid->nrows; i++) {
@@ -55,6 +61,11 @@ std::queue<point> findSeaPoint(Grid* elevgrid) {
     
     return queue;
 }
+
+/*
+ The function goes through the grid and if the value was not visited via 
+ BFS it sets it to the adjusted value
+ */
 void setNotVisited(Grid* elevgrid, Grid* floodedgrid, float rise) {
     for (int i = 0; i < elevgrid->nrows; i++) {
         for (int j = 0; j < elevgrid->ncols; j++) {
@@ -64,6 +75,10 @@ void setNotVisited(Grid* elevgrid, Grid* floodedgrid, float rise) {
         }
     }
 }
+/*
+ The function goes through the grid and if the value was not visited via
+ BFS it sets it to the adjusted value
+ */
 void setinterp_bfeNotVisited(Grid* elevgrid, Grid* interp_bfegrid,Grid* floodedgrid, float rise) {
     for (int i = 0; i < floodedgrid->nrows; i++) {
         for (int j = 0; j < floodedgrid->ncols; j++) {
@@ -87,13 +102,19 @@ void setinterp_bfeNotVisited(Grid* elevgrid, Grid* interp_bfegrid,Grid* floodedg
 
 
 /* MARK: Extra stuff */
-
+/*
+ Finds if the point is in or outside of the grid. Returns 0 if outside the grid.
+ */
 int insideGrid(Grid* grid, int i, int j) {
     if (i < 0 || i >= grid->nrows || j < 0 || j >= grid->ncols) {
         return 0;
     }
     return 1;
 }
+
+/*
+ Finds the max point of a given grid
+ */
 double findMax(Grid* grid) {
     double max = 0;
     for (int i = 0; i < grid->nrows; i++) {
@@ -107,8 +128,9 @@ double findMax(Grid* grid) {
  
 }
 
-
-
+/*
+ Finds the minimum point of a given grid. Excludes NEW_WATER and NODATA_values
+ */
 double findMinLand(Grid* grid) {
     double minLand = std::numeric_limits<double>::max();
     for (int i = 0; i < grid->nrows; i++) {
@@ -159,7 +181,10 @@ void copyGrid(Grid* originalGrid, Grid* copyGrid) {
     }
 }
 
-
+/*
+ This function reads the file, reads the headers
+ then mallocs a new grid and puts the values in it. 
+ */
 void readGridfromFile(const char* gridfname, Grid* g, double converter) {
     FILE* f;
     
@@ -208,6 +233,10 @@ void readGridfromFile(const char* gridfname, Grid* g, double converter) {
     }
     fclose(f);
 }
+
+/*
+ The function writes the grid to a file.
+ */
 
 void gridtoFile(Grid* g, const char* fileName) {
     FILE* file;

@@ -13,6 +13,10 @@
 #include <assert.h>
 
 //SLR
+/*
+ This function is used to start the slr function. It also sets the floodgrid to havent visited
+ */
+
 void start_slr(Grid* elevgrid, Grid* floodgrid, float rise) {
     for (int i = 0; i < elevgrid->nrows; i++) {
         for (int j = 0; j < elevgrid->ncols; j++) {
@@ -26,6 +30,12 @@ void start_slr(Grid* elevgrid, Grid* floodgrid, float rise) {
     setNotVisited(elevgrid, floodgrid, rise);
     
 }
+/*
+ This function is called by start slr. It goes through each neighbor of whatever point is popped 
+ by the queue. Then is the point hadnt been visited, then the function checks if the point is 
+ no data value or new water then it just adds it to the queue and sets the floodgrid. Otherwise
+ if the point is less than the rise, it sets it to new_water and pushes it to the queue.
+ */
 
 
 void compute_slr(Grid* elevgrid, Grid* floodgrid,float rise, std::queue<point>& queue) {
@@ -65,6 +75,9 @@ void compute_slr(Grid* elevgrid, Grid* floodgrid,float rise, std::queue<point>& 
 
 
 /* MARK: SLR+interp_bfe */
+/*
+ This function is used to start the slr and bfe function. It also sets the floodgrid to havent visited.
+ */
 void start_slr_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid,Grid* floodgrid, float rise) {
 
     for (int i = 0; i < elevgrid->nrows; i++) {
@@ -77,6 +90,12 @@ void start_slr_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid,Grid* floodgrid, 
     compute_slr_interp_bfe(elevgrid, interp_bfegrid, floodgrid,rise, queue);
     setinterp_bfeNotVisited(elevgrid,interp_bfegrid, floodgrid, rise);
 }
+/*
+ This function is called by start slr_bfe. It goes through each neighbor of whatever point is popped
+ by the queue. Then is the point hadnt been visited, then the function checks if the point is
+ no data value or new water then it just adds it to the queue and sets the floodgrid. Otherwise
+ if the point is less than the rise with the bfe grid, it sets it to new_water and pushes it to the queue.
+ */
 
 void compute_slr_interp_bfe(Grid* elevgrid, Grid* interp_bfegrid, Grid* floodgrid,float rise, std::queue<point>& queue) {
     while(queue.empty() != true) {

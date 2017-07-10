@@ -302,6 +302,7 @@ void keypress(unsigned char key, int x, int y) {
     }
     glutPostRedisplay();
 }
+//This function is used to determine which grid to display
 void display(void) {
     glClear(GL_COLOR_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
@@ -344,7 +345,9 @@ void reshape(GLsizei width, GLsizei height) {  // GLsizei for non-negative integ
     gluOrtho2D(0.0, (GLdouble) width, 0.0, (GLdouble) height);
 }
 
-
+/*
+ This function is used to draw a general grid. No particular grid needed
+ */
 void draw_grid(Grid* grid, int grid_type) {
     
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -367,7 +370,7 @@ void draw_grid(Grid* grid, int grid_type) {
     }
 }
 
-
+//Draws points depending on the color
 void general_draw_point(point mypoint, Grid* grid,int grid_type,    double minLand, double max) {
     double value = grid->data[(int)mypoint.x][(int)mypoint.y];
     if (grid_type == COLOR) {
@@ -397,6 +400,9 @@ void general_draw_point(point mypoint, Grid* grid,int grid_type,    double minLa
     glVertex2f(x, y);
     glEnd();
 }
+/*
+ This combination just sets the no data value to 0 and all other values to 1
+ */
 
 void waterGrid(Grid* grid) {
     for (int i = 0; i < elevgrid.nrows; i++) {
@@ -410,7 +416,6 @@ void waterGrid(Grid* grid) {
     }
 }
 /*
- When called,ex: grid1 is slr or slr+bfe and grid2 is elev.
  
  This function sets the global variable, currGrid.
  If there is a bfe available, the code utilizes the bfe data given to find what values will be flooded.
@@ -424,6 +429,11 @@ void setCurrGrid(Grid* grid){
         }
     }
 }
+/*
+ This function combines the bfe grid with the interpolation grid. 
+ The -elevgrid.NODATA_value aspect is used to create two set of distinct numbers.
+ This is used for rendering purposes (so we can tell the difference between the two grids)
+ */
 void combineBFEGrids(Grid* bfe, Grid* interp) {
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
@@ -460,13 +470,18 @@ void draw_point_black(double value,double minLand, double max) {
     change_color_gray(value, base, minLand);
     
 }
+/*
+ This particular draw_point is used to render the bfe
+ with interp grid. The numbers are adjusted so that the value 
+ gets corrected
+ */
+
 void draw_point_combineBFE(double value,double minLand,double max) {
     double thisMin = minLand;
     if (minLand < 0) {
         thisMin = 0;
     }
     double base = (max-thisMin)/numCategories;
-//    printf("min: %lf, max: %lf, base:%lf\n",minLand,max,base);
     if (value < -elevgrid.NODATA_value|| value == elevgrid.NODATA_value) {
 #ifdef HAT
         glPointSize(5.0f);

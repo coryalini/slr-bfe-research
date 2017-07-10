@@ -217,6 +217,8 @@ void keypress(unsigned char key, int x, int y) {
     }
     glutPostRedisplay();
 }
+//This function is used to determine which grid to display
+
 void display(void) {
     glClear(GL_COLOR_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
@@ -248,7 +250,9 @@ void reshape(GLsizei width, GLsizei height) {  // GLsizei for non-negative integ
     gluOrtho2D(0.0, (GLdouble) width, 0.0, (GLdouble) height);
 }
 
-
+/*
+ This function is used to draw a general grid. No particular grid needed
+ */
 void draw_grid(Grid* grid, int grid_type,float rise) {
     
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -267,7 +271,7 @@ void draw_grid(Grid* grid, int grid_type,float rise) {
     }
 }
 
-
+//Draws points depending on the color
 void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, double minLand, double max) {
     double value = grid->data[(int)mypoint.x][(int)mypoint.y];
     draw_point_combineBFE(value,minLand, max);
@@ -292,7 +296,6 @@ void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, dou
     glEnd();
 }
 /*
- When called,ex: grid1 is slr or slr+bfe and grid2 is elev.
  
  This function sets the global variable, currGrid.
  If there is a bfe available, the code utilizes the bfe data given to find what values will be flooded.
@@ -306,6 +309,14 @@ void setCurrGrid(Grid* grid){
         }
     }
 }
+/*
+ When called,ex: grid1 is slr or slr+bfe and grid2 is elev.
+ 
+ This function sets the global variable, currGrid.
+ If there is a bfe available, the code utilizes the given rise to find what values will be flooded.
+ 
+ */
+
 
 void combineGrids() {
     for (int i = 0; i < elevgrid.nrows; i++) {
