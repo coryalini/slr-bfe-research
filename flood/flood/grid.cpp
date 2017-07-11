@@ -26,20 +26,20 @@ const int HAVENT_VISITED = -7000;
  which points are considered sea. Then it puts them on a queue and returns the queue
  
  */
-std::queue<point> findSeaPoint(Grid* elevgrid) {
-    std::queue<point> queue;
+void findSeaPoint(Grid* elevgrid,std::queue<point>* queue) {
     for (int i = 0; i < elevgrid->nrows; i++) {
         point newPoint;
         if (elevgrid->data[i][0] == elevgrid->NODATA_value) {
             newPoint.x = i;
             newPoint.y = 0;
-            queue.push(newPoint);
+            queue->push(newPoint);
         }
         if (elevgrid->data[i][elevgrid->ncols-1] == elevgrid->NODATA_value) {
             newPoint.x = i;
             newPoint.y = elevgrid->ncols-1;
-            queue.push(newPoint);
+            queue->push(newPoint);
         }
+        
     }
     
     for (int j = 0; j < elevgrid->ncols; j++) {
@@ -47,19 +47,16 @@ std::queue<point> findSeaPoint(Grid* elevgrid) {
         if (elevgrid->data[0][j] == elevgrid->NODATA_value) {
             newPoint.x = 0;
             newPoint.y = j;
-            queue.push(newPoint);
+            queue->push(newPoint);
             
         }
         if (elevgrid->data[elevgrid->nrows-1][j] == elevgrid->NODATA_value) {
             newPoint.x = elevgrid->nrows-1;
             newPoint.y = j;
-            queue.push(newPoint);
+            queue->push(newPoint);
         }
 
     }
-
-    
-    return queue;
 }
 
 /*

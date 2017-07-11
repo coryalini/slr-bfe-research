@@ -138,7 +138,7 @@ int main(int argc, char * argv[]) {
     readGridfromFile(origname, &origgrid,ORIG_CONVERTER);
     diff2 = clock() - start2;
     unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
-    printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
+    printf("Reading original grid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
     if (origgrid.ncols != elevgrid.ncols || origgrid.nrows !=elevgrid.nrows) {
         printf("ERROR:The %s [%ld,%ld] and elevgrid [%ld,%ld] do not have the same grid dimensions!\n",origname, origgrid.nrows,origgrid.ncols,elevgrid.nrows, elevgrid.ncols);
         exit(0);
@@ -149,13 +149,13 @@ int main(int argc, char * argv[]) {
     copyGrid(&origgrid, &interpgrid);
     
     clock_t start3 = clock(), diff3;
-    printf("start interp_bfe\n");
+    printf("start interpolation\n");
 //    start_interp_bfe_withFlooded(&elevgrid,&interpgrid);
     start_interpolation(&origgrid, &interpgrid);
 
     diff3 = clock() - start3;
     unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
-    printf("interp_bfe took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
+    printf("interpolation took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
     if (WRITE_TO_FILE) {
         printf("Writing to file %s\n", writeGridname);
         gridtoFile(&interpgrid, writeGridname);
@@ -240,7 +240,7 @@ void getOptExecution(int argc, char* const* argv) {
 void testMandatoryFlags(int flag, char opt, char* argv) {
     if (flag != 1) {	//flag was mandatory
         fprintf(stderr, "%s: missing -%c option\n", argv, opt);
-        fprintf(stderr, "usage: %s [-c] -e elevname -b bfename -w file_to_write\n", argv);
+        fprintf(stderr, "usage: %s [-c] -e elevname -b orignalname -w file_to_write\n", argv);
         exit(1);
     }
 }

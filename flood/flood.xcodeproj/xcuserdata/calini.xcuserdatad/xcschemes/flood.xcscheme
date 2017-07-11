@@ -63,31 +63,11 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "dem_sp.asc dem_spvis.asc 1 interp_bfe.asc"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "southport_dem_2cellsize.asc vis2.asc 2 interp_floodzones.asc"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "-e southport_dem_2cellsize.asc -i interp_floodzones.asc -w vis2.asc  -r 2 "
+            argument = "-e southport_dem_2cellsize.asc -i full_fz.asc -r 2 -o vis2.asc  "
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "southport_dem_2cellsize.asc vis.asc 2 southport_floodzones_2cellsize.asc"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "dem_sp.asc dem_spvis.asc 1.92 "
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "noaa_coast_southport_10m.asc vis.asc 3.2"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "easy.asc easyvis.asc 0"
+            argument = "-e southport_dem_2cellsize.asc  -r 2 -o vis2.asc"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

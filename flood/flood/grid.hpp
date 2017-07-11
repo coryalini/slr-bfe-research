@@ -35,7 +35,7 @@ extern const int NEW_WATER;
 extern const int HAVENT_VISITED;
 
 
-std::queue<point> findSeaPoint(Grid* elevgrid);
+void findSeaPoint(Grid* elevgrid,std::queue<point>*);
 
 void setinterp_bfeNotVisited(Grid* elevgrid, Grid* interp_bfegrid,Grid* floodedgrid, float rise);
 void setNotVisited(Grid* elevgrid, Grid* floodedgrid, float rise);

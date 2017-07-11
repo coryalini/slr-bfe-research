@@ -53,11 +53,10 @@
 const int WINDOWSIZE = 500;
 const int POINT_SIZE  = 5.0f;
 double ELEV_CONVERTER = 3.28084;
-//double ELEV_CONVERTER = 1;
 double BFE_CONVERTER = 1;
 
 
-int interp_bfe_EXISTS = 1, DRAW = 0;
+int interp_bfe_EXISTS = 0, DRAW = 0;
 const char *elevname, *writeGridname, *bfename;
 
 enum {ELEV = 0, FLOODED = 1,FLOODED_GRAY= 2,FLOODED_ELEV=3,SEA= 4,WATER_FLOODED_ELEV=5,INTERP_BFE=6 };
@@ -108,7 +107,7 @@ void getOptExecution(int argc, char* const* argv);
 void testMandatoryFlags(int flag, char opt, char* argv);
 void tooManyFlagError(char flag, char opt);
 void helpFlag();
-void commandFlag();
+void printRenderCommands();
 
 void draw_grid(Grid* grid,int grid_type,float rise);
 void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, double minLand, double max);
@@ -135,9 +134,11 @@ GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double valu
 
 int main(int argc, char * argv[]) {
     if (argc != 1) {
+        printRenderCommands();
         getOptExecution(argc, argv);
     } else {
         helpFlag();
+        printRenderCommands();
         exit(0);
     }
     printf("%s\n",elevname);
@@ -240,23 +241,19 @@ void calculateGrids(Grid* elevgrid) {
 void getOptExecution(int argc, char* const* argv) {
 
     int opt;
-    int cflag =0, eflag = 0, wflag = 0, iflag = 0, rflag = 0;
+    int eflag = 0, oflag = 0, iflag = 0, rflag = 0;
     
     extern char* optarg;
     extern int optopt;
-    while ((opt = getopt(argc, argv, "ce:i:w:r:" )) != -1) {
+    while ((opt = getopt(argc, argv, "e:i:r:o:" )) != -1) {
         switch (opt) {
-            case 'c':
-                commandFlag();
-                cflag+=1;
-                break;
             case 'e':
                 elevname = optarg;
                 eflag += 1;
                 break;
-            case 'w':
+            case 'o':
                 writeGridname = optarg;
-                wflag+=1;
+                oflag+=1;
                 break;
             case 'i':
                 bfename = optarg;
@@ -267,22 +264,27 @@ void getOptExecution(int argc, char* const* argv) {
                 rise = atof(optarg);
                 rflag+=1;
                 break;
+            default:
+                printf("Illegal option given\n");
+                exit(2);
+                
+
+                
         }
     }
     testMandatoryFlags(eflag, 'e', argv[0]);
-    testMandatoryFlags(wflag, 'w', argv[0]);
+    testMandatoryFlags(oflag, 'o', argv[0]);
     testMandatoryFlags(rflag, 'r', argv[0]);
     
-    tooManyFlagError(cflag, 'c');
     tooManyFlagError(eflag, 'e');
-    tooManyFlagError(wflag, 'w');
+    tooManyFlagError(oflag, 'o');
     tooManyFlagError(iflag, 'i');
     tooManyFlagError(rflag, 'r');
 }
 void testMandatoryFlags(int flag, char opt, char* argv) {
     if (flag != 1) {	//flag was mandatory
         fprintf(stderr, "%s: missing -%c option\n", argv, opt);
-        fprintf(stderr, "usage: %s [-c] -e elevname [-i interpname] -w file_to_write -r rise \n", argv);
+        fprintf(stderr, "usage: %s -e elevname [-i interpname] -r rise -o file_to_write \n", argv);
         exit(1);
     }
 }
@@ -296,13 +298,12 @@ void tooManyFlagError(char flag, char opt) {
 
 void helpFlag() {
     printf("The flooding simulator takes the following command-line arguments: \n");
-    PRINT_HELP("-c: Optional command flag that prints usage info for rendering")
     PRINT_HELP("-e <e>: Elevation grid flag")
-    PRINT_HELP("-i <i>: Interpolated elevation grid")
-    PRINT_HELP("-w <w>: Filename you wish to write your grid to")
+    PRINT_HELP("-i <i>: Tidal grid")
     PRINT_HELP("-r <r>: The desired rise amount")
+    PRINT_HELP("-o <o>: Filename you wish to write your grid to")
 }
-void commandFlag() {
+void printRenderCommands() {
     
     printf("The rendering map takes the following commands: \n");
     PRINT_HELP("q: quit")
@@ -597,7 +598,12 @@ void combineGrids_nobfe(Grid* grid1, Grid* grid2, float rise) {
                 currgrid.data[i][j] = elevgrid.NODATA_value;
                 
             } else {
-                currgrid.data[i][j] = grid2->data[i][j]-rise;
+                if (grid2->data[i][j]-rise <= 0) {
+                    currgrid.data[i][j] = grid2->data[i][j]-rise;
+                } else {
+                    currgrid.data[i][j] = elevgrid.NODATA_value;
+
+                }
             }
         }
     }
@@ -622,9 +628,19 @@ void combineGrids_bfe(Grid* grid1, Grid* grid2, float rise) {
                  bfe value is zero (ie just use the rise).*/
                 
                 if (interp_bfegrid.data[i][j] == elevgrid.NODATA_value) {
-                    currgrid.data[i][j] = grid2->data[i][j]- rise;
+                    if (grid2->data[i][j]-rise <= 0) {
+                        currgrid.data[i][j] = grid2->data[i][j]-rise;
+                    } else {
+                        currgrid.data[i][j] = elevgrid.NODATA_value;
+                        
+                    }
                 }else {
-                    currgrid.data[i][j] = grid2->data[i][j] - (interp_bfegrid.data[i][j] + rise);
+                    if (grid2->data[i][j] - (interp_bfegrid.data[i][j] + rise) <= 0) {
+                        currgrid.data[i][j] = grid2->data[i][j] - (interp_bfegrid.data[i][j] + rise);
+                    } else {
+                        currgrid.data[i][j] = elevgrid.NODATA_value;
+                        
+                    }
                 }
             }
         }
