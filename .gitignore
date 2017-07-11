@@ -1,0 +1,4 @@
+*.o
+interp
+modelflood
+renderflood
