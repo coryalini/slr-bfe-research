@@ -45,14 +45,6 @@ renderflood: renderFlood.o grid.o
 renderFlood.o:	renderFlood.cpp grid.hpp
 	$(CC) -c $(INCLUDEPATH) $(CFLAGS) renderFlood.cpp  -o $@
 
-
-renderflood: renderflood.o grid.o 
-	$(CC) -o $@ renderflood.o grid.o $(LDFLAGS)
-
-
-renderflood.o: renderFlood.cpp grid.hpp 
-	$(CC) -c $(INCLUDEPATH) $(CFLAGS) renderFlood.cpp  -o $@
-
 floodmain.o: floodmain.cpp grid.hpp flood.hpp  
 	$(CC) -c $(INCLUDEPATH) $(CFLAGS) floodmain.cpp  -o $@
 
