@@ -38,6 +38,13 @@ interp: interpmain.o interpolate.o grid.o
 modelflood: floodmain.o flood.o grid.o 
 	$(CC) -o $@ floodmain.o grid.o flood.o $(LDFLAGS)
 
+renderflood: renderFlood.o grid.o
+	$(CC) -o $@ renderFlood.o grid.o $(LDFLAGS)
+
+#########
+renderFlood.o:	renderFlood.cpp grid.hpp
+	$(CC) -c $(INCLUDEPATH) $(CFLAGS) renderFlood.cpp  -o $@
+
 
 renderflood: renderflood.o grid.o 
 	$(CC) -o $@ renderflood.o grid.o $(LDFLAGS)
