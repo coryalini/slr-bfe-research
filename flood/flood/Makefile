@@ -28,7 +28,7 @@ endif
 CC = g++ -O3 -Wall $(INCLUDEPATH)
 
 
-PROGS = interp modelflood ##renderflood
+PROGS = interp modelflood renderflood
 
 default: $(PROGS)
 
@@ -38,6 +38,13 @@ interp: interpmain.o interpolate.o grid.o
 modelflood: floodmain.o flood.o grid.o 
 	$(CC) -o $@ floodmain.o grid.o flood.o $(LDFLAGS)
 
+
+renderflood: renderflood.o grid.o 
+	$(CC) -o $@ renderflood.o grid.o $(LDFLAGS)
+
+
+renderflood.o: renderFlood.cpp grid.hpp 
+	$(CC) -c $(INCLUDEPATH) $(CFLAGS) renderFlood.cpp  -o $@
 
 floodmain.o: floodmain.cpp grid.hpp flood.hpp  
 	$(CC) -c $(INCLUDEPATH) $(CFLAGS) floodmain.cpp  -o $@

@@ -88,13 +88,18 @@ GLfloat gray4[3] = {0.349, 0.349, 0.349};
 GLfloat gray5[3] = {0.196, 0.196, 0.196};
 GLfloat gray6[3] = {0.118, 0.118, 0.118};
 
-GLfloat blue1[3] = {0.568,0.776,0.792};
-GLfloat blue2[3] = {0.572,0.784,0.8};
-GLfloat blue3[3] = {0.529,0.737,0.756};
-GLfloat blue4[3] = {0.455,0.655,0.690};
-GLfloat blue5[3] = {0.380,0.568,0.619};
-GLfloat blue6[3] = {0.305,0.486,0.553};
-
+//GLfloat blue1[3] = {0.568,0.776,0.792};
+//GLfloat blue2[3] = {0.572,0.784,0.8};
+//GLfloat blue3[3] = {0.529,0.737,0.756};
+//GLfloat blue4[3] = {0.455,0.655,0.690};
+//GLfloat blue5[3] = {0.380,0.568,0.619};
+//GLfloat blue6[3] = {0.305,0.486,0.553};
+GLfloat blue1[3] = {0, 0,1.0};
+GLfloat blue2[3] = {0, 0,0.9};
+GLfloat blue3[3] = {0, 0,0.8};
+GLfloat blue4[3] = {0, 0,0.7};
+GLfloat blue5[3] = {0, 0,0.6};
+GLfloat blue6[3] = {0, 0, 0.5};
 
 
 /* forward declarations of functions */
@@ -163,18 +168,6 @@ int main(int argc, char * argv[]) {
         printf("Reading interp_bfegrid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);
     }
     
-    
-//   HACK FOR DATA WITH NEGATIVE VALUES
-    start_slr(&elevgrid,&floodedgrid, 0);
-    for (int i = 0; i < elevgrid.nrows; i++) {
-        for(int j = 0; j < elevgrid.ncols; j++){
-            if (floodedgrid.data[i][j] == NEW_WATER) {
-                elevgrid.data[i][j] = elevgrid.NODATA_value;
-            } else {
-                elevgrid.data[i][j] = floodedgrid.data[i][j];
-            }
-        }
-    }
     
     calculateGrids(&elevgrid);
     mallocGrid(elevgrid, &currgrid);
@@ -584,7 +577,7 @@ void setCurrGrid(Grid* grid){
     }
 }
 /*
- When called,ex: grid1 is slr or slr+bfe and grid2 is elev.
+ When called,ex: grid1 is flooded and grid2 is elev.
  
  This function sets the global variable, currGrid.
  If there is a bfe available, the code utilizes the given rise to find what values will be flooded.
@@ -598,7 +591,7 @@ void combineGrids_nobfe(Grid* grid1, Grid* grid2, float rise) {
                 currgrid.data[i][j] = elevgrid.NODATA_value;
                 
             } else {
-                if (grid2->data[i][j]-rise <= 0) {
+                if (grid1->data[i][j]== NEW_WATER) {
                     currgrid.data[i][j] = grid2->data[i][j]-rise;
                 } else {
                     currgrid.data[i][j] = elevgrid.NODATA_value;
@@ -609,6 +602,8 @@ void combineGrids_nobfe(Grid* grid1, Grid* grid2, float rise) {
     }
 }
 /*
+ When called,ex: grid1 is flooded and grid2 is elev.
+
  This function sets the global variable, currGrid.
  If there is a bfe available, the code utilizes the bfe data given to find what values will be flooded.
  Even if the bfe is given, some values in the bfe grid are NODATA_values, thus
@@ -628,14 +623,14 @@ void combineGrids_bfe(Grid* grid1, Grid* grid2, float rise) {
                  bfe value is zero (ie just use the rise).*/
                 
                 if (interp_bfegrid.data[i][j] == elevgrid.NODATA_value) {
-                    if (grid2->data[i][j]-rise <= 0) {
+                    if (grid1->data[i][j]== NEW_WATER) {
                         currgrid.data[i][j] = grid2->data[i][j]-rise;
                     } else {
                         currgrid.data[i][j] = elevgrid.NODATA_value;
-                        
                     }
+
                 }else {
-                    if (grid2->data[i][j] - (interp_bfegrid.data[i][j] + rise) <= 0) {
+                    if (grid1->data[i][j]== NEW_WATER) {
                         currgrid.data[i][j] = grid2->data[i][j] - (interp_bfegrid.data[i][j] + rise);
                     } else {
                         currgrid.data[i][j] = elevgrid.NODATA_value;

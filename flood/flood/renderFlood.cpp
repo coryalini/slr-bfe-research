@@ -40,6 +40,7 @@
 #include <GL/glut.h>
 #endif
 
+#define PRINT_HELP(arg) printf("    " arg " \n");
 
 /* global variables */
 const int WINDOWSIZE = 500;
@@ -86,12 +87,18 @@ GLfloat gray4[3] = {0.349, 0.349, 0.349};
 GLfloat gray5[3] = {0.196, 0.196, 0.196};
 GLfloat gray6[3] = {0.118, 0.118, 0.118};
 
-GLfloat blue1[3] = {0.568,0.776,0.792};
-GLfloat blue2[3] = {0.572,0.784,0.8};
-GLfloat blue3[3] = {0.529,0.737,0.756};
-GLfloat blue4[3] = {0.455,0.655,0.690};
-GLfloat blue5[3] = {0.380,0.568,0.619};
-GLfloat blue6[3] = {0.305,0.486,0.553};
+//GLfloat blue1[3] = {0.568,0.776,0.792};
+//GLfloat blue2[3] = {0.572,0.784,0.8};
+//GLfloat blue3[3] = {0.529,0.737,0.756};
+//GLfloat blue4[3] = {0.455,0.655,0.690};
+//GLfloat blue5[3] = {0.380,0.568,0.619};
+//GLfloat blue6[3] = {0.305,0.486,0.553};
+GLfloat blue1[3] = {0, 0,1.0};
+GLfloat blue2[3] = {0, 0,0.9};
+GLfloat blue3[3] = {0, 0,0.8};
+GLfloat blue4[3] = {0, 0,0.7};
+GLfloat blue5[3] = {0, 0,0.6};
+GLfloat blue6[3] = {0, 0, 0.5};
 
 /* forward declarations of functions */
 void keypress(unsigned char key, int x, int y);
@@ -100,6 +107,13 @@ void display(void);
 
 void draw_grid(Grid* grid,int grid_type,float rise);
 void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, double minLand, double max);
+
+void getOptExecution(int argc, char* const* argv);
+void testMandatoryFlags(int flag, char opt, char* argv);
+void tooManyFlagError(char flag, char opt);
+void helpFlag();
+void printRenderCommands();
+
 
 void setCurrGrid(Grid* grid);
 void combineGrids();
@@ -115,15 +129,15 @@ void change_color_blue(double value, double base, double thisMin);
 
 int main(int argc, char * argv[]) {
     
-    if (argc != 5) {
-        printf("ERROR: Arguments were not included. %d \n", argc);
-        return 1;
+    if (argc != 1) {
+        printRenderCommands();
+        getOptExecution(argc, argv);
+    } else {
+        helpFlag();
+        printRenderCommands();
+        exit(0);
     }
     
-    elevname = argv[1];
-    bfename = argv[2];
-    floodedname = argv[3];
-    writeGridname = argv[4];
     
     clock_t start = clock(), diff;
     readGridfromFile(elevname, &elevgrid,ELEV_CONVERTER);
@@ -192,6 +206,86 @@ int main(int argc, char * argv[]) {
     
     return 0;
 }
+/*
+ * This function uses getOpt to read the terminal prompt and do the
+ * desired action depending on what it was given.
+ * It uses a switch statement to figure out which flag
+ * was used.
+ */
+void getOptExecution(int argc, char* const* argv) {
+    
+    int opt;
+    int eflag = 0, oflag = 0, iflag = 0, fflag = 0;
+    
+    extern char* optarg;
+    extern int optopt;
+
+    while ((opt = getopt(argc, argv, "e:f:i:o:" )) != -1) {
+        switch (opt) {
+            case 'e':
+                elevname = optarg;
+                eflag += 1;
+                break;
+            case 'f':
+                floodedname = optarg;
+                fflag+=1;
+                break;
+            case 'i':
+                bfename = optarg;
+                iflag+=1;
+                break;
+            
+            case 'o':
+                writeGridname = optarg;
+                oflag+=1;
+                break;
+            default:
+                printf("Illegal option given\n");
+                exit(2);
+                
+        }
+    }
+    testMandatoryFlags(eflag, 'e', argv[0]);
+    testMandatoryFlags(iflag, 'i', argv[0]);
+    testMandatoryFlags(fflag, 'f', argv[0]);
+    
+    tooManyFlagError(eflag, 'e');
+    tooManyFlagError(oflag, 'o');
+    tooManyFlagError(iflag, 'i');
+    tooManyFlagError(fflag, 'f');
+}
+void testMandatoryFlags(int flag, char opt, char* argv) {
+    if (flag != 1) {	//flag was mandatory
+        fprintf(stderr, "%s: missing -%c option\n", argv, opt);
+        fprintf(stderr, "usage: %s -e elevname [-i interpname] -r rise -o file_to_write \n", argv);
+        exit(1);
+    }
+}
+
+void tooManyFlagError(char flag, char opt) {
+    if (flag > 1) { //flag declared too often
+        printf("Error:  -%c is set multiple times\n", opt);
+        exit(1);
+    }
+}
+
+void helpFlag() {
+    printf("The flooding simulator takes the following command-line arguments: \n");
+    PRINT_HELP("-e <e>: Elevation grid flag")
+    PRINT_HELP("-i <i>: Tidal grid")
+    PRINT_HELP("-f <f>: The flooded grid")
+    PRINT_HELP("-o <o>: Filename you wish to write your grid to")
+}
+void printRenderCommands() {
+    
+    printf("The rendering map takes the following commands: \n");
+    PRINT_HELP("q: quit")
+    PRINT_HELP("w: write to files")
+    
+    PRINT_HELP("e: Draw Elevgrid with the bfe grid with flooded")
+    
+}
+
 
 /* ***************************** */
 void keypress(unsigned char key, int x, int y) {
@@ -322,7 +416,7 @@ void combineGrids() {
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
             if (bfegrid.data[i][j] != elevgrid.NODATA_value) {
-                currgrid.data[i][j] = bfegrid.data[i][j]+ 1000;//just a very unlikely value kinda hacky
+                currgrid.data[i][j] = bfegrid.data[i][j]+ 1000;//just a very unlikely value
             } else if (floodedgrid.data[i][j] == NEW_WATER) {
                 currgrid.data[i][j] = floodedgrid.data[i][j];//just a very unlikely value
             } else {
