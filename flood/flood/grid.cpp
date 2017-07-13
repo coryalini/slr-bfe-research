@@ -15,7 +15,7 @@
 #include <math.h>
 #include <time.h>
 
-//#define VUL_MARGIN 0.1
+#define VUL_MARGIN 0.1
 
 
 const int NEW_WATER = -8000;
@@ -70,10 +70,10 @@ void setNotVisited(Grid* elevgrid, Grid* floodedgrid, float rise) {
             if (floodedgrid->data[i][j] == HAVENT_VISITED) {
                 floodedgrid->data[i][j] = elevgrid->data[i][j] - rise;
             }
-//            if (floodedgrid->data[i][j] <= rise + VUL_MARGIN && floodedgrid->data[i][j] >= rise - VUL_MARGIN) {
-//                floodedgrid->data[i][j] = 0;
-//            }
-             
+            if (floodedgrid->data[i][j] <= rise + VUL_MARGIN && floodedgrid->data[i][j] >= rise - VUL_MARGIN) {
+                floodedgrid->data[i][j] = 0;
+            }
+            
         }
     }
 }
@@ -97,15 +97,15 @@ void setinterp_bfeNotVisited(Grid* elevgrid, Grid* interp_bfegrid,Grid* floodedg
                 }
             }
             
-//            if (interp_bfegrid->data[i][j] != interp_bfegrid->NODATA_value) {
-//                if(elevgrid->data[i][j]<=(rise+ interp_bfegrid->data[i][j]) + VUL_MARGIN && elevgrid->data[i][j] >= (rise+ interp_bfegrid->data[i][j]) - VUL_MARGIN) {
-//                    floodedgrid->data[i][j] = 0;
-//                }
-//            } else {
-//                if(elevgrid->data[i][j]<=rise + VUL_MARGIN && elevgrid->data[i][j] >= rise - VUL_MARGIN) {
-//                    floodedgrid->data[i][j] = 0;
-//                }
-//            }
+            if (interp_bfegrid->data[i][j] != interp_bfegrid->NODATA_value) {
+                if(elevgrid->data[i][j]<=(rise+ interp_bfegrid->data[i][j]) + VUL_MARGIN && elevgrid->data[i][j] >= (rise+ interp_bfegrid->data[i][j]) - VUL_MARGIN) {
+                    floodedgrid->data[i][j] = 0;
+                }
+            } else {
+                if(elevgrid->data[i][j]<=rise + VUL_MARGIN && elevgrid->data[i][j] >= rise - VUL_MARGIN) {
+                    floodedgrid->data[i][j] = 0;
+                }
+            }
 
             
 
@@ -226,8 +226,6 @@ void readGridfromFile(const char* gridfname, Grid* g, double converter) {
         printf("ERROR: fscanf did not properly scan in the variables\n");
         exit(1);
     }
-
-    
     g->data = (double**)malloc(g->nrows * sizeof(double *));
     assert(g->data);
     for(int i = 0; i < g->nrows; i++) {
@@ -239,7 +237,7 @@ void readGridfromFile(const char* gridfname, Grid* g, double converter) {
         for(int j = 0; j < g->ncols; j++) {
             int y = fscanf(f,"%lf ",&g->data[i][j]);
             if (y != 1) {
-                printf("ERROR: fscanf did not properly scan in the grid\n");
+                printf("ERROR: fscanf did not properly scan in the grid [%d,%d]->%d\n",i,j,y);
                 exit(1);
             }
             if (g->data[i][j] != g->NODATA_value) {

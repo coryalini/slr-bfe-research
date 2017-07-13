@@ -41,10 +41,10 @@
 #endif
 
 #define PRINT_HELP(arg) printf("    " arg " \n");
-const float ALPHA = 0.5;
 /* global variables */
+const float ALPHA = 0.007;
 const int WINDOWSIZE = 500;
-const int POINT_SIZE  = 5.0f;
+const int POINT_SIZE  = 1.0f;
 
 double ELEV_CONVERTER = 3.28084;
 double BFE_CONVERTER = 1;
@@ -400,7 +400,7 @@ void draw_flooded(double alpha) {
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
             if (floodedgrid.data[i][j] != floodedgrid.NODATA_value) {
-                glColor4f(lightblue[0],lightblue[1],lightblue[2],0.02);
+                glColor4f(red_pink[0],red_pink[1],red_pink[2],alpha);
                 
             } else {
                 glColor4f(blue[0],blue[1],blue[2],0);

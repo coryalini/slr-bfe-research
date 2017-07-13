@@ -48,7 +48,7 @@
 #endif
 
 #define PRINT_HELP(arg) printf("    " arg " \n");
-//#define VULNERABLE_AREAS 0
+#define VULNERABLE_AREAS 0
 
 
 /* global variables */
@@ -488,7 +488,7 @@ void draw_grid(Grid* grid, int grid_type,float rise) {
         }
     } else {
         for (int i = 0; i < elevgrid.nrows; i++) {
-            for (int j = 0; j < elevgrid.ncols; j++) {
+            for (int j = 0; j < elevgrid.ncols; j+=50) {
                 point newPoint;
                 newPoint.x = i;
                 newPoint.y = j;
@@ -710,9 +710,8 @@ void change_color_land(double value, double base, double thisMin) {
         glColor3fv(blue);
     } else if (value == NEW_WATER) {
         glColor3fv(lightblue);
-//    } else if (value == VULNERABLE_AREAS) {
-////        glPointSize(10.0f);
-//        glColor3fv(red_pink);
+    } else if (value == VULNERABLE_AREAS) {
+        glColor3fv(red_pink);
     } else if (value < (thisMin+base)) {
         glColor3fv(interpolate_colors(green1, greenmid,value,thisMin,(thisMin + base)));
     } else if (value < (thisMin + 2 * base)) {
