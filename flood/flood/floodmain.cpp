@@ -48,13 +48,16 @@
 #endif
 
 #define PRINT_HELP(arg) printf("    " arg " \n");
+//#define VULNERABLE_AREAS 0
+
 
 /* global variables */
 const int WINDOWSIZE = 500;
-const int POINT_SIZE  = 5.0f;
-double ELEV_CONVERTER = 3.28084;
-double BFE_CONVERTER = 1;
-
+const int POINT_SIZE= 5.0f;
+//double ELEV_CONVERTER = 3.28084;
+//double BFE_CONVERTER = 1;
+double ELEV_CONVERTER = 1;
+double BFE_CONVERTER =0.3048;
 
 int interp_bfe_EXISTS = 0, DRAW = 0;
 const char *elevname, *writeGridname, *bfename;
@@ -701,10 +704,15 @@ void draw_point_combine_water(double value,double minLandElev, double theRise) {
 
 
 void change_color_land(double value, double base, double thisMin) {
+    glPointSize(5.0f);
+
     if (value == elevgrid.NODATA_value) {
         glColor3fv(blue);
     } else if (value == NEW_WATER) {
         glColor3fv(lightblue);
+//    } else if (value == VULNERABLE_AREAS) {
+////        glPointSize(10.0f);
+//        glColor3fv(red_pink);
     } else if (value < (thisMin+base)) {
         glColor3fv(interpolate_colors(green1, greenmid,value,thisMin,(thisMin + base)));
     } else if (value < (thisMin + 2 * base)) {

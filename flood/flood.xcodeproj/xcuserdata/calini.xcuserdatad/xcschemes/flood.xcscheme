@@ -63,11 +63,15 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-e southport_dem_2cellsize.asc -i full_fz.asc -r 2 -o vis2.asc  "
+            argument = "-e southport_dem_2cellsize.asc -i full_fz.asc -r 3 -o vis2.asc  "
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-e southport_dem_2cellsize.asc  -r 2 -o vis2.asc"
+            argument = "-e me_car10m_navd.asc -r 1.2 -o me_vis.asc"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-e southport_dem_2cellsize.asc  -r 3 -o vis2.asc"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

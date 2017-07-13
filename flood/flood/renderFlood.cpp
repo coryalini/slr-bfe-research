@@ -41,7 +41,7 @@
 #endif
 
 #define PRINT_HELP(arg) printf("    " arg " \n");
-
+const float ALPHA = 0.5;
 /* global variables */
 const int WINDOWSIZE = 500;
 const int POINT_SIZE  = 5.0f;
@@ -105,27 +105,27 @@ void keypress(unsigned char key, int x, int y);
 void reset();
 void display(void);
 
-void draw_grid(Grid* grid,int grid_type,float rise);
-void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, double minLand, double max);
-
 void getOptExecution(int argc, char* const* argv);
 void testMandatoryFlags(int flag, char opt, char* argv);
 void tooManyFlagError(char flag, char opt);
 void helpFlag();
 void printRenderCommands();
 
+void draw_elevgrid();
+void draw_sea();
+void draw_flooded(double alpha);
+void draw_point(int i, int j, Grid* grid);
+void draw_bfe_and_flooding();
 
-void setCurrGrid(Grid* grid);
-void combineGrids();
-void draw_point_color(double value, double minLand, double max);
-void draw_point_binary(double value);
-void draw_point_black(double value,double minLand, double max);
-void draw_point_combineBFE(double value,double minLand, double max);
-GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);
+void draw_color(double value, double minLand, double max);
+void draw_binary(double value);
+void draw_black(double value,double minLand, double max);
+void draw_blue(double value,double minLand, double max);
 
 void change_color_land(double value, double base, double thisMin);
 void change_color_gray(double value, double base, double thisMin);
 void change_color_blue(double value, double base, double thisMin);
+GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);
 
 int main(int argc, char * argv[]) {
     
@@ -320,14 +320,12 @@ void display(void) {
     float coloring = 0;
     switch (DRAW) {
         case ELEV_BFE_FLOOD:
-            combineGrids();
+            draw_bfe_and_flooding();
             coloring = THREE_COLORS;
             break;
         default:
             break;
     }
-    
-    draw_grid(&currgrid, coloring,rise);
     
     /* execute the drawing commands */
     glFlush();
@@ -344,32 +342,116 @@ void reshape(GLsizei width, GLsizei height) {  // GLsizei for non-negative integ
     gluOrtho2D(0.0, (GLdouble) width, 0.0, (GLdouble) height);
 }
 
+
 /*
- This function is used to draw a general grid. No particular grid needed
+ This function is used to draws the elevgrid.
+ It calls draw_color and draw_point.
+ 
  */
-void draw_grid(Grid* grid, int grid_type,float rise) {
-    
+void draw_elevgrid() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    assert(grid->data);
-    double max;
-    double minLand= findMinLand(grid);
-    max = findMax(grid);
+    assert(elevgrid.data);
+    double max = findMax(&elevgrid);
+    double minLand= findMinLand(&elevgrid);
     
     for (int i = 0; i < elevgrid.nrows; i++) {
         for (int j = 0; j < elevgrid.ncols; j++) {
-            point newPoint;
-            newPoint.x = i;
-            newPoint.y = j;
-            general_draw_point(newPoint, grid, grid_type,rise,minLand, max);
+            double value = elevgrid.data[i][j];
+            draw_color(value, minLand,max);
+            draw_point(i,j, &elevgrid);
+        }
+    }
+}
+/*
+ This function is used to draws the elevgrid.
+ It calls draw_color and draw_point.
+ 
+ */
+void draw_bfe() {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    assert(bfegrid.data);
+    double max = findMax(&bfegrid);
+    double minLand= findMinLand(&bfegrid);
+    
+    for (int i = 0; i < bfegrid.nrows; i++) {
+        for (int j = 0; j < bfegrid.ncols; j++) {
+            double value = bfegrid.data[i][j];
+            if (value != bfegrid.NODATA_value){
+                glColor3fv(black);
+//                draw_black(value, minLand,max);
+            } else  {
+                glColor4f(blue[0],blue[1],blue[2],0);
+            }
+            draw_point(i,j, &bfegrid);
         }
     }
 }
 
-//Draws points depending on the color
-void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, double minLand, double max) {
-    double value = grid->data[(int)mypoint.x][(int)mypoint.y];
-    draw_point_combineBFE(value,minLand, max);
-    
+
+/*
+ When called,ex: grid1 is flooded and grid2 is elev.
+ 
+ This function sets the global variable, currGrid.
+ If there is a bfe available, the code utilizes the given rise to find what values will be flooded.
+ 
+ */
+
+void draw_flooded(double alpha) {
+    for (int i = 0; i < elevgrid.nrows; i++) {
+        for (int j = 0; j < elevgrid.ncols; j++) {
+            if (floodedgrid.data[i][j] != floodedgrid.NODATA_value) {
+                glColor4f(lightblue[0],lightblue[1],lightblue[2],0.02);
+                
+            } else {
+                glColor4f(blue[0],blue[1],blue[2],0);
+            }
+            draw_point(i,j, &elevgrid);
+
+        }
+    }
+}
+
+/*
+ This function is used to draws the sea. If the elevgrid value is no data
+ then the function will set the value to 0, otherwise set value to 1.
+ It calls draw_binary and draw_point.
+ 
+ */
+void draw_sea() {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    assert(elevgrid.data);
+    for (int i = 0; i < elevgrid.nrows; i++) {
+        for (int j = 0; j < elevgrid.ncols; j++) {
+            double value = elevgrid.data[i][j];
+            if (value == elevgrid.NODATA_value) {
+                value = 0;
+            } else {
+                value = 1;
+            }
+            draw_binary(value);
+            draw_point(i,j, &elevgrid);
+        }
+    }
+}
+void draw_bfe_and_flooding() {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    draw_elevgrid();
+    draw_bfe();
+    draw_flooded(ALPHA);
+
+}
+
+
+/*
+ This function is used to draw a particular point of a grid. It takes the grid and
+ the point as inputs. It calculates which is larger row or column and calculates
+ where the point should land on the window.
+ */
+
+void draw_point(int i, int j, Grid* grid) {
+    point myPoint;
+    myPoint.x = i;
+    myPoint.y = j;
     float x=0, y=0;  //just to initialize with something
     
     float larger,smaller;
@@ -382,52 +464,16 @@ void general_draw_point(point mypoint, Grid* grid,int grid_type, float rise, dou
         smaller = grid->ncols;
     }
     
-    x = (((mypoint.y)/(larger))*2) - smaller/larger;
-    y = -(((mypoint.x)/(larger))*2) + 1;
+    x = (((myPoint.y)/(larger))*2) - smaller/larger;
+    y = -(((myPoint.x)/(larger))*2) + 1;
     
     glBegin(GL_POINTS);
     glVertex2f(x, y);
     glEnd();
 }
-/*
- 
- This function sets the global variable, currGrid.
- If there is a bfe available, the code utilizes the bfe data given to find what values will be flooded.
- Even if the bfe is given, some values in the bfe grid are NODATA_values, thus
- 
- */
-void setCurrGrid(Grid* grid){
-    for (int i = 0; i < grid->nrows; i++) {
-        for (int j = 0; j < grid->ncols; j++) {
-            currgrid.data[i][j] = grid->data[i][j];
-        }
-    }
-}
-/*
- When called,ex: grid1 is slr or slr+bfe and grid2 is elev.
- 
- This function sets the global variable, currGrid.
- If there is a bfe available, the code utilizes the given rise to find what values will be flooded.
- 
- */
 
 
-void combineGrids() {
-    for (int i = 0; i < elevgrid.nrows; i++) {
-        for (int j = 0; j < elevgrid.ncols; j++) {
-            if (bfegrid.data[i][j] != elevgrid.NODATA_value) {
-                currgrid.data[i][j] = bfegrid.data[i][j]+ 1000;//just a very unlikely value
-            } else if (floodedgrid.data[i][j] == NEW_WATER) {
-                currgrid.data[i][j] = floodedgrid.data[i][j];//just a very unlikely value
-            } else {
-                currgrid.data[i][j] = elevgrid.data[i][j];
-            }
-        }
-    }
-}
-
-
-void draw_point_color(double value, double minLand, double max) {
+void draw_color(double value, double minLand, double max) {
     double base;
     double thisMin = minLand;
     if (minLand < 0) {
@@ -437,38 +483,25 @@ void draw_point_color(double value, double minLand, double max) {
     change_color_land(value, base, thisMin);
 }
 
-void draw_point_binary(double value) {
+void draw_binary(double value) {
     if (value == 0) {
         glColor3fv(blue);
     } else {
         glColor3fv(black);
     }
 }
-void draw_point_black(double value,double minLand, double max) {
+void draw_black(double value,double minLand, double max) {
     assert(minLand > 0);
     double base = (max-minLand)/numCategories;
     change_color_gray(value, base, minLand);
     
 }
-
-void draw_point_combineBFE(double value,double minLand,double max) {
-    double thisMin = minLand;
-    if (minLand < 0) {
-        thisMin = 0;
-    }
-    double base;
-    if (value > 1000) {
-        value -=1000;
-        base = (bfemax-bfemin)/numCategories;
-        change_color_blue(value, base, bfemin);
-    } else if (value == NEW_WATER) {
-        glColor3fv(purple);
-    } else {
-        base = (elevmax-elevmin)/numCategories;
-        change_color_land(value, base, elevmin);
-    }
+void draw_blue(double value,double minLand, double max) {
+    assert(minLand > 0);
+    double base = (max-minLand)/numCategories;
+    change_color_blue(value, base, minLand);
+    
 }
-
 
 
 void change_color_land(double value, double base, double thisMin) {

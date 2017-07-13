@@ -26,7 +26,7 @@ typedef struct _grid {
     double yllcorner, xllcorner;
     double cellsize;
     double NODATA_value;
-    float** data;   //the 2D array of value in the grid
+    double** data;   //the 2D array of value in the grid
     double h_min;
     double h_max;
     
