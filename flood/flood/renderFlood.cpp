@@ -14,15 +14,6 @@
 //
 
 
-/* COMMANDS
- q: quit
- w: write to files
- 
- e: Draw Elevgrid
- s: Draw the sea
- i: Draw interpolated grid with original on top
- 
- */
 
 #include "grid.hpp"
 
@@ -41,20 +32,35 @@
 #endif
 
 #define PRINT_HELP(arg) printf("    " arg " \n");
+
 /* global variables */
-const float ALPHA = 0.007;
+
+//size of OpenGL window 
 const int WINDOWSIZE = 500;
+
+//what is this, and why might we want to change it? 
+const float ALPHA = 0.007;
+
+//what is this, and why might we want to change it?  
 const int POINT_SIZE  = 1.0f;
 
+//what is this, and why might we want to change it?  
 double ELEV_CONVERTER = 3.28084;
+
+//what is this, and why might we want to change it? 
 double BFE_CONVERTER = 1;
+
 int interp_bfe_EXISTS = 1, DRAW = 0;
+
+//what are these? 
 const char *elevname,*bfename,*floodedname, *writeGridname;
 Grid elevgrid, bfegrid, floodedgrid, currgrid;
 
-//HACKKK
+
+//HACKKK <------ caught you. 
 double rise = 0;
 
+//what are these? 
 double bfemax,bfemin, elevmax,elevmin,floodmax,floodmin;
 
 
@@ -66,9 +72,6 @@ static float numCategories = 6.0;
 GLfloat red_pink[3] = {0.969, 0.396, 0.396};
 GLfloat black[3] = {0.0, 0.0, 0.0};
 GLfloat purple[3] = {0.733,0.557,1};
-
-
-
 GLfloat blue[3] = {0.157, 0.325, 0.419};
 GLfloat lightblue[3] = {0.604, 0.820, 0.831};
 GLfloat green1[3] = {0.945, 1.0, 0.905};
@@ -100,6 +103,9 @@ GLfloat blue4[3] = {0, 0,0.7};
 GLfloat blue5[3] = {0, 0,0.6};
 GLfloat blue6[3] = {0, 0, 0.5};
 
+
+
+
 /* forward declarations of functions */
 void keypress(unsigned char key, int x, int y);
 void reset();
@@ -127,6 +133,11 @@ void change_color_gray(double value, double base, double thisMin);
 void change_color_blue(double value, double base, double thisMin);
 GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double value,double lowerBound,double upperBound);
 
+
+
+
+
+
 int main(int argc, char * argv[]) {
     
     if (argc != 1) {
@@ -138,42 +149,66 @@ int main(int argc, char * argv[]) {
         exit(0);
     }
     
-    
-    clock_t start = clock(), diff;
+    //read elevation grid from file 
+    clock_t start1, end1; 
+    start1 = clock();
     readGridfromFile(elevname, &elevgrid,ELEV_CONVERTER);
-    diff = clock() - start;
-    unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
-    printf("Reading %s took %lu seconds %lu milliseconds\n",elevname, msec/1000, msec%1000);
+    end1  = clock(); 
+    unsigned long msec = (end1-start1) * 1000 / CLOCKS_PER_SEC;
+    printf("Reading %s took %lu seconds %lu milliseconds\n",
+	   elevname, msec/1000, msec%1000);
     
-    
-    clock_t start2 = clock(), diff2;
+    //read bfe grid from file 
+    clock_t start2, end2; 
+    start2 = clock();
     readGridfromFile(bfename, &bfegrid,BFE_CONVERTER);
-    diff2 = clock() - start2;
-    unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
-    printf("Reading %s took %lu seconds %lu milliseconds\n",bfename, msec2/1000, msec2%1000);
+    end2 = clock();
+    unsigned long msec2 = (end2-start2) * 1000 / CLOCKS_PER_SEC;
+    printf("Reading %s took %lu seconds %lu milliseconds\n",
+	   bfename, msec2/1000, msec2%1000);
+
+    //grids must have same dimensions
     if (bfegrid.ncols != elevgrid.ncols || bfegrid.nrows !=elevgrid.nrows) {
-        printf("ERROR:The %s [%ld,%ld] and elevgrid [%ld,%ld] do not have the same grid dimensions!\n",bfename, bfegrid.nrows,bfegrid.ncols,elevgrid.nrows, elevgrid.ncols);
-        exit(0);
+      printf("ERROR: grids dimensions not compatible!!\n"); 
+      printf("%s [%ld,%ld] and %s [%ld,%ld]\n",
+	     elevname, elevgrid.nrows, elevgrid.ncols, 
+	     bfename, bfegrid.nrows,bfegrid.ncols,);
+      exit(0);
     }
-    clock_t start3 = clock(), diff3;
+
+    //read flooded grid from file 
+    clock_t start3, end3; 
+    start3 = clock();
     readGridfromFile(floodedname, &floodedgrid,BFE_CONVERTER);
-    diff3 = clock() - start3;
-    unsigned long msec3= diff3 * 1000 / CLOCKS_PER_SEC;
-    printf("Reading %s took %lu seconds %lu milliseconds\n",floodedname, msec3/1000, msec3%1000);
+    end3 = clock();
+    unsigned long msec3= (end3 - start3) * 1000 / CLOCKS_PER_SEC;
+    printf("Reading %s took %lu seconds %lu milliseconds\n",
+	   floodedname, msec3/1000, msec3%1000);
+   
+    //grids must have same dimensions
     if (floodedgrid.ncols != elevgrid.ncols || floodedgrid.nrows !=elevgrid.nrows) {
-        printf("ERROR:The %s [%ld,%ld] and elevgrid [%ld,%ld] do not have the same grid dimensions!\n",bfename, floodedgrid.nrows,floodedgrid.ncols,elevgrid.nrows, elevgrid.ncols);
+      printf("ERROR: grids dimensions not compatible!\n"); 
+      printf("%s [%ld,%ld] and [%ld,%ld]\n",
+	     floodedname, floodedgrid.nrows,floodedgrid.ncols,
+	     elevname, elevgrid.nrows, elevgrid.ncols);
         exit(0);
     }
+    
     
     mallocGrid(elevgrid, &currgrid);
     setHeaders(elevgrid, &currgrid);
 
+    //thse do redundant passes of the grid?? they should be done when
+    //the grid id read in memory
     bfemin = findMinLand(&bfegrid);
     bfemax = findMax(&bfegrid);
     floodmin = findMinLand(&floodedgrid);
     floodmax = findMax(&floodedgrid);
     elevmin = findMinLand(&elevgrid);
     elevmax = findMax(&elevgrid);
+   
+
+
     //GLUT stuff
     //------------------------------------------
     /* initialize GLUT  */
