@@ -18,6 +18,12 @@ printf(string , ##args); }
 #include <iostream>
 #include <queue>
 #include <assert.h>
+
+
+#define VUL_MARGIN 0.1
+#define NEW_WATER -8000
+#define HAVENT_VISITED -7000
+
 typedef struct {float x,y;} point;
 
 typedef struct _grid {
@@ -30,9 +36,6 @@ typedef struct _grid {
   double min;
   double max;
 } Grid;
-
-extern const int NEW_WATER;
-extern const int HAVENT_VISITED;
 
 
 void findSeaPoint(Grid* elevgrid,std::queue<point>*);

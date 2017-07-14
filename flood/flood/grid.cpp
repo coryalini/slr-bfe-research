@@ -15,13 +15,6 @@
 #include <math.h>
 #include <time.h>
 
-#define VUL_MARGIN 0.1
-
-
-const int NEW_WATER = -8000;
-const int HAVENT_VISITED = -7000;
-
-
 /*
  This function takes the elevgrid and goes through the perimeter and finds
  which points are considered sea. Then it puts them on a queue and returns the queue
