@@ -54,6 +54,8 @@
 /* global variables */
 const int WINDOWSIZE = 500;
 const int POINT_SIZE= 5.0f;
+
+//used to convert units of grids
 //double ELEV_CONVERTER = 3.28084;
 //double BFE_CONVERTER = 1;
 double ELEV_CONVERTER = 1;
@@ -62,12 +64,14 @@ double BFE_CONVERTER =0.3048;
 int interp_bfe_EXISTS = 0, DRAW = 0;
 const char *elevname, *writeGridname, *bfename;
 
+//used for DRAW
 enum {ELEV = 0, FLOODED = 1,FLOODED_GRAY= 2,FLOODED_ELEV=3,SEA= 4,WATER_FLOODED_ELEV=5,INTERP_BFE=6 };
+//used by coloring to change colors
 enum {COLOR = 0, BLACK_COLOR = 1, BINARY_COLOR = 2, COMBINE_COLOR = 3, COMBINE_WATER = 5, GRAY_BLUE= 7};
 
 
 
-static float numCategories = 6.0;
+static float numCategories = 6.0;//used for buckets
 Grid elevgrid, interp_bfegrid, currgrid,floodedgrid;
 
 float rise;

@@ -17,8 +17,6 @@
 
  */
 
-
-
 #include <iostream>
 #include "grid.hpp"
 #include "interpolate.hpp"
@@ -38,12 +36,14 @@
 #endif
 
 #define PRINT_HELP(arg) printf("    " arg " \n");
+
 /* global variables */
 const int WINDOWSIZE = 500;
 //const int POINT_SIZE  = 5.0f;
 int POINT_SIZE;
-int WRITE_TO_FILE = 0;
+int WRITE_TO_FILE = 0;//determines whether or not we are to write to file
 
+//used to convert units of grids
 double ELEV_CONVERTER = 3.28084;
 double ORIG_CONVERTER = 1;
 int interp_bfe_EXISTS = 1, DRAW = 0;
@@ -51,11 +51,11 @@ const char *elevname, *writeGridname, *origname;
 Grid elevgrid, origgrid, interpgrid;
 
 enum {ELEV = 0, SEA = 1,ELEV_ORIG =2, COMBINE_INTERP=3};
-static float numCategories = 6.0;
+static float numCategories = 6.0;//used for buckets
 
+//COLORS
 GLfloat red_pink[3] = {0.969, 0.396, 0.396};
 GLfloat black[3] = {0.0, 0.0, 0.0};
-
 GLfloat blue[3] = {0.157, 0.325, 0.419};
 //GLfloat blue[3] = {0, 0, 1.0};
 GLfloat lightblue[3] = {0.604, 0.820, 0.831};

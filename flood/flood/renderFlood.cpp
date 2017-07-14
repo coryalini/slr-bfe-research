@@ -42,18 +42,16 @@
 
 #define PRINT_HELP(arg) printf("    " arg " \n");
 /* global variables */
-const float ALPHA = 0.007;
+const float ALPHA = 0.007;//used to change transparancy of flooding rendering
 const int WINDOWSIZE = 500;
 const int POINT_SIZE  = 1.0f;
 
+//used to convert units of grids
 double ELEV_CONVERTER = 3.28084;
 double BFE_CONVERTER = 1;
 int interp_bfe_EXISTS = 1, DRAW = 0;
 const char *elevname,*bfename,*floodedname, *writeGridname;
-Grid elevgrid, bfegrid, floodedgrid, currgrid;
-
-//HACKKK
-double rise = 0;
+Grid elevgrid, bfegrid, floodedgrid, currgrid;\
 
 double bfemax,bfemin, elevmax,elevmin,floodmax,floodmin;
 
@@ -61,8 +59,10 @@ double bfemax,bfemin, elevmax,elevmin,floodmax,floodmin;
 enum {ELEV_BFE_FLOOD = 0};
 enum {THREE_COLORS =0};
 
-static float numCategories = 6.0;
+static float numCategories = 6.0;//used for buckets
 
+
+//COLORS
 GLfloat red_pink[3] = {0.969, 0.396, 0.396};
 GLfloat black[3] = {0.0, 0.0, 0.0};
 GLfloat purple[3] = {0.733,0.557,1};
