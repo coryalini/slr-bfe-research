@@ -21,23 +21,24 @@ printf(string , ##args); }
 typedef struct {float x,y;} point;
 
 typedef struct _grid {
-    const char* gridname;
-    long  nrows, ncols;  // the size of the grid
-    double yllcorner, xllcorner;
-    double cellsize;
-    double NODATA_value;
-    double** data;   //the 2D array of value in the grid
-    double h_min;
-    double h_max;
-    
+  const char* gridname;
+  long  nrows, ncols;  // the size of the grid
+  double yllcorner, xllcorner;
+  double** data;   //the 2D array of value in the grid
+  double cellsize;
+  double NODATA_value;
+  double min;
+  double max;
 } Grid;
+
 extern const int NEW_WATER;
 extern const int HAVENT_VISITED;
 
 
 void findSeaPoint(Grid* elevgrid,std::queue<point>*);
 
-void setinterp_bfeNotVisited(Grid* elevgrid, Grid* interp_bfegrid,Grid* floodedgrid, float rise);
+void setinterp_bfeNotVisited(Grid* elevgrid, Grid* interp_bfegrid,
+			     Grid* floodedgrid, float rise);
 void setNotVisited(Grid* elevgrid, Grid* floodedgrid, float rise);
 
 int insideGrid(Grid* grid, int i, int j);
