@@ -67,6 +67,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-e test1.asc -r 1 -o vis2.asc"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-e me_car10m_navd.asc -r 1.2 -o me_vis.asc"
             isEnabled = "NO">
          </CommandLineArgument>

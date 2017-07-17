@@ -63,10 +63,6 @@ void setNotVisited(Grid* elevgrid, Grid* floodedgrid, float rise) {
             if (floodedgrid->data[i][j] == HAVENT_VISITED) {
                 floodedgrid->data[i][j] = elevgrid->data[i][j] - rise;
             }
-            if (floodedgrid->data[i][j] <= rise + VUL_MARGIN && floodedgrid->data[i][j] >= rise - VUL_MARGIN) {
-                floodedgrid->data[i][j] = 0;
-            }
-            
         }
     }
 }
@@ -89,22 +85,6 @@ void setinterp_bfeNotVisited(Grid* elevgrid, Grid* interp_bfegrid,Grid* floodedg
                     floodedgrid->data[i][j] = elevgrid->data[i][j] - rise;
                 }
             }
-            
-            if (interp_bfegrid->data[i][j] != interp_bfegrid->NODATA_value) {
-                if(elevgrid->data[i][j]<=(rise+ interp_bfegrid->data[i][j]) + VUL_MARGIN && elevgrid->data[i][j] >= (rise+ interp_bfegrid->data[i][j]) - VUL_MARGIN) {
-                    floodedgrid->data[i][j] = 0;
-                }
-            } else {
-                if(elevgrid->data[i][j]<=rise + VUL_MARGIN && elevgrid->data[i][j] >= rise - VUL_MARGIN) {
-                    floodedgrid->data[i][j] = 0;
-                }
-            }
-
-            
-
-//            if (floodedgrid->data[i][j] <= rise + VUL_MARGIN && floodedgrid->data[i][j] >= rise - VUL_MARGIN) {
-//                floodedgrid->data[i][j] = 0;
-//            }
         }
     }
 }

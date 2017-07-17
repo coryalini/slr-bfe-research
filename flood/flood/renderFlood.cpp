@@ -286,7 +286,7 @@ void tooManyFlagError(char flag, char opt) {
 void helpFlag() {
     printf("The flooding simulator takes the following command-line arguments: \n");
     PRINT_HELP("-e <e>: Elevation grid flag")
-    PRINT_HELP("-i <i>: Tidal grid")
+    PRINT_HELP("-i <i>: Original bfe grid")
     PRINT_HELP("-f <f>: The flooded grid")
     PRINT_HELP("-o <o>: Filename you wish to write your grid to")
 }
