@@ -64,15 +64,15 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-e southport_dem_2cellsize.asc -i full_fz.asc -r 1 -o flooding1.asc  "
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-e me_car10m_navd.asc -r 1.2 -o me_vis.asc"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-e southport_dem_2cellsize.asc  -r 3 -o vis2.asc"
-            isEnabled = "NO">
+            argument = "-e southport_dem_2cellsize.asc  -r 1 -o vis2.asc"
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>

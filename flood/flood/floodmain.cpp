@@ -56,10 +56,10 @@ const int WINDOWSIZE = 500;
 const int POINT_SIZE= 5.0f;
 
 //used to convert units of grids
-//double ELEV_CONVERTER = 3.28084;
-//double BFE_CONVERTER = 1;
-double ELEV_CONVERTER = 1;
-double BFE_CONVERTER =0.3048;
+double ELEV_CONVERTER = 3.28084;
+double BFE_CONVERTER = 1;
+//double ELEV_CONVERTER = 1;
+//double BFE_CONVERTER =0.3048;
 
 int interp_bfe_EXISTS = 0, DRAW = 0;
 const char *elevname, *writeGridname, *bfename;
@@ -492,7 +492,7 @@ void draw_grid(Grid* grid, int grid_type,float rise) {
         }
     } else {
         for (int i = 0; i < elevgrid.nrows; i++) {
-            for (int j = 0; j < elevgrid.ncols; j+=50) {
+            for (int j = 0; j < elevgrid.ncols; j++) {
                 point newPoint;
                 newPoint.x = i;
                 newPoint.y = j;
