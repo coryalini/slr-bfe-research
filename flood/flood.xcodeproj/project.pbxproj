@@ -20,8 +20,10 @@
 		EA4A6C551F0183DF00DB1363 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA4A6C541F0183DF00DB1363 /* OpenGL.framework */; };
 		EA53EAE31F04270300F6939F /* renderFlood.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA53EAE11F0426FA00F6939F /* renderFlood.cpp */; };
 		EA67C8E71F05552E00AB8BBF /* grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA24B1E11F04267B00C26E71 /* grid.cpp */; };
-		EA74DD9A1F13F6E8005DC613 /* interpolate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA74DD981F13F6E8005DC613 /* interpolate.cpp */; };
 		EA74DD9B1F13F6FA005DC613 /* interpolate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA74DD981F13F6E8005DC613 /* interpolate.cpp */; };
+		EAB4DE6B1F1FDF9F00E9796B /* options.h in Sources */ = {isa = PBXBuildFile; fileRef = EAB4DE6A1F1FDDA500E9796B /* options.h */; };
+		EAB4DE6C1F1FDFA500E9796B /* options.h in Sources */ = {isa = PBXBuildFile; fileRef = EAB4DE6A1F1FDDA500E9796B /* options.h */; };
+		EAB4DE6D1F1FDFAA00E9796B /* options.h in Sources */ = {isa = PBXBuildFile; fileRef = EAB4DE6A1F1FDDA500E9796B /* options.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -69,6 +71,7 @@
 		EA74DD991F13F6E8005DC613 /* interpolate.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = interpolate.hpp; sourceTree = "<group>"; };
 		EAA0CE701F018471009DFA61 /* flood.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = flood.cpp; sourceTree = "<group>"; };
 		EAA0CE711F018471009DFA61 /* flood.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = flood.hpp; sourceTree = "<group>"; };
+		EAB4DE6A1F1FDDA500E9796B /* options.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = options.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,9 +149,10 @@
 				EA24B1E31F04267B00C26E71 /* interpmain.cpp */,
 				EA74DD981F13F6E8005DC613 /* interpolate.cpp */,
 				EA74DD991F13F6E8005DC613 /* interpolate.hpp */,
+				EA53EAE11F0426FA00F6939F /* renderFlood.cpp */,
 				EA24B1E11F04267B00C26E71 /* grid.cpp */,
 				EA24B1E21F04267B00C26E71 /* grid.hpp */,
-				EA53EAE11F0426FA00F6939F /* renderFlood.cpp */,
+				EAB4DE6A1F1FDDA500E9796B /* options.h */,
 			);
 			path = flood;
 			sourceTree = "<group>";
@@ -266,6 +270,7 @@
 				EA74DD9B1F13F6FA005DC613 /* interpolate.cpp in Sources */,
 				EA24B1EA1F0426B400C26E71 /* interpmain.cpp in Sources */,
 				EA24B1E91F0426B000C26E71 /* grid.cpp in Sources */,
+				EAB4DE6C1F1FDFA500E9796B /* options.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,6 +278,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EAB4DE6B1F1FDF9F00E9796B /* options.h in Sources */,
 				EA67C8E71F05552E00AB8BBF /* grid.cpp in Sources */,
 				EA53EAE31F04270300F6939F /* renderFlood.cpp in Sources */,
 			);
@@ -285,7 +291,7 @@
 				EA24B1E71F04267B00C26E71 /* grid.cpp in Sources */,
 				EA24B1D91F04263A00C26E71 /* floodmain.cpp in Sources */,
 				EA24B1DA1F04263A00C26E71 /* flood.cpp in Sources */,
-				EA74DD9A1F13F6E8005DC613 /* interpolate.cpp in Sources */,
+				EAB4DE6D1F1FDFAA00E9796B /* options.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

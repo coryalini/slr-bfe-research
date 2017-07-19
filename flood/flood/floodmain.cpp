@@ -48,20 +48,14 @@
 #endif
 
 #define PRINT_HELP(arg) printf("    " arg " \n");
-#define VULNERABLE_AREAS 0
 
 
 /* global variables */
+//size of OpenGL window
 const int WINDOWSIZE = 500;
-const int POINT_SIZE= 5.0f;
 
-//used to convert elevgrid units
-double ELEV_CONVERTER = 3.28084;//convert elev from m to ft
-//double ELEV_CONVERTER = 1;
-
-//used to convert bfegrid units
-double BFE_CONVERTER = 1;
-//double BFE_CONVERTER =0.3048;
+//change size of point
+const int POINT_SIZE  = 5.0f;
 
 int interp_bfe_EXISTS = 0, DRAW = 0;
 const char *elevname, *writeGridname, *bfename;

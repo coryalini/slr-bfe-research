@@ -64,6 +64,10 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-e southport_dem_2cellsize.asc -i full_fz.asc -r 1 -o flooding3.asc  "
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-e bremen_dem.asc  -r 1 -o flooded1_bremen.asc"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -72,7 +76,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-e lincoln_2mdem.asc -i lincoln_interp.asc -r 1 -o floodingLincoln.asc"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-e test1.asc -r 1 -o vis2.asc"
@@ -83,7 +87,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-e bremen_dem.asc -i bremen_interp_floodzones.asc -r 1 -o flooded1_bremen.asc"
+            argument = "-e bremen_dem.asc -i bremen_interp_floodzones.asc -r 3 -o flooded3_bremen.asc"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

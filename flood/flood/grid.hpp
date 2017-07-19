@@ -9,20 +9,12 @@
 #ifndef grid_hpp
 #define grid_hpp
 
-#define DEBUG 0
-#define debug_printf(string, args ...) if (DEBUG){  \
-printf("%s:%d: ", __FUNCTION__, __LINE__ );   \
-printf(string , ##args); }
+#include "options.h"
 
 
 #include <iostream>
 #include <queue>
 #include <assert.h>
-
-
-#define VUL_MARGIN 0.1
-#define NEW_WATER -8000
-#define HAVENT_VISITED -7000
 
 typedef struct {float x,y;} point;
 
@@ -38,7 +30,8 @@ typedef struct _grid {
 } Grid;
 
 
-void findSeaPoint(Grid* elevgrid,std::queue<point>*);
+void findBoundarySeaPoint(Grid* elevgrid,std::queue<point>*);
+int isSea(double value, Grid* elevgrid);
 
 void setinterp_bfeNotVisited(Grid* elevgrid, Grid* interp_bfegrid,
 			     Grid* floodedgrid, float rise);

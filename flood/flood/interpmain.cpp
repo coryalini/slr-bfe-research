@@ -38,14 +38,16 @@
 #define PRINT_HELP(arg) printf("    " arg " \n");
 
 /* global variables */
+//size of OpenGL window
 const int WINDOWSIZE = 500;
-//const int POINT_SIZE  = 5.0f;
-int POINT_SIZE;
+
+//change size of point
+const int POINT_SIZE  = 5.0f;
+
 int WRITE_TO_FILE = 0;//determines whether or not we are to write to file
 
-//used to convert units of grids
-double ELEV_CONVERTER = 3.28084;
-double ORIG_CONVERTER = 1;
+
+
 int interp_bfe_EXISTS = 1, DRAW = 0;
 const char *elevname, *writeGridname, *origname;
 Grid elevgrid, origgrid, interpgrid;
@@ -135,7 +137,7 @@ int main(int argc, char * argv[]) {
 
     
     clock_t start2 = clock(), diff2;
-    readGridfromFile(origname, &origgrid,ORIG_CONVERTER);
+    readGridfromFile(origname, &origgrid,BFE_CONVERTER);
     diff2 = clock() - start2;
     unsigned long msec2 = diff2 * 1000 / CLOCKS_PER_SEC;
     printf("Reading original grid took %lu seconds %lu milliseconds\n", msec2/1000, msec2%1000);

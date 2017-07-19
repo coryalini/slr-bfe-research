@@ -42,10 +42,6 @@ const int WINDOWSIZE = 500;
 //change size of point
 const int POINT_SIZE  = 1.0f;
 
-//used to convert units of grids
-double ELEV_CONVERTER = 3.28084;
-double BFE_CONVERTER = 1;
-
 int interp_bfe_EXISTS = 1, DRAW = 0;
 
 //filename of the grid

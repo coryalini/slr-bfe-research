@@ -20,15 +20,15 @@
  which points are considered sea. Then it puts them on a queue and returns the queue
  
  */
-void findSeaPoint(Grid* elevgrid,std::queue<point>* queue) {
+void findBoundarySeaPoint(Grid* elevgrid,std::queue<point>* queue) {
     for (int i = 0; i < elevgrid->nrows; i++) {
         point newPoint;
-        if (elevgrid->data[i][0] == elevgrid->NODATA_value) {
+        if (isSea(elevgrid->data[i][0],elevgrid)) {
             newPoint.x = i;
             newPoint.y = 0;
             queue->push(newPoint);
         }
-        if (elevgrid->data[i][elevgrid->ncols-1] == elevgrid->NODATA_value) {
+        if (isSea(elevgrid->data[i][elevgrid->ncols-1],elevgrid)) {
             newPoint.x = i;
             newPoint.y = elevgrid->ncols-1;
             queue->push(newPoint);
@@ -38,13 +38,13 @@ void findSeaPoint(Grid* elevgrid,std::queue<point>* queue) {
     
     for (int j = 0; j < elevgrid->ncols; j++) {
         point newPoint;
-        if (elevgrid->data[0][j] == elevgrid->NODATA_value) {
+        if (isSea(elevgrid->data[0][j],elevgrid)) {
             newPoint.x = 0;
             newPoint.y = j;
             queue->push(newPoint);
             
         }
-        if (elevgrid->data[elevgrid->nrows-1][j] == elevgrid->NODATA_value) {
+        if (isSea(elevgrid->data[elevgrid->nrows-1][j],elevgrid)) {
             newPoint.x = elevgrid->nrows-1;
             newPoint.y = j;
             queue->push(newPoint);
@@ -53,8 +53,22 @@ void findSeaPoint(Grid* elevgrid,std::queue<point>* queue) {
     }
 }
 
+int isSea(double value, Grid* elevgrid) {
+    if(SEA_IS_NODATA) {
+        if (value == elevgrid->NODATA_value) {
+            return 1;
+        }
+    } else {
+       if (value <= SEA_LEVEL) {
+           return 1;
+       }
+    }
+    return 0;
+
+}
+
 /*
- The function goes through the grid and if the value was not visited via 
+ The function goes through the grid and if the value was not visited via
  BFS it sets it to the adjusted value
  */
 void setNotVisited(Grid* elevgrid, Grid* floodedgrid, float rise) {
