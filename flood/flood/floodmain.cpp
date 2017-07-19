@@ -55,10 +55,12 @@
 const int WINDOWSIZE = 500;
 const int POINT_SIZE= 5.0f;
 
-//used to convert units of grids
-double ELEV_CONVERTER = 3.28084;
-double BFE_CONVERTER = 1;
+//used to convert elevgrid units
+double ELEV_CONVERTER = 3.28084;//convert elev from m to ft
 //double ELEV_CONVERTER = 1;
+
+//used to convert bfegrid units
+double BFE_CONVERTER = 1;
 //double BFE_CONVERTER =0.3048;
 
 int interp_bfe_EXISTS = 0, DRAW = 0;
@@ -119,6 +121,7 @@ void getOptExecution(int argc, char* const* argv);
 void testMandatoryFlags(int flag, char opt, char* argv);
 void tooManyFlagError(char flag, char opt);
 void helpFlag();
+
 void printRenderCommands();
 
 void draw_grid(Grid* grid,int grid_type,float rise);

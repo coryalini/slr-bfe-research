@@ -67,6 +67,14 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-e bremen_dem.asc -i bremen_floodzones.asc -o bremen_interp_floodzones.asc"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-e lincoln_2mdem.asc -i lincoln_BFE_sameregion.asc -o lincoln_interp.asc"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-e southport_dem_2cellsize.asc -i southport_hat_2cellsize.asc"
             isEnabled = "NO">
          </CommandLineArgument>
