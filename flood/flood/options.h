@@ -9,8 +9,8 @@
 #ifndef options_h
 #define options_h
 
-#define SEA_IS_NODATA 1
-#define SEA_LEVEL 1.5
+#define SEA_IS_NODATA 0
+#define SEA_LEVEL 0
 
 #define VULNERABLE_AREAS 0
 #define VUL_MARGIN 0.1

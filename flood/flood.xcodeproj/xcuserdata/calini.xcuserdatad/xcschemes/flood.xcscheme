@@ -64,11 +64,11 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-e southport_dem_2cellsize.asc -i full_fz.asc -r 1 -o flooding3.asc  "
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-e bremen_dem.asc  -r 1 -o flooded1_bremen.asc"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-e noaa_coast_southport_10m.asc -r 1.8 -o flood.asc"
