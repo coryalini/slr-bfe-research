@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-e southport_dem_2cellsize.asc -i southport_floodzones_2cellsize.asc -o full_fz.asc"
+            argument = "-e southport_dem_2cellsize.asc -i southport_floodzones_2cellsize.asc"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

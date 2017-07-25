@@ -11,17 +11,18 @@
 
 #include "grid.hpp"
 
-
+#include <math.h>
 #include <iostream>
 #include <queue>
 #include <assert.h>
 
 /*MARK bfe*/
-void start_interp_bfe_withFlooded(Grid* elevgrid, Grid* local_interp_bfegrid);
 
-void compute_interp_bfe_withFlooded(Grid* elevgrid, Grid* local_interp_bfegrid, char** alreadySeen);
+void interpolation_nn(Grid* origgrid, Grid* interpgrid);
 
-void start_interpolation(Grid* origgrid, Grid* interpgrid);
-void compute_interpolation(Grid* origgrid, Grid* interpgrid, char** alreadySeen);
+void interpolation_idw(Grid* origgrid, Grid* interpgrid);
+
+double distance_with_p(int i,int j, point interp_point);
+int has_NOData_Neighbor(int i, int j, Grid* origgrid);
 
 #endif /* bfe_hpp */

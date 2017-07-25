@@ -152,9 +152,8 @@ int main(int argc, char * argv[]) {
     
     clock_t start3 = clock(), diff3;
     printf("start interpolation\n");
-//    start_interp_bfe_withFlooded(&elevgrid,&interpgrid);
-    start_interpolation(&origgrid, &interpgrid);
-
+    interpolation_nn(&origgrid, &interpgrid);
+//    interpolation_idw(&origgrid, &interpgrid);
     diff3 = clock() - start3;
     unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
     printf("interpolation took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
@@ -162,7 +161,6 @@ int main(int argc, char * argv[]) {
         printf("Writing to file %s\n", writeGridname);
         gridtoFile(&interpgrid, writeGridname);
     }
-    
     
     //GLUT stuff
     //------------------------------------------
