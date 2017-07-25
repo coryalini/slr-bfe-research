@@ -1,0 +1,79 @@
+Interpolating the BFE_grid with IDW 
+
+
+Let's assume we have a function 
+
+//return 1 iff (i,j) has a value and it's on the "boundary" 
+isBoundary(i,j,grid): 
+    return 1 if 
+              (i,j) is inside the grid 
+              AND 
+              grid[i,j] is NOT NODATA 
+              AND 
+              at least one neighbor of (i,j) is NODATA 
+              
+              
+Idea: Traverse the grid and discover the points on the boundary in boundary order. This will allow to partition the boundary
+in pieces of same value, and prune each piece. 
+
+for i 
+  for j 
+      if isBoundary(i,j,BFE_grid) and (i,j) is not marked
+              //find and mark the part of the boundary that has the same value as (i,j)
+              mark (i,j) 
+              Vector bndstack  = { (i,j)} 
+              while bndstack not empty 
+                      (k,l) = pop bndstack (note: its important that we delete from the end, for efficiency) 
+                      for each neighbor (p,q) of (k,l) do: 
+                              if isBoundary(p,q,BFE_grid) AND ((p,q) and (k,l) have same value in BFE_grid) AND ((k,l) not marked): 
+                                          mark (p,q)
+                                          push (p,q) to bndstack  
+              //claim: the part of the boundary that has teh same value as (i,j) and is connected to it is now marked                             
+              
+              
+              
+ How to mark? I would use a hash table. To mark, insert in hash table. TO see if its marked, search.     
+ 
+ 
+ initialize: Hashtable marked = {} 
+ for i 
+  for j 
+      if isBoundary(i,j,BFE_grid) and (i,j) is not in marked
+              //find and mark the part of the boundary that has the same value as (i,j)
+              insert (i,j) in marked 
+              Vector bndstack  = { (i,j)} 
+              while bndstack not empty 
+                      (k,l) = pop bndstack (note: its important that we delete from the end, for efficiency) 
+                      for each neighbor (p,q) of (k,l) do: 
+                              if isBoundary(p,q,BFE_grid) AND ((p,q) and (k,l) have same value in BFE_grid) AND ((k,l) not in marked): 
+                                          insert  (p,q) in marked 
+                                          push (p,q) to bndstack  
+              //claim: the part of the boundary that has teh same value as (i,j) and is connected to it is now marked                             
+              
+             
+             
+  We need the boundary at the end, so we need to build it along the way. 
+ 
+ initialize alloundary: Vector of pointers to Vectors; each vector will stores all the points in a boundary piece.
+ initialize: Hashtable marked = {} 
+ for i 
+  for j 
+      if isBoundary(i,j,BFE_grid) and (i,j) is not in marked
+             //we start to find a new boundary piece
+             Vector* thisboundary =  new Vector(); 
+             insert (i,j) in thisboundary; 
+             
+              //find and mark the part of the boundary that has the same value as (i,j)
+              insert (i,j) in marked 
+              Vector bndstack  = { (i,j)} 
+              while bndstack not empty 
+                      (k,l) = pop bndstack (note: its important that we delete from the end, for efficiency) 
+                      for each neighbor (p,q) of (k,l) do: 
+                              if isBoundary(p,q,BFE_grid) AND ((p,q) and (k,l) have same value in BFE_grid) AND ((k,l) not in marked): 
+                                          insert  (p,q) in marked 
+                                          push (p,q) to bndstack  
+                                          push (p,q) to thisboundary 
+              //claim: the part of the boundary that has the same value as (i,j) and is connected to it is now marked , and is stored in boundary 
+              
+              prune thisboundary and insert it in allboundary  
+              //we have the points in this piece. We can prune as we like, for e.g. we can do : keep 10% of the points; or keep 20 points 
