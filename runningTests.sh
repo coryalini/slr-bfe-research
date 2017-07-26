@@ -17,8 +17,8 @@ ORIG_HAT_FILE=southport_hat_2cellsize.asc
 INTERP_FZ_NN=southport_interp_floodzones_nn.asc
 INTERP_FZ_IDW=southport_interp_floodzones_idw.asc
 
-INTERP_HAT_NN=southport_interp_floodzones_nn.asc
-INTERP_HAT_IDW=southport_interp_floodzones_idw.asc
+INTERP_HAT_NN=southport_interp_hat_nn.asc
+INTERP_HAT_IDW=southport_interp_hat_idw.asc
 
 
 echo "Start"
