@@ -40,6 +40,8 @@
 #include <unistd.h>
 #include <math.h>
 #include <time.h>
+#include <getopt.h>
+
 
 #ifdef __APPLE__
 #include <GLUT/GLUT.h>
@@ -57,7 +59,7 @@ const int WINDOWSIZE = 500;
 //change size of point
 const int POINT_SIZE  = 5.0f;
 
-int interp_bfe_EXISTS = 0, DRAW = 0;
+int interp_bfe_EXISTS = 0, DRAW = 0, RENDER = 1;
 const char *elevname, *writeGridname, *bfename;
 
 //used for DRAW
@@ -177,36 +179,46 @@ int main(int argc, char * argv[]) {
     mallocGrid(elevgrid, &currgrid);
     setHeaders(elevgrid, &currgrid);
     
+    if (RENDER) {
+        //GLUT stuff
+        //------------------------------------------
+        /* initialize GLUT  */
+        glutInit(&argc, argv);
+        glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+        glutInitWindowSize(WINDOWSIZE, WINDOWSIZE);
+        glutInitWindowPosition(100,100);
+        glutCreateWindow(argv[0]);
+        
+        /* register callback functions */
+        glutDisplayFunc(display);
+        glutKeyboardFunc(keypress);
+        
+        
+        /* init GL */
+        /* set background color black*/
+        //glClearColor(0, 0, 0, 0);
+        glClearColor(255, 255, 255, 0);
+        /* circular points */
+        glEnable(GL_POINT_SMOOTH);
+        glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        glPointSize(POINT_SIZE);
+        
+        /* give control to event handler */
+        glutMainLoop();
+    } else {
+        if (interp_bfe_EXISTS) {
+            combineGrids_bfe(&floodedgrid, &elevgrid,rise);
+        } else {
+            combineGrids_nobfe(&floodedgrid, &elevgrid,rise);
+        }
+        printf("Write to file %s\n",writeGridname);
+        gridtoFile(&currgrid, writeGridname);
+    }
     
-    //GLUT stuff
-    //------------------------------------------
-    /* initialize GLUT  */
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(WINDOWSIZE, WINDOWSIZE);
-    glutInitWindowPosition(100,100);
-    glutCreateWindow(argv[0]);
-    
-    /* register callback functions */
-    glutDisplayFunc(display);
-    glutKeyboardFunc(keypress);
-    
-    
-    /* init GL */
-    /* set background color black*/
-    //glClearColor(0, 0, 0, 0);
-    glClearColor(255, 255, 255, 0);
-    /* circular points */
-    glEnable(GL_POINT_SMOOTH);
-    glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-    
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    glPointSize(POINT_SIZE);
-    
-    /* give control to event handler */
-    glutMainLoop();
     
     return 0;
 }
@@ -235,15 +247,27 @@ void calculateGrids(Grid* elevgrid) {
  * It uses a switch statement to figure out which flag
  * was used.
  */
-void getOptExecution(int argc, char* const* argv) {
 
+void getOptExecution(int argc, char* const* argv) {
+    struct option long_options[] = {
+        {"norender", no_argument,0, 'a'},
+        {0, 0, 0, 0}
+    };
     int opt;
-    int eflag = 0, oflag = 0, iflag = 0, rflag = 0;
-    
+    int eflag = 0, oflag = 0, iflag = 0, rflag = 0,aflag = 0;
+
     extern char* optarg;
     extern int optopt;
-    while ((opt = getopt(argc, argv, "e:i:r:o:" )) != -1) {
+//    int option_index = 0;
+
+    while ((opt = getopt_long (argc, argv, "e:i:r:o:a",
+                              long_options, NULL)) != -1) {
+        
+//    while ((opt = getopt(argc, argv, "e:i:r:o:a" )) != -1) {
+ 
+        
         switch (opt) {
+                
             case 'e':
                 elevname = optarg;
                 eflag += 1;
@@ -261,27 +285,75 @@ void getOptExecution(int argc, char* const* argv) {
                 rise = atof(optarg);
                 rflag+=1;
                 break;
+            case 'a':
+                RENDER = 0;
+                aflag+=1;
+                break;
             default:
                 printf("Illegal option given\n");
                 exit(2);
-                
-
-                
         }
     }
     testMandatoryFlags(eflag, 'e', argv[0]);
     testMandatoryFlags(oflag, 'o', argv[0]);
     testMandatoryFlags(rflag, 'r', argv[0]);
-    
+
     tooManyFlagError(eflag, 'e');
     tooManyFlagError(oflag, 'o');
     tooManyFlagError(iflag, 'i');
     tooManyFlagError(rflag, 'r');
+    tooManyFlagError(aflag, 'a');
 }
+
+
+
+//void getOptExecution(int argc, char* const* argv) {
+//
+//    int opt;
+//    int eflag = 0, oflag = 0, iflag = 0, rflag = 0;
+//    
+//    extern char* optarg;
+//    extern int optopt;
+//    while ((opt = getopt(argc, argv, "e:i:r:o:" )) != -1) {
+//        switch (opt) {
+//            case 'e':
+//                elevname = optarg;
+//                eflag += 1;
+//                break;
+//            case 'o':
+//                writeGridname = optarg;
+//                oflag+=1;
+//                break;
+//            case 'i':
+//                bfename = optarg;
+//                interp_bfe_EXISTS = 1;
+//                iflag+=1;
+//                break;
+//            case 'r':
+//                rise = atof(optarg);
+//                rflag+=1;
+//                break;
+//            default:
+//                printf("Illegal option given\n");
+//                exit(2);
+//                
+//
+//                
+//        }
+//    }
+//    testMandatoryFlags(eflag, 'e', argv[0]);
+//    testMandatoryFlags(oflag, 'o', argv[0]);
+//    testMandatoryFlags(rflag, 'r', argv[0]);
+//    
+//    tooManyFlagError(eflag, 'e');
+//    tooManyFlagError(oflag, 'o');
+//    tooManyFlagError(iflag, 'i');
+//    tooManyFlagError(rflag, 'r');
+//}
 void testMandatoryFlags(int flag, char opt, char* argv) {
     if (flag != 1) {	//flag was mandatory
         fprintf(stderr, "%s: missing -%c option\n", argv, opt);
-        fprintf(stderr, "usage: %s -e elevname [-i interpname] -r rise -o file_to_write \n", argv);
+        fprintf(stderr, "usage: %s -e elevname [-i interpname] -r rise -o file_to_write []\n", argv);
         exit(1);
     }
 }
@@ -299,7 +371,11 @@ void helpFlag() {
     PRINT_HELP("-i <i>: Tidal grid")
     PRINT_HELP("-r <r>: The desired rise amount")
     PRINT_HELP("-o <o>: Filename you wish to write your grid to")
+    PRINT_HELP("--norender <a>: Dont render and just write the flooded grid");
+    
+    printf("usage: -e elevname [-i interpname] -r rise -o file_to_write [--norender]\n");
 }
+
 void printRenderCommands() {
     
     printf("The rendering map takes the following commands: \n");

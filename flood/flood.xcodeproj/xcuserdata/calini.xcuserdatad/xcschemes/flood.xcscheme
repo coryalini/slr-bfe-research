@@ -67,7 +67,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-e bremen_dem.asc  -r 1 -o flooded1_bremen.asc"
+            argument = "-e bremen_dem.asc  -r 1 -o flooded1_bremen.asc -a"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

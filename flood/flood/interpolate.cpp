@@ -17,7 +17,7 @@ void interpolation_nn(Grid* origgrid, Grid* interpgrid) {
     std::queue<point> interpqueue;
     for (int i = 0; i < origgrid->nrows; i++) {
         for (int j = 0; j < origgrid->ncols; j++) {
-            if (origgrid->data[i][j] != origgrid->NODATA_value && has_NOData_Neighbor(i,j,origgrid)) {
+            if (origgrid->data[i][j] != origgrid->NODATA_value && isBoundary(i,j,origgrid)) {
                 newPoint.x = i;
                 newPoint.y = j;
                 interpqueue.push(newPoint);
@@ -25,7 +25,7 @@ void interpolation_nn(Grid* origgrid, Grid* interpgrid) {
         }
     }
     
-    printf("size: %lu\n", interpqueue.size());
+//    printf("size: %lu\n", interpqueue.size());
     
     //GO THROUGH THE BFE POINTS AND INTERPOLATE
     while(interpqueue.empty() != true) {
@@ -60,48 +60,168 @@ void interpolation_idw(Grid* origgrid, Grid* interpgrid) {
     
     //initialize
     point newPoint;
-    std::vector<point> interp_boundary_Points;
+    std::vector<point> boundary;
     for (int i = 0; i < origgrid->nrows; i++) {
         for (int j = 0; j < origgrid->ncols; j++) {
             newPoint.x = i;
             newPoint.y = j;
-            if (origgrid->data[i][j] != origgrid->NODATA_value && has_NOData_Neighbor(i,j,origgrid)) {
-                    interp_boundary_Points.push_back(newPoint);
+            if (origgrid->data[i][j] != origgrid->NODATA_value && isBoundary(i,j,origgrid)) {
+                    boundary.push_back(newPoint);
             }
         }
     }
+//    #pragma omp parallel 
+//    {
+//
+//    #pragma omp for schedule(static, 16)
     for (int i = 0; i < origgrid->nrows; i++) {
         for (int j = 0; j < origgrid->ncols; j++) {
             if(origgrid->data[i][j] == origgrid->NODATA_value) {
                 double val = 0, sum = 0;
-                for (int k = 0; k < interp_boundary_Points.size(); k++) {
-                    double weight = 1.0/distance_with_p(i, j, interp_boundary_Points[k]);
-                    val+=weight * origgrid->data[(int)interp_boundary_Points[k].x][(int)interp_boundary_Points[k].y];
+                for (int k = 0; k < boundary.size(); k++) {
+                    double distancex = i-(int)boundary[k].x;
+                    double distancey = j-(int)boundary[k].y;
+                    double distance =distancex*distancex + distancey*distancey;
+                    
+                    double weight = 1.0/distance;
+                    val+=weight * origgrid->data[(int)boundary[k].x][(int)boundary[k].y];
                     sum +=weight;
-                }
+                }//for k
                 double interp_val = val/sum;
                 interpgrid->data[i][j]=interp_val;
-                
                 
             }
         }
     }
+//    }
 }
-    
-    
+void interpolation_approx_idw(Grid* origgrid, Grid* interpgrid){
+    srand ((unsigned int)time(NULL));
 
-double distance_with_p(int i,int j, point interp_point) {
-    double distancex = (i-(int)interp_point.x)* (i-(int)interp_point.x);
-    double distancey = (j - (int)interp_point.y)*(j - (int)interp_point.y);
-    return distancex+distancey;
+    char** marked = (char**)malloc(origgrid->nrows * sizeof(char *));
+    assert(marked);
+    for(int a = 0; a < origgrid->nrows; a++) {
+        marked[a] = (char*) malloc(origgrid->ncols * sizeof(char));
+        assert(marked[a]);
+    }
+    
+    for (int i = 0; i < origgrid->nrows; i++) {
+        for (int j = 0; j < origgrid->ncols; j++) {
+            marked[i][j] = 'n';
+        }
+    }
+
+    point newPointBoundary;
+    point newPoint;
+    std::vector< std::vector<point>> allboundary;
+//    vector<point> *allboundary = new vector<point>(366, vector<int>(4));
+
+    for (int i = 0; i < origgrid->nrows; i++) {
+        for (int j = 0; j < origgrid->ncols; j++) {
+            if(origgrid->data[i][j] != origgrid->NODATA_value && isBoundary(i, j, origgrid) && marked[i][j] == 'n'){
+//                std::vector<point> thisboundary;
+                std::vector<point>* thisboundary = new std::vector<point>();
+
+                std::vector<point> localvector;
+
+                newPointBoundary.x = i;
+                newPointBoundary.y = j;
+                //we start to find a new boundary piece
+                thisboundary->push_back(newPointBoundary);
+                localvector.push_back(newPointBoundary);
+
+                //find and mark the part of the boundary that has the same value as (i,j)
+                marked[i][j] = 'y';
+                
+                while(localvector.empty() != true){
+//                    printf("thisboundary: %lu\n",thisboundary.size());
+//                    printf("localvec: %lu\n",localvector.size());
+                    point curr = localvector.back();
+                    int k = curr.x;
+                    int l = curr.y;
+                    localvector.pop_back();
+                    for (int p = k-1; p <= k+1; p++) {
+                        for (int q = l-1; q <= l+1;q++) {
+                            if ((p == k && q == l) || !insideGrid(origgrid, p,q)){
+                                continue;
+                            }
+                            if (isBoundary(p, q, origgrid) && (origgrid->data[k][l] == origgrid->data[p][q]) && (marked[p][q] == 'n')) {
+//                                printf("[%d,%d]: %lf\n", p,q,origgrid->data[p][q]);
+                                marked[p][q] = 'y';
+                                newPoint.x = p;
+                                newPoint.y = q;
+                                localvector.push_back(newPoint);
+                                thisboundary->push_back(newPoint);
+                            }
+                        }//for q
+                    }//for p
+                    
+
+                }//while loop
+                
+                //claim: the part of the boundary that has the same value as (i,j) and is connected to it is now marked , and is stored in boundary
+  
+                pruneBoundary(thisboundary);
+                allboundary.push_back(*thisboundary);
+                //we have the points in this piece. We can prune as we like, for e.g. we can do : keep 10% of the points; or keep 20 points
+            }
+        }//for j
+    }//for i
+    for (int i = 0; i < origgrid->nrows; i++) {
+        for (int j = 0; j < origgrid->ncols; j++) {
+            if(origgrid->data[i][j] == origgrid->NODATA_value) {
+                double val = 0, sum = 0;
+//                printf("all: %lu\n", allboundary.size());
+                for (int k = 0; k < allboundary.size(); k++) {
+//                    printf("[k]: %lu\n",allboundary[k].size());
+
+                    for (int l = 0; l < allboundary[k].size(); l++){
+                        int x =(int)allboundary[k].at(l).x;
+                        int y =(int)allboundary[k].at(l).y;
+//                        printf("[%d,%d]\n",x,y);
+                        
+                        double distancex = i-x;
+                        double distancey = j-y;
+                        double distance =distancex*distancex + distancey*distancey;
+                        
+                        double weight = 1.0/distance;
+                        val+=weight * origgrid->data[x][y];
+                        sum +=weight;
+                    }
+                }//for k
+//                printf("val: %lf, sum: %lf\n",val,sum);
+                double interp_val = val/sum;
+//                printf("interp_val: %lf\n", interp_val);
+                interpgrid->data[i][j]=interp_val;
+                
+            }
+        }
+//        printf("%f\n", (double)i/(double)origgrid->nrows*100);
+
+    }
 }
+
+    
+void pruneBoundary(std::vector<point>* thisboundary) {
+    int desiredVectorSize = 4;
+//    printf("size:%lu\n",thisboundary->size());
+    while (thisboundary->size() > desiredVectorSize) {
+        
+        //generates random number between 0 and 1 less than the vector sie
+        int random = rand() % thisboundary->size();
+        thisboundary->erase(thisboundary->begin() + random);
+    }
+}
+
+
+
 
 /*
  If point i,j has at least 1 no data neighbor, return 1.
  Else 0
  */
 
-int has_NOData_Neighbor(int i, int j, Grid* origgrid) {
+int isBoundary(int i, int j, Grid* origgrid) {
     for (int k = i-1; k <= i+1; k++) {
         for (int l = j-1; l <= j+1;l++) {
             if ((k == i && l == j)) {

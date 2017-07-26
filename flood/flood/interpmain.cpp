@@ -18,6 +18,7 @@
  */
 
 #include <iostream>
+
 #include "grid.hpp"
 #include "interpolate.hpp"
 
@@ -28,6 +29,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <time.h>
+#include <getopt.h>
 
 #ifdef __APPLE__
 #include <GLUT/GLUT.h>
@@ -46,13 +48,13 @@ const int POINT_SIZE  = 5.0f;
 
 int WRITE_TO_FILE = 0;//determines whether or not we are to write to file
 
-
-
-int interp_bfe_EXISTS = 1, DRAW = 0;
+int interp_bfe_EXISTS = 1, DRAW = 0,RENDER = 1, INTERP_TYPE=0;
 const char *elevname, *writeGridname, *origname;
 Grid elevgrid, origgrid, interpgrid;
 
 enum {ELEV = 0, SEA = 1,ELEV_ORIG =2, COMBINE_INTERP=3};
+enum {NN = 0, IDW = 1,APPROX_IDW =2};
+
 static float numCategories = 6.0;//used for buckets
 
 //COLORS
@@ -152,9 +154,22 @@ int main(int argc, char * argv[]) {
     
     clock_t start3 = clock(), diff3;
     printf("start interpolation\n");
-    interpolation_nn(&origgrid, &interpgrid);
-//    interpolation_idw(&origgrid, &interpgrid);
-    diff3 = clock() - start3;
+    
+    switch (INTERP_TYPE) {
+        case NN:
+            interpolation_nn(&origgrid, &interpgrid);
+            break;
+        case IDW:
+            interpolation_idw(&origgrid, &interpgrid);
+            break;
+        case APPROX_IDW:
+            interpolation_approx_idw(&origgrid, &interpgrid);
+            break;
+        default:
+            break;
+    }
+    
+       diff3 = clock() - start3;
     unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
     printf("interpolation took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
     if (WRITE_TO_FILE) {
@@ -162,35 +177,37 @@ int main(int argc, char * argv[]) {
         gridtoFile(&interpgrid, writeGridname);
     }
     
-    //GLUT stuff
-    //------------------------------------------
-    /* initialize GLUT  */
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(WINDOWSIZE, WINDOWSIZE);
-    glutInitWindowPosition(100,100);
-    glutCreateWindow(argv[0]);
-    
-    /* register callback functions */
-    glutDisplayFunc(display);
-    glutKeyboardFunc(keypress);
-    
-    
-    /* init GL */
-    /* set background color black*/
-    //glClearColor(0, 0, 0, 0);
-    glClearColor(255, 255, 255, 0);
-    /* circular points */
-    glEnable(GL_POINT_SMOOTH);
-    glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-    
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    glPointSize(POINT_SIZE);
-    
-    /* give control to event handler */
-    glutMainLoop();
+    if (RENDER) {
+        //GLUT stuff
+        //------------------------------------------
+        /* initialize GLUT  */
+        glutInit(&argc, argv);
+        glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+        glutInitWindowSize(WINDOWSIZE, WINDOWSIZE);
+        glutInitWindowPosition(100,100);
+        glutCreateWindow(argv[0]);
+        
+        /* register callback functions */
+        glutDisplayFunc(display);
+        glutKeyboardFunc(keypress);
+        
+        
+        /* init GL */
+        /* set background color black*/
+        //glClearColor(0, 0, 0, 0);
+        glClearColor(255, 255, 255, 0);
+        /* circular points */
+        glEnable(GL_POINT_SMOOTH);
+        glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        glPointSize(POINT_SIZE);
+        
+        /* give control to event handler */
+        glutMainLoop();
+    }
     
     return 0;
 }
@@ -201,14 +218,21 @@ int main(int argc, char * argv[]) {
  * It uses a switch statement to figure out which flag
  * was used.
  */
+
+
 void getOptExecution(int argc, char* const* argv) {
-    
+    struct option long_options[] = {
+        {"norender", no_argument,0, 'a'},
+        {"idw", no_argument,0, 'c'},
+        {"approx", no_argument,0, 'd'},
+        {0, 0, 0, 0}
+    };
     int opt;
-    int eflag = 0, oflag = 0, iflag = 0;
+    int eflag = 0, oflag = 0, iflag = 0, aflag = 0,interpflag = 0;
     
     extern char* optarg;
     extern int optopt;
-    while ((opt = getopt(argc, argv, "e:i:o:" )) != -1) {
+    while ((opt = getopt_long (argc, argv, "e:i:o:a",long_options, NULL)) != -1) {
         switch (opt) {
             case 'e':
                 elevname = optarg;
@@ -223,6 +247,18 @@ void getOptExecution(int argc, char* const* argv) {
                 WRITE_TO_FILE = 1;
                 oflag+=1;
                 break;
+            case 'a':
+                RENDER = 0;
+                aflag+=1;
+                break;
+            case 'c':
+                INTERP_TYPE = 1;
+                interpflag+=1;
+                break;
+            case 'd':
+                INTERP_TYPE = 2;
+                interpflag+=1;
+                break;
             default:
                 printf("Illegal option given\n");
                 exit(2);
@@ -235,6 +271,8 @@ void getOptExecution(int argc, char* const* argv) {
     tooManyFlagError(eflag, 'e');
     tooManyFlagError(iflag, 'i');
     tooManyFlagError(oflag, 'o');
+    tooManyFlagError(aflag, 'a');
+
 
 }
 void testMandatoryFlags(int flag, char opt, char* argv) {

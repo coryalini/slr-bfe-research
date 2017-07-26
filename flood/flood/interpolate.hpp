@@ -15,6 +15,7 @@
 #include <iostream>
 #include <queue>
 #include <assert.h>
+#include <random>
 
 /*MARK bfe*/
 
@@ -22,7 +23,10 @@ void interpolation_nn(Grid* origgrid, Grid* interpgrid);
 
 void interpolation_idw(Grid* origgrid, Grid* interpgrid);
 
-double distance_with_p(int i,int j, point interp_point);
-int has_NOData_Neighbor(int i, int j, Grid* origgrid);
+void interpolation_approx_idw(Grid* origgrid, Grid* interpgrid);
+
+
+void pruneBoundary(std::vector<point>* thisboundary);
+int isBoundary(int i, int j, Grid* origgrid);
 
 #endif /* bfe_hpp */
