@@ -124,7 +124,7 @@ void change_color_blue(double value, double base, double thisMin);
 int main(int argc, char * argv[]) {
 
     if (argc != 1) {
-        printRenderCommands();
+//        printRenderCommands();
         getOptExecution(argc, argv);
     } else {
         helpFlag();
@@ -153,7 +153,7 @@ int main(int argc, char * argv[]) {
     copyGrid(&origgrid, &interpgrid);
     
     clock_t start3 = clock(), diff3;
-    printf("start interpolation\n");
+//    printf("start interpolation\n");
     
     switch (INTERP_TYPE) {
         case NN:
@@ -173,8 +173,11 @@ int main(int argc, char * argv[]) {
     unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
     printf("interpolation took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
     if (WRITE_TO_FILE) {
-        printf("Writing to file %s\n", writeGridname);
+        clock_t start4 = clock(), diff4;
         gridtoFile(&interpgrid, writeGridname);
+        diff4 = clock() - start4;
+        unsigned long msec4 = diff4 * 1000 / CLOCKS_PER_SEC;
+        printf("Writing to file %s took %lu seconds %lu milliseconds\n",writeGridname, msec4/1000, msec4%1000);
     }
     
     if (RENDER) {

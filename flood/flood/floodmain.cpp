@@ -145,14 +145,14 @@ GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double valu
 
 int main(int argc, char * argv[]) {
     if (argc != 1) {
-        printRenderCommands();
+//        printRenderCommands();
         getOptExecution(argc, argv);
     } else {
         helpFlag();
         printRenderCommands();
         exit(0);
     }
-    printf("%s\n",elevname);
+//    printf("%s\n",elevname);
     clock_t start = clock(), diff;
     readGridfromFile(elevname, &elevgrid,ELEV_CONVERTER);
     diff = clock() - start;
@@ -215,8 +215,11 @@ int main(int argc, char * argv[]) {
         } else {
             combineGrids_nobfe(&floodedgrid, &elevgrid,rise);
         }
-        printf("Write to file %s\n",writeGridname);
+        clock_t start4 = clock(), diff4;
         gridtoFile(&currgrid, writeGridname);
+        diff4 = clock() - start4;
+        unsigned long msec4 = diff4 * 1000 / CLOCKS_PER_SEC;
+        printf("Writing to file %s took %lu seconds %lu milliseconds\n",writeGridname, msec4/1000, msec4%1000);
     }
     
     

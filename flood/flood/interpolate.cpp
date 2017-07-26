@@ -123,7 +123,7 @@ void interpolation_approx_idw(Grid* origgrid, Grid* interpgrid){
 
     point newPointBoundary;
     point newPoint;
-    std::vector< std::vector<point>> allboundary;
+    std::vector< std::vector<point> > allboundary;
 //    vector<point> *allboundary = new vector<point>(366, vector<int>(4));
 
     for (int i = 0; i < origgrid->nrows; i++) {
