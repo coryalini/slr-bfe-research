@@ -10,6 +10,11 @@
 
 /* MARK: bfe */
 
+
+/*
+ Interpolation using nearest neighbor. Whichever neighbor was nearest gives
+ the point its bfe value
+ */
 void interpolation_nn(Grid* origgrid, Grid* interpgrid) {
     
     //initialize
@@ -24,8 +29,6 @@ void interpolation_nn(Grid* origgrid, Grid* interpgrid) {
             }
         }
     }
-    
-//    printf("size: %lu\n", interpqueue.size());
     
     //GO THROUGH THE BFE POINTS AND INTERPOLATE
     while(interpqueue.empty() != true) {
@@ -54,7 +57,11 @@ void interpolation_nn(Grid* origgrid, Grid* interpgrid) {
     }
     
 }
+/*
+ Interpolation using inverse distance weighted (idw). Really really slow. 
+ It basically takes teh idw of all the bfe points and assigns it to the curr point
 
+ */
 
 void interpolation_idw(Grid* origgrid, Grid* interpgrid) {
     
@@ -70,10 +77,6 @@ void interpolation_idw(Grid* origgrid, Grid* interpgrid) {
             }
         }
     }
-//    #pragma omp parallel 
-//    {
-//
-//    #pragma omp for schedule(static, 16)
     for (int i = 0; i < origgrid->nrows; i++) {
         for (int j = 0; j < origgrid->ncols; j++) {
             if(origgrid->data[i][j] == origgrid->NODATA_value) {
@@ -93,8 +96,15 @@ void interpolation_idw(Grid* origgrid, Grid* interpgrid) {
             }
         }
     }
-//    }
 }
+/*
+ Interpolation using approximate idw. This method runs a lot faster than just idw
+ It first grabs all the points in a group. ex, all the bfe points with bfe value of 4
+ that are next to each other. Then the algorithm prunes it such that there are only a certain
+ number of points. 
+ 
+ then it goes through using these vectors and does the idw part just not with all of the points
+ */
 void interpolation_approx_idw(Grid* origgrid, Grid* interpgrid){
     srand ((unsigned int)time(NULL));
 
@@ -171,15 +181,10 @@ void interpolation_approx_idw(Grid* origgrid, Grid* interpgrid){
         for (int j = 0; j < origgrid->ncols; j++) {
             if(origgrid->data[i][j] == origgrid->NODATA_value) {
                 double val = 0, sum = 0;
-//                printf("all: %lu\n", allboundary.size());
                 for (int k = 0; k < allboundary.size(); k++) {
-//                    printf("[k]: %lu\n",allboundary[k].size());
-
                     for (int l = 0; l < allboundary[k].size(); l++){
                         int x =(int)allboundary[k].at(l).x;
                         int y =(int)allboundary[k].at(l).y;
-//                        printf("[%d,%d]\n",x,y);
-                        
                         double distancex = i-x;
                         double distancey = j-y;
                         double distance =distancex*distancex + distancey*distancey;
@@ -189,15 +194,11 @@ void interpolation_approx_idw(Grid* origgrid, Grid* interpgrid){
                         sum +=weight;
                     }
                 }//for k
-//                printf("val: %lf, sum: %lf\n",val,sum);
                 double interp_val = val/sum;
-//                printf("interp_val: %lf\n", interp_val);
                 interpgrid->data[i][j]=interp_val;
                 
             }
         }
-//        printf("%f\n", (double)i/(double)origgrid->nrows*100);
-
     }
 }
 
