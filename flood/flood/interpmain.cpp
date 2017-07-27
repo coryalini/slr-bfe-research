@@ -124,7 +124,7 @@ void change_color_blue(double value, double base, double thisMin);
 int main(int argc, char * argv[]) {
 
     if (argc != 1) {
-//        printRenderCommands();
+        printRenderCommands();
         getOptExecution(argc, argv);
     } else {
         helpFlag();
@@ -153,7 +153,7 @@ int main(int argc, char * argv[]) {
     copyGrid(&origgrid, &interpgrid);
     
     clock_t start3 = clock(), diff3;
-//    printf("start interpolation\n");
+    printf("start interpolation\n");
     
     switch (INTERP_TYPE) {
         case NN:
@@ -281,7 +281,7 @@ void getOptExecution(int argc, char* const* argv) {
 void testMandatoryFlags(int flag, char opt, char* argv) {
     if (flag != 1) {	//flag was mandatory
         fprintf(stderr, "%s: missing -%c option\n", argv, opt);
-        fprintf(stderr, "usage: %s [-c] -e elevname -b orignalname -w file_to_write\n", argv);
+        fprintf(stderr, "usage: %s [-c] -e elevname -b orignalname -w file_to_write [--norender] [--approx] [--idw]\n", argv);
         exit(1);
     }
 }
@@ -298,6 +298,11 @@ void helpFlag() {
     PRINT_HELP("-e <e>: Elevation grid flag")
     PRINT_HELP("-i <i>: Grid that will be interpolated(input)")
     PRINT_HELP("-o <o>: Filename you wish to write your grid to(output). If not given, the code will not write to output")
+    PRINT_HELP("--norender <a>: Dont render the grid!");
+    PRINT_HELP("--idw <c>: Run interpolation with the idw method");
+    PRINT_HELP("--approx <d>: Run interpolation with the approximate idw method");
+    printf("usage: [-c] -e elevname -b orignalname -w file_to_write [--norender] [--approx] [--idw]\n");
+
 }
 void printRenderCommands() {
     

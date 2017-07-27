@@ -145,7 +145,7 @@ GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double valu
 
 int main(int argc, char * argv[]) {
     if (argc != 1) {
-//        printRenderCommands();
+        printRenderCommands();
         getOptExecution(argc, argv);
     } else {
         helpFlag();
@@ -261,13 +261,8 @@ void getOptExecution(int argc, char* const* argv) {
 
     extern char* optarg;
     extern int optopt;
-//    int option_index = 0;
-
     while ((opt = getopt_long (argc, argv, "e:i:r:o:a",
                               long_options, NULL)) != -1) {
-        
-//    while ((opt = getopt(argc, argv, "e:i:r:o:a" )) != -1) {
- 
         
         switch (opt) {
                 
@@ -308,51 +303,6 @@ void getOptExecution(int argc, char* const* argv) {
     tooManyFlagError(aflag, 'a');
 }
 
-
-
-//void getOptExecution(int argc, char* const* argv) {
-//
-//    int opt;
-//    int eflag = 0, oflag = 0, iflag = 0, rflag = 0;
-//    
-//    extern char* optarg;
-//    extern int optopt;
-//    while ((opt = getopt(argc, argv, "e:i:r:o:" )) != -1) {
-//        switch (opt) {
-//            case 'e':
-//                elevname = optarg;
-//                eflag += 1;
-//                break;
-//            case 'o':
-//                writeGridname = optarg;
-//                oflag+=1;
-//                break;
-//            case 'i':
-//                bfename = optarg;
-//                interp_bfe_EXISTS = 1;
-//                iflag+=1;
-//                break;
-//            case 'r':
-//                rise = atof(optarg);
-//                rflag+=1;
-//                break;
-//            default:
-//                printf("Illegal option given\n");
-//                exit(2);
-//                
-//
-//                
-//        }
-//    }
-//    testMandatoryFlags(eflag, 'e', argv[0]);
-//    testMandatoryFlags(oflag, 'o', argv[0]);
-//    testMandatoryFlags(rflag, 'r', argv[0]);
-//    
-//    tooManyFlagError(eflag, 'e');
-//    tooManyFlagError(oflag, 'o');
-//    tooManyFlagError(iflag, 'i');
-//    tooManyFlagError(rflag, 'r');
-//}
 void testMandatoryFlags(int flag, char opt, char* argv) {
     if (flag != 1) {	//flag was mandatory
         fprintf(stderr, "%s: missing -%c option\n", argv, opt);

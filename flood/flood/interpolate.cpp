@@ -124,18 +124,15 @@ void interpolation_approx_idw(Grid* origgrid, Grid* interpgrid){
     point newPointBoundary;
     point newPoint;
     std::vector< std::vector<point> > allboundary;
-//    vector<point> *allboundary = new vector<point>(366, vector<int>(4));
 
     for (int i = 0; i < origgrid->nrows; i++) {
         for (int j = 0; j < origgrid->ncols; j++) {
             if(origgrid->data[i][j] != origgrid->NODATA_value && isBoundary(i, j, origgrid) && marked[i][j] == 'n'){
-//                std::vector<point> thisboundary;
                 std::vector<point>* thisboundary = new std::vector<point>();
-
                 std::vector<point> localvector;
-
                 newPointBoundary.x = i;
                 newPointBoundary.y = j;
+                
                 //we start to find a new boundary piece
                 thisboundary->push_back(newPointBoundary);
                 localvector.push_back(newPointBoundary);
@@ -144,8 +141,6 @@ void interpolation_approx_idw(Grid* origgrid, Grid* interpgrid){
                 marked[i][j] = 'y';
                 
                 while(localvector.empty() != true){
-//                    printf("thisboundary: %lu\n",thisboundary.size());
-//                    printf("localvec: %lu\n",localvector.size());
                     point curr = localvector.back();
                     int k = curr.x;
                     int l = curr.y;
@@ -156,7 +151,6 @@ void interpolation_approx_idw(Grid* origgrid, Grid* interpgrid){
                                 continue;
                             }
                             if (isBoundary(p, q, origgrid) && (origgrid->data[k][l] == origgrid->data[p][q]) && (marked[p][q] == 'n')) {
-//                                printf("[%d,%d]: %lf\n", p,q,origgrid->data[p][q]);
                                 marked[p][q] = 'y';
                                 newPoint.x = p;
                                 newPoint.y = q;
@@ -165,10 +159,7 @@ void interpolation_approx_idw(Grid* origgrid, Grid* interpgrid){
                             }
                         }//for q
                     }//for p
-                    
-
                 }//while loop
-                
                 //claim: the part of the boundary that has the same value as (i,j) and is connected to it is now marked , and is stored in boundary
   
                 pruneBoundary(thisboundary);

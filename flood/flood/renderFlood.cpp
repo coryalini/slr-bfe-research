@@ -267,7 +267,7 @@ void getOptExecution(int argc, char* const* argv) {
 void testMandatoryFlags(int flag, char opt, char* argv) {
     if (flag != 1) {	//flag was mandatory
         fprintf(stderr, "%s: missing -%c option\n", argv, opt);
-        fprintf(stderr, "usage: %s -e elevname [-i interpname] -r rise -o file_to_write \n", argv);
+        fprintf(stderr, "usage: %s -e elevname -i interpname -f floodedname -o file_to_write \n", argv);
         exit(1);
     }
 }
@@ -285,6 +285,8 @@ void helpFlag() {
     PRINT_HELP("-i <i>: Original bfe grid")
     PRINT_HELP("-f <f>: The flooded grid")
     PRINT_HELP("-o <o>: Filename you wish to write your grid to")
+    printf("usage: -e elevname -i interpname -f floodedname -o file_to_write \n");
+
 }
 void printRenderCommands() {
     
@@ -292,7 +294,7 @@ void printRenderCommands() {
     PRINT_HELP("q: quit")
     PRINT_HELP("w: write to files")
     
-    PRINT_HELP("e: Draw Elevgrid with the bfe grid with flooded")
+    PRINT_HELP("e: Redraw Elevgrid with the bfe grid with flooded")
     
 }
 
