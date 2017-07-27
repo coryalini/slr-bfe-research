@@ -128,7 +128,9 @@ void interpolation_approx_idw(Grid* origgrid, Grid* interpgrid){
     for (int i = 0; i < origgrid->nrows; i++) {
         for (int j = 0; j < origgrid->ncols; j++) {
             if(origgrid->data[i][j] != origgrid->NODATA_value && isBoundary(i, j, origgrid) && marked[i][j] == 'n'){
-                std::vector<point>* thisboundary = new std::vector<point>();
+                
+                allboundary.push_back(std::vector<point>{});
+                std::vector<point>* thisboundary = &(allboundary.back());
                 std::vector<point> localvector;
                 newPointBoundary.x = i;
                 newPointBoundary.y = j;
@@ -163,7 +165,7 @@ void interpolation_approx_idw(Grid* origgrid, Grid* interpgrid){
                 //claim: the part of the boundary that has the same value as (i,j) and is connected to it is now marked , and is stored in boundary
   
                 pruneBoundary(thisboundary);
-                allboundary.push_back(*thisboundary);
+//                allboundary.push_back(*thisboundary);
                 //we have the points in this piece. We can prune as we like, for e.g. we can do : keep 10% of the points; or keep 20 points
             }
         }//for j
