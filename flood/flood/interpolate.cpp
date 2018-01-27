@@ -128,8 +128,8 @@ void interpolation_approx_idw(Grid* origgrid, Grid* interpgrid){
     for (int i = 0; i < origgrid->nrows; i++) {
         for (int j = 0; j < origgrid->ncols; j++) {
             if(origgrid->data[i][j] != origgrid->NODATA_value && isBoundary(i, j, origgrid) && marked[i][j] == 'n'){
-                
-                allboundary.push_back(std::vector<point>{});
+                std::vector<point>thisPoint;
+                allboundary.push_back(thisPoint);
                 std::vector<point>* thisboundary = &(allboundary.back());
                 std::vector<point> localvector;
                 newPointBoundary.x = i;
