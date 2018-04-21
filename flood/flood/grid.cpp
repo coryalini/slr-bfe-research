@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <time.h>
+#include <limits>
 
 /*
  This function takes the elevgrid and goes through the perimeter and finds

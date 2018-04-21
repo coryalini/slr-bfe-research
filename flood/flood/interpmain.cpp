@@ -14,7 +14,7 @@
  e: Draw Elevgrid
  s: Draw the sea
  i: Draw interpolated grid with original on top
-
+ 
  */
 
 #include <iostream>
@@ -30,6 +30,7 @@
 #include <math.h>
 #include <time.h>
 #include <getopt.h>
+#include <stdio.h>
 
 #ifdef __APPLE__
 #include <GLUT/GLUT.h>
@@ -122,7 +123,7 @@ void change_color_gray(double value, double base, double thisMin);
 void change_color_blue(double value, double base, double thisMin);
 
 int main(int argc, char * argv[]) {
-
+    
     if (argc != 1) {
         printRenderCommands();
         getOptExecution(argc, argv);
@@ -136,7 +137,7 @@ int main(int argc, char * argv[]) {
     diff = clock() - start;
     unsigned long msec = diff * 1000 / CLOCKS_PER_SEC;
     printf("Reading elevgrid took %lu seconds %lu milliseconds\n", msec/1000, msec%1000);
-
+    
     
     clock_t start2 = clock(), diff2;
     readGridfromFile(origname, &origgrid,BFE_CONVERTER);
@@ -147,7 +148,7 @@ int main(int argc, char * argv[]) {
         printf("ERROR:The %s [%ld,%ld] and elevgrid [%ld,%ld] do not have the same grid dimensions!\n",origname, origgrid.nrows,origgrid.ncols,elevgrid.nrows, elevgrid.ncols);
         exit(0);
     }
-
+    
     mallocGrid(origgrid, &interpgrid);
     setHeaders(origgrid, &interpgrid);
     copyGrid(&origgrid, &interpgrid);
@@ -169,7 +170,7 @@ int main(int argc, char * argv[]) {
             break;
     }
     
-       diff3 = clock() - start3;
+    diff3 = clock() - start3;
     unsigned long msec3 = diff3 * 1000 / CLOCKS_PER_SEC;
     printf("interpolation took %lu seconds %lu milliseconds\n", msec3/1000, msec3%1000);
     if (WRITE_TO_FILE) {
@@ -265,7 +266,7 @@ void getOptExecution(int argc, char* const* argv) {
             default:
                 printf("Illegal option given\n");
                 exit(2);
-        
+                
         }
     }
     testMandatoryFlags(eflag, 'e', argv[0]);
@@ -275,11 +276,11 @@ void getOptExecution(int argc, char* const* argv) {
     tooManyFlagError(iflag, 'i');
     tooManyFlagError(oflag, 'o');
     tooManyFlagError(aflag, 'a');
-
-
+    
+    
 }
 void testMandatoryFlags(int flag, char opt, char* argv) {
-    if (flag != 1) {	//flag was mandatory
+    if (flag != 1) {    //flag was mandatory
         fprintf(stderr, "%s: missing -%c option\n", argv, opt);
         fprintf(stderr, "usage: %s [-c] -e elevname -b orignalname -w file_to_write [--norender] [--approx] [--idw]\n", argv);
         exit(1);
@@ -302,7 +303,7 @@ void helpFlag() {
     PRINT_HELP("--idw <c>: Run interpolation with the idw method");
     PRINT_HELP("--approx <d>: Run interpolation with the approximate idw method");
     printf("usage: [-c] -e elevname -b orignalname -w file_to_write [--norender] [--approx] [--idw]\n");
-
+    
 }
 void printRenderCommands() {
     
@@ -313,7 +314,7 @@ void printRenderCommands() {
     PRINT_HELP("b: Draw the original grid on top of the elevgrid")
     PRINT_HELP("i: Draw interpolated grid with original on top")
     printf("\n");
-
+    
 }
 
 /* ***************************** */
@@ -367,7 +368,7 @@ void display(void) {
         default:
             break;
     }
-        /* execute the drawing commands */
+    /* execute the drawing commands */
     glFlush();
 }
 /* Handler for window re-size event. Called back when the window first appears and
@@ -383,7 +384,7 @@ void reshape(GLsizei width, GLsizei height) {  // GLsizei for non-negative integ
 }
 
 /*
- This function is used to draws the elevgrid. 
+ This function is used to draws the elevgrid.
  It calls draw_color and draw_point.
  
  */
@@ -455,7 +456,7 @@ void draw_elev_orig() {
 }
 /*
  This function is used to draws the elevgrid with the origgrid on top.
- If the origgrid has a value (ie not nodata) then calls draw_combinedOrig_Interp 
+ If the origgrid has a value (ie not nodata) then calls draw_combinedOrig_Interp
  with a type of 1. Otherwise the type is 0
  It calls draw_combinedOrig_Interp and draw_point.
  
@@ -479,7 +480,7 @@ void draw_interp_and_original() {
 
 /*
  This function is used to draw a particular point of a grid. It takes the grid and
- the point as inputs. It calculates which is larger row or column and calculates 
+ the point as inputs. It calculates which is larger row or column and calculates
  where the point should land on the window.
  */
 
@@ -621,4 +622,3 @@ GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double valu
     return newColor;
     
 }
-

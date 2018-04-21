@@ -34,6 +34,7 @@
 
 
 #include <iostream>
+#include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <assert.h>
@@ -145,7 +146,7 @@ GLfloat* interpolate_colors(GLfloat* lowerColor, GLfloat* upperColor,double valu
 
 int main(int argc, char * argv[]) {
     if (argc != 1) {
-        printRenderCommands();
+//        printRenderCommands();
         getOptExecution(argc, argv);
     } else {
         helpFlag();
@@ -260,7 +261,6 @@ void getOptExecution(int argc, char* const* argv) {
     int eflag = 0, oflag = 0, iflag = 0, rflag = 0,aflag = 0;
 
     extern char* optarg;
-    extern int optopt;
     while ((opt = getopt_long (argc, argv, "e:i:r:o:a",
                               long_options, NULL)) != -1) {
         
